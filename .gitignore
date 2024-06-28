@@ -8,6 +8,7 @@ tmp
 # C extensions
 *.so
 
+.DS_store
 
 # Distribution / packaging
 .Python

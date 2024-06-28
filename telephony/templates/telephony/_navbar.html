@@ -1,0 +1,53 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">Home</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+      aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLinkView" role="button"
+            data-bs-toggle="dropdown" aria-expanded="false">View</a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkView">
+            <li>
+              <hr class="dropdown-divider">Administration
+            </li>
+            <li><a class="dropdown-item" href="{% url 'locations' %}">Locations</a></li>
+            <li><a class="dropdown-item" href="{% url 'phone_numbers' %}">Phone Numbers</a></li>
+            <li><a class="dropdown-item" href="{% url 'service_provider' %}">Service Providers</a></li>
+            <li><a class="dropdown-item" href="{% url 'circuits' %}">Circuits</a></li>
+            <li>
+              <hr class="dropdown-divider">Resources
+            </li>
+            <li><a class="dropdown-item" href="{% url 'country_list' %}">Countries</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLinkManage" role="button"
+            data-bs-toggle="dropdown" aria-expanded="false">Manage</a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkManage">
+            <li>
+              <hr class="dropdown-divider">Administration
+            </li>
+            <li><a class="dropdown-item" href="{% url 'locations' %}">Locations</a></li>
+            <li><a class="dropdown-item" href="{% url 'phone_numbers' %}">Phone Numbers</a></li>
+            <li><a class="dropdown-item" href="{% url 'service_provider' %}">Service Providers</a></li>
+            <li><a class="dropdown-item" href="{% url 'circuits' %}">Circuits</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLinkResources" role="button"
+            data-bs-toggle="dropdown" aria-expanded="false">Resources</a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLinkResources">
+            <li><a class="dropdown-item" href="{% url 'country_list' %}">Countries</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+
