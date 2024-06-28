@@ -1,0 +1,29 @@
+{% extends 'telephony/base.html' %}
+
+{% block content %}
+<h2>Service Providers</h2>
+<!-- <ul>
+  {% for provider_name in service_provider %}
+  <li>{{ service_provider.provider_name }}</li>
+  {% endfor %}
+</ul> -->
+
+<table>
+  <tr class="provider-th provider-td">
+    <th>Name</th>
+    <th>Support Number</th>
+    <th>Contract</th>
+    <th>Notes</th>
+    <th>Website</th>
+  </tr>
+  {% for service_provider in service_providers %}
+  <tr >
+    <td>{{ service_provider.provider_name }}</td>
+    <td class="provider-td">{{ service_provider.support_number }}</td>
+    <td class="provider-td">{{ service_provider.contract_number }}</td>
+    <td class="provider-td">{{ service_provider.notes }}</td>
+    <td class="provider-td"><a href="{{ service_provider.website_url }}" target="_blank">{{ service_provider.website_url }}</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

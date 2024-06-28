@@ -1,0 +1,38 @@
+<!-- telephony/templates/telephony/phone_numbers.html -->
+
+{% extends 'telephony/base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<h2>Phone Numbers</h2>
+<table id="phone_numbers_table" class="display">
+  <thead>
+    <tr>
+      <th>Directory Number</th>
+      <th>Assigned User</th>
+      <th>Usage Type</th>
+      <th>Associated DID Range</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for phone_number in phone_numbers %}
+    <tr>
+      <td>{{ phone_number.directory_number }}</td>
+      <td>{{ phone_number.assigned_to }}</td>
+      <td>{{ phone_number.usage_type }}</td>
+      <td>{{ phone_number.phone_number_range }}</td>
+      <td>{{ phone_number.notes }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function () {
+    $('#phone_numbers_table').DataTable();
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,49 @@
+<!-- telephony/templates/telephony/country_list.html -->
+
+{% extends 'telephony/base.html' %}
+
+{% block content %}
+<h2>Countries</h2>
+<table id="country_table" class="display">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>E164 Code</th>
+      <th>Region</th>
+      <th>Subregion</th>
+      <th>Capital</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for country in countries %}
+    <tr>
+      <td>{{ country.name }}</td>
+      <td>{{ country.e164_code }}</td>
+      <td>{{ country.region }}</td>
+      <td>{{ country.subregion }}</td>
+      <td>{{ country.capital }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include DataTables CSS and JS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $('#country_table').DataTable({
+      "paging": true,
+      "searching": true,
+      "ordering": true,
+      "info": true
+    });
+  });
+</script>
+{% endblock %}

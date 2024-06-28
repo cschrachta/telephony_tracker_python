@@ -1,0 +1,106 @@
+{% extends 'telephony/base.html' %}
+
+{% block content %}
+<h2>Locations</h2>
+<h4>Add/Update Location</h4>
+<form method="post" action="" class="location-form" id="locationForm">
+  {% csrf_token %}
+  <input type="hidden" name="location_id" id="location_id">
+  {{ form.as_p }}
+  <button type="submit">Save</button>
+</form>
+<table class="location-table">
+  <tr class="location-th location-td">
+    <th>Name</th>
+    <th>Display Name</th>
+    <th>Location Address</th>
+    <th>Notes</th>
+    <th>Verified</th>
+    <th>Actions</th>
+  </tr>
+  {% for location in locations %}
+  <tr
+    onclick="populateForm({{ location.id }}, '{{ location.name }}', '{{ location.display_name }}', '{{ location.house_number }}', '{{ location.road }}', '{{ location.road_suffix }}', '{{ location.city }}', '{{ location.state_abbreviation }}', '{{ location.postcode }}', '{{ location.country.id }}', '{{ location.timezone }}', '{{ location.contact_person }}', '{{ location.contact_email }}', '{{ location.contact_phone }}', '{{ location.location_type }}', '{{ location.notes }}')">
+    <td>{{ location.name }}</td>
+    <td>{{ location.display_name }}</td>
+    <td>{{ location.house_number }} {{ location.road }} {{ location.road_suffix }} {{ location.city }} {{ location.state_abbreviation }} {{ location.postcode }}</td>
+    <td>{{ location.notes }}</td>
+    <td class="verified">{{ location.verified_location }}</td>
+    <td class="actions">
+      {% if not location.verified_location %}
+      <button type="button" onclick="verifyLocation({{ location.id }})">Verify Address</button>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ google_api_key }}&libraries=places"></script>
+<script>
+  function initAutocomplete() {
+    var input = document.getElementById('id_address');
+    var autocomplete = new google.maps.places.Autocomplete(input);
+    autocomplete.addListener('place_changed', function () {
+      var place = autocomplete.getPlace();
+      if (!place.geometry) {
+        // User entered the name of a place that was not suggested
+        return;
+      }
+
+      // Extract address components and fill hidden fields
+      var addressComponents = place.address_components;
+      var components = {
+        street_number: 'short_name',
+        route: 'long_name',
+        locality: 'long_name',
+        /* administrative_area_level_1: 'short_name', */
+        administrative_area_level_1: 'long_name',
+        postal_code: 'short_name',
+        country: 'long_name',
+      };
+      var address = {};
+      for (var i = 0; i < addressComponents.length; i++) {
+        var addressType = addressComponents[i].types[0];
+        if (components[addressType]) {
+          address[addressType] = addressComponents[i][components[addressType]];
+        }
+      }
+
+      // Set the values to the form fields (adjust the field IDs as necessary)
+      document.getElementById('id_house_number').value = address.street_number || '';
+      document.getElementById('id_road').value = address.route || '';
+      document.getElementById('id_city').value = address.locality || '';
+      document.getElementById('id_state').value = address.administrative_area_level_1 || '';
+      document.getElementById('id_postcode').value = address.postal_code || '';
+      document.getElementById('id_country').value = address.country || '';
+    });
+  }
+
+  function populateForm(id, name, displayName, houseNumber, road, roadSuffix, city, state, postcode, countryId, timezone, contactPerson, contactEmail, contactPhone, locationType, notes) {
+    document.getElementById('location_id').value = id;
+    document.getElementById('id_name').value = name;
+    document.getElementById('id_display_name').value = displayName;
+    document.getElementById('id_house_number').value = houseNumber;
+    document.getElementById('id_road').value = road;
+    document.getElementById('id_road_suffix').value = roadSuffix;
+    document.getElementById('id_city').value = city;
+    document.getElementById('id_state').value = state;
+    document.getElementById('id_postcode').value = postcode;
+    document.getElementById('id_country').value = countryId;
+    document.getElementById('id_timezone').value = timezone;
+    document.getElementById('id_contact_person').value = contactPerson;
+    document.getElementById('id_contact_email').value = contactEmail;
+    document.getElementById('id_contact_phone').value = contactPhone;
+    document.getElementById('id_location_type').value = locationType;
+    document.getElementById('id_notes').value = notes;
+  }
+
+  function verifyLocation(id) {
+    // Your verification logic here
+  }
+
+  google.maps.event.addDomListener(window, 'load', initAutocomplete);
+</script>
+{% endblock %}
