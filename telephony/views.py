@@ -13,48 +13,17 @@ from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm,
 def index(request):
     return render(request, 'telephony/index.html')
 
-# def locations(request):
-#     form = LocationForm(request.POST or None)
-#     if form.is_valid():
-#         form.save()
-#         # Handle form processing
-    
-#     locations = Location.objects.all()
-#     context = {
-#         'form': form,
-#         'locations': locations,
-#         'google_api_key': settings.GOOGLE_API_KEY,
-#     }
-#     return render(request, 'telephony/locations.html', context)
-
-# views.py
-
-# views.py
-
-# def locations(request):
-#     locations = Location.objects.all()
-#     if request.method == 'POST':
-#         location_id = request.POST.get('location_id')
-#         if location_id:
-#             location = get_object_or_404(Location, pk=location_id)
-#             form = LocationForm(request.POST, instance=location)
-#         else:
-#             form = LocationForm(request.POST)
-        
-#         if form.is_valid():
-#             form.save()
-#             return redirect('locations')
-#     else:
-#         form = LocationForm()
-
-#     return render(request, 'telephony/locations.html', {'form': form, 'locations': locations})
-
 def locations(request):
-    form = LocationForm(request.POST or None)
-    if form.is_valid():
-        location = form.save(commit=False)
-        location.verified_location = True  # Set to true if Google verification is successful
-        location.save()
+    if request.method == 'POST':
+        form = LocationForm(request.POST or None)
+        if form.is_valid():
+            location = form.save(commit=False)
+            location.verified_location = True  # Set to true if Google verification is successful
+            location.save()
+            return redirect('locations')
+    else:
+        form = LocationForm()
+
     locations = Location.objects.all()
     return render(request, 'telephony/locations.html', {'form': form, 'locations': locations})
 
@@ -140,11 +109,16 @@ def country_list(request):
     #sorted_countries = sorted(countries, key=lambda x: (x.name != "United States", x.name))
     return render(request, 'telephony/country_list.html', {'countries': countries})
 
-def verify_location(location):
-    # Logic to verify the location using an API (e.g., Google Maps API)
-    # For simplicity, let's assume the location is verified successfully
-    location.verified_location = True
-    location.save()
+def verify_location(request, location_id):
+    location = get_object_or_404(Location, pk=location_id)
+    # Perform verification logic here
+    return redirect('locations')
+
+def delete_location(request):
+    location_id = request.GET.get('id')
+    location = get_object_or_404(Location, pk=location_id)
+    location.delete()
+    return redirect('locations')
 
 def location_list(request):
     locations = Location.objects.all()

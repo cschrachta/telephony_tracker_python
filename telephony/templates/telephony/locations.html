@@ -24,8 +24,8 @@
   </tr>
   {% for location in locations %}
   <tr data-id="{{ location.id }}">
-    <td>{{ location.name }}</td>
-    <td>{{ location.display_name }}</td>
+    <td>{% if location.name %}{{ location.name }}{% endif %}</td>
+    <td>{% if location.display_name %}{{ location.display_name }}{% endif %}</td>
     <td>
       {% if location.house_number %}{{ location.house_number }} {% endif %}
       {% if location.road %}{{ location.road }}{% endif %}
@@ -145,6 +145,6 @@
   });
 
   document.querySelectorAll('.verify-btn')
-  
+
 </script>
 {% endblock %}

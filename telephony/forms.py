@@ -31,7 +31,7 @@ class LocationForm(forms.ModelForm):
             self.fields['address'].initial = address
 
     def clean_address(self):
-        address = self.cleaned_data.get['address']
+        address = self.cleaned_data['address']
         gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
         geocode_result = gmaps.geocode(address)
 
