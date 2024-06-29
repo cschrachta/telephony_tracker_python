@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 from django.core.management import call_command
 from django.db.models import Q
 from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, Country
@@ -30,23 +31,71 @@ def index(request):
 
 # views.py
 
-def locations(request):
-    locations = Location.objects.all()
-    if request.method == 'POST':
-        location_id = request.POST.get('location_id')
-        if location_id:
-            location = get_object_or_404(Location, pk=location_id)
-            form = LocationForm(request.POST, instance=location)
-        else:
-            form = LocationForm(request.POST)
+# def locations(request):
+#     locations = Location.objects.all()
+#     if request.method == 'POST':
+#         location_id = request.POST.get('location_id')
+#         if location_id:
+#             location = get_object_or_404(Location, pk=location_id)
+#             form = LocationForm(request.POST, instance=location)
+#         else:
+#             form = LocationForm(request.POST)
         
-        if form.is_valid():
-            form.save()
-            return redirect('locations')
-    else:
-        form = LocationForm()
+#         if form.is_valid():
+#             form.save()
+#             return redirect('locations')
+#     else:
+#         form = LocationForm()
 
+#     return render(request, 'telephony/locations.html', {'form': form, 'locations': locations})
+
+def locations(request):
+    form = LocationForm(request.POST or None)
+    if form.is_valid():
+        location = form.save(commit=False)
+        location.verified_location = True  # Set to true if Google verification is successful
+        location.save()
+    locations = Location.objects.all()
     return render(request, 'telephony/locations.html', {'form': form, 'locations': locations})
+
+@require_http_methods(["GET"])
+def get_location(request, location_id):
+    location = get_object_or_404(Location, pk=location_id)
+    data = {
+        'name': location.name,
+        'display_name': location.display_name,
+        'house_number': location.house_number,
+        'road': location.road,
+        'road_suffix': location.road_suffix,
+        'city': location.city,
+        'state_abbreviation': location.state_abbreviation,
+        'postcode': location.postcode,
+        'country': location.country.name,
+        'notes': location.notes,
+    }
+    return JsonResponse(data)
+
+@require_http_methods(["GET"])
+def verify_location_view(request, location_id):
+    location = get_object_or_404(Location, pk=location_id)
+    # Call the Google API to verify the address and update the location
+    success = verify_address_with_google(location)
+    if success:
+        location.verified_location = True
+        location.save()
+    return JsonResponse({'success': success})
+
+@require_http_methods(["DELETE"])
+def delete_location(request, location_id):
+    location = get_object_or_404(Location, pk=location_id)
+    location.delete()
+    return JsonResponse({'success': True})
+
+def verify_address_with_google(location):
+    # Implement the actual verification logic with Google API
+    # Return True if the address is verified successfully, False otherwise
+    return True
+
 
 def service_providers(request):
     service_providers = ServiceProvider.objects.all()

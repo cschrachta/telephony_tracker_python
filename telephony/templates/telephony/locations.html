@@ -1,13 +1,17 @@
+
 {% extends 'telephony/base.html' %}
 
 {% block content %}
 <h2>Locations</h2>
 <h4>Add/Update Location</h4>
-<form method="post" action="" class="location-form" id="locationForm">
+<form method="post" action="" class="location-form">
   {% csrf_token %}
-  <input type="hidden" name="location_id" id="location_id">
+  <div class="mb-3">
+    <label for="id_address" class="form-label">Address</label>
+    <input type="text" class="form-control" id="id_address" name="address">
+  </div>
   {{ form.as_p }}
-  <button type="submit">Save</button>
+  <button type="submit" class="btn btn-primary">Save</button>
 </form>
 <table class="location-table">
   <tr class="location-th location-td">
@@ -19,17 +23,27 @@
     <th>Actions</th>
   </tr>
   {% for location in locations %}
-  <tr
-    onclick="populateForm({{ location.id }}, '{{ location.name }}', '{{ location.display_name }}', '{{ location.house_number }}', '{{ location.road }}', '{{ location.road_suffix }}', '{{ location.city }}', '{{ location.state_abbreviation }}', '{{ location.postcode }}', '{{ location.country.id }}', '{{ location.timezone }}', '{{ location.contact_person }}', '{{ location.contact_email }}', '{{ location.contact_phone }}', '{{ location.location_type }}', '{{ location.notes }}')">
+  <tr data-id="{{ location.id }}">
     <td>{{ location.name }}</td>
     <td>{{ location.display_name }}</td>
-    <td>{{ location.house_number }} {{ location.road }} {{ location.road_suffix }} {{ location.city }} {{ location.state_abbreviation }} {{ location.postcode }}</td>
+    <td>
+      {% if location.house_number %}{{ location.house_number }} {% endif %}
+      {% if location.road %}{{ location.road }}{% endif %}
+      {% if location.road_suffix %}{{ location.road_suffix }}{% endif %}
+      {% if location.city %}{{ location.city }}{% endif %}
+      {% if location.state_abbreviation %}{{ location.state_abbreviation }}{% endif %}
+      {% if location.postcode %}{{ location.postcode }}{% endif %}
+    </td>
     <td>{{ location.notes }}</td>
-    <td class="verified">{{ location.verified_location }}</td>
-    <td class="actions">
-      {% if not location.verified_location %}
-      <button type="button" onclick="verifyLocation({{ location.id }})">Verify Address</button>
+    <td class="verified">
+      {% if location.verified_location %}
+      True
+      {% else %}
+      <button class="verify-btn" data-id="{{ location.id }}">Verify</button>
       {% endif %}
+    </td>
+    <td class="actions">
+      <button class="delete-btn" data-id="{{ location.id }}">Delete</button>
     </td>
   </tr>
   {% endfor %}
@@ -49,14 +63,12 @@
         return;
       }
 
-      // Extract address components and fill hidden fields
       var addressComponents = place.address_components;
       var components = {
         street_number: 'short_name',
         route: 'long_name',
         locality: 'long_name',
-        /* administrative_area_level_1: 'short_name', */
-        administrative_area_level_1: 'long_name',
+        administrative_area_level_1: 'short_name',
         postal_code: 'short_name',
         country: 'long_name',
       };
@@ -68,39 +80,63 @@
         }
       }
 
-      // Set the values to the form fields (adjust the field IDs as necessary)
       document.getElementById('id_house_number').value = address.street_number || '';
       document.getElementById('id_road').value = address.route || '';
       document.getElementById('id_city').value = address.locality || '';
-      document.getElementById('id_state').value = address.administrative_area_level_1 || '';
+      document.getElementById('id_state_abbreviation').value = address.administrative_area_level_1 || '';
       document.getElementById('id_postcode').value = address.postal_code || '';
       document.getElementById('id_country').value = address.country || '';
     });
   }
 
-  function populateForm(id, name, displayName, houseNumber, road, roadSuffix, city, state, postcode, countryId, timezone, contactPerson, contactEmail, contactPhone, locationType, notes) {
-    document.getElementById('location_id').value = id;
-    document.getElementById('id_name').value = name;
-    document.getElementById('id_display_name').value = displayName;
-    document.getElementById('id_house_number').value = houseNumber;
-    document.getElementById('id_road').value = road;
-    document.getElementById('id_road_suffix').value = roadSuffix;
-    document.getElementById('id_city').value = city;
-    document.getElementById('id_state').value = state;
-    document.getElementById('id_postcode').value = postcode;
-    document.getElementById('id_country').value = countryId;
-    document.getElementById('id_timezone').value = timezone;
-    document.getElementById('id_contact_person').value = contactPerson;
-    document.getElementById('id_contact_email').value = contactEmail;
-    document.getElementById('id_contact_phone').value = contactPhone;
-    document.getElementById('id_location_type').value = locationType;
-    document.getElementById('id_notes').value = notes;
-  }
+  document.addEventListener('DOMContentLoaded', function () {
+    initAutocomplete();
 
-  function verifyLocation(id) {
-    // Your verification logic here
-  }
+    document.querySelectorAll('.location-table tr[data-id]').forEach(function (row) {
+      row.addEventListener('click', function () {
+        var id = row.getAttribute('data-id');
+        fetch(`/locations/${id}/`).then(response => response.json()).then(data => {
+          document.getElementById('id_name').value = data.name;
+          document.getElementById('id_display_name').value = data.display_name;
+          document.getElementById('id_house_number').value = data.house_number;
+          document.getElementById('id_road').value = data.road;
+          document.getElementById('id_road_suffix').value = data.road_suffix;
+          document.getElementById('id_city').value = data.city;
+          document.getElementById('id_state_abbreviation').value = data.state_abbreviation;
+          document.getElementById('id_postcode').value = data.postcode;
+          document.getElementById('id_country').value = data.country;
+          document.getElementById('id_notes').value = data.notes;
+        });
+      });
+    });
 
-  google.maps.event.addDomListener(window, 'load', initAutocomplete);
+    document.querySelectorAll('.verify-btn').forEach(function (button) {
+      button.addEventListener('click', function (event) {
+        event.stopPropagation();
+        var id = button.getAttribute('data-id');
+        fetch(`/verify_location/${id}/`).then(response => response.json()).then(data => {
+          if (data.success) {
+            button.closest('td').innerText = 'True';
+          } else {
+            alert('Address verification failed.');
+          }
+        });
+      });
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(function (button) {
+      button.addEventListener('click', function (event) {
+        event.stopPropagation();
+        var id = button.getAttribute('data-id');
+        fetch(`/delete_location/${id}/`, { method: 'DELETE' }).then(response => {
+          if (response.ok) {
+            button.closest('tr').remove();
+          } else {
+            alert('Failed to delete the location.');
+          }
+        });
+      });
+    });
+  });
 </script>
 {% endblock %}

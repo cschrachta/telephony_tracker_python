@@ -22,8 +22,7 @@ class CircuitDetailForm(forms.ModelForm):
 
 class LocationForm(forms.ModelForm):
     
-    #address = forms.CharField(required=True, widget=forms.TextInput(attrs={'placeholder': 'Enter Address:'}))
-    address = forms.CharField(max_length=255, required=True)
+    address = forms.CharField(max_length=255, required=True, widget=forms.TextInput(attrs={'id': 'id_address', 'placeholder': 'Enter Address:'}))
 
     def __init__(self, *args, **kwargs):
         super(LocationForm, self).__init__(*args, **kwargs)
@@ -32,7 +31,7 @@ class LocationForm(forms.ModelForm):
             self.fields['address'].initial = address
 
     def clean_address(self):
-        address = self.cleaned_data['address']
+        address = self.cleaned_data.get['address']
         gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
         geocode_result = gmaps.geocode(address)
 
@@ -42,18 +41,33 @@ class LocationForm(forms.ModelForm):
         # Extract address components from the geocode result
         geo_location = geocode_result[0]['geometry']['location']
         address_components = geocode_result[0]['address_components']
-        address_dict = {component['types'][0]: component['short_name'] for component in address_components}
-        address_components = geocode_result[0]['address_components']
+        
+        components = {
+            'street_number': 'short_name',
+            'route': 'long_name',
+            'locality': 'long_name',
+            'administrative_area_level_1': 'short_name',
+            'administrative_area_level_1_full': 'long_name',  # To get full state name
+            'postal_code': 'short_name',
+            'country': 'long_name',
+        }
+        address = {}
+        for component in address_components:
+            address_type = component['types'][0]
+            if address_type in components:
+                address[address_type] = component[components[address_type]]
+        
         self.cleaned_data['latitude'] = geo_location['lat']
         self.cleaned_data['longitude'] = geo_location['lng']
         self.cleaned_data['verified_location'] = True  # Set verified_location to True if coordinates are available
         # Set the validated address components to the form fields
-        self.cleaned_data['house_number'] = address_dict.get('street_number', '')
-        self.cleaned_data['road'] = address_dict.get('route', '')
-        self.cleaned_data['city'] = address_dict.get('locality', '')
-        self.cleaned_data['state'] = address_dict.get('administrative_area_level_1', '')
-        self.cleaned_data['state_abbreviation'] = address_dict.get('administrative_area_level_1', '')
-        self.cleaned_data['postcode'] = address_dict.get('postal_code', '')
+        self.cleaned_data['house_number'] = address.get('street_number', '')
+        self.cleaned_data['road'] = address.get('route', '')
+        self.cleaned_data['city'] = address.get('locality', '')
+        self.cleaned_data['state'] = address.get('administrative_area_level_1_full', '')
+        self.cleaned_data['state_abbreviation'] = address.get('administrative_area_level_1', '')
+        self.cleaned_data['postcode'] = address.get('postal_code', '')
+        self.cleaned_data['country'] = address.get('country', '')
 
         for component in address_components:
             if 'locality' in component['types']:
@@ -81,7 +95,7 @@ class LocationForm(forms.ModelForm):
                 raise forms.ValidationError(f'Country with ISO code "{iso2_code}" does not exist in the database')
             
         return address
-
+    
     def save(self, commit=True):
         location = super().save(commit=False)
         location.house_number = self.cleaned_data['house_number']
@@ -102,34 +116,26 @@ class LocationForm(forms.ModelForm):
         if commit:
             location.save()
         return location
-
-    # class Meta:
-    #     model = Location
-    #     fields = [
-    #         'name',
-    #         'display_name',
-    #         'address',
-    #         'house_number',
-    #         'road',
-    #         'city',
-    #         'state',
-    #         'state_abbreviation',
-    #         'postcode',
-    #         'country',
-    #         'timezone',
-    #         'contact_person',
-    #         'contact_email',
-    #         'contact_phone',
-    #         'location_type',
-    #         'notes',
-    #     ]
+    
+        if 'address' in self.cleaned_data:
+            instance.verified_location = True  # Assuming address validation succeeds
+        if commit:
+            instance.save()
+        return instance
 
     class Meta:
         model = Location
         fields = [
             'name',
             'display_name',
-            'address',
+            'house_number',
+            'road',
+            'road_suffix',
+            'city',
+            'state',
+            'state_abbreviation',
+            'postcode',
+            'country',
             'timezone',
             'contact_person',
             'contact_email',
