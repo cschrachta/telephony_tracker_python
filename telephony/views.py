@@ -1,7 +1,9 @@
+import googlemaps
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.core.management import call_command
 from django.db.models import Q
@@ -111,14 +113,76 @@ def country_list(request):
 
 def verify_location(request, location_id):
     location = get_object_or_404(Location, pk=location_id)
-    # Perform verification logic here
+
+    # Construct the full address from the location record
+    address = f'{location.house_number} {location.road}, {location.city}, {location.state_abbreviation} {location.postcode}, {location.country.iso2_code}'
+
+    # Use Google Maps API to validate the address
+    gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
+    geocode_result = gmaps.geocode(address)
+
+    if not geocode_result:
+        messages.error(request, 'Invalid address')
+        return redirect('locations')
+
+    # Extract address components from the geocode result
+    geo_location = geocode_result[0]['geometry']['location']
+    address_components = geocode_result[0]['address_components']
+
+    components = {
+        'street_number': 'short_name',
+        'route': 'long_name',
+        'locality': 'long_name',
+        'administrative_area_level_1': 'short_name',
+        'postal_code': 'short_name',
+        'country': 'short_name',
+    }
+    extracted_address = {}
+    for component in address_components:
+        address_type = component['types'][0]
+        if address_type in components:
+            extracted_address[address_type] = component[components[address_type]]
+
+    # Update the location record with the validated address components
+    location.house_number = extracted_address.get('street_number', '')
+    location.road = extracted_address.get('route', '')
+    location.city = extracted_address.get('locality', '')
+    location.state = extracted_address.get('administrative_area_level_1_full', '')
+    location.state_abbreviation = extracted_address.get('administrative_area_level_1', '')
+    location.postcode = extracted_address.get('postal_code', '')
+
+    # Getting the country by ISO2 code
+    country_code = extracted_address.get('country', '')
+    if country_code:
+        try:
+            location.country = Country.objects.get(iso2_code=country_code)
+        except Country.DoesNotExist:
+            messages.error(request, f'Country with ISO code "{country_code}" does not exist in the database')
+            return redirect('locations')
+
+    if geocode_result:
+        geo_location = geocode_result[0]['geometry']['location']
+        location.latitude = geo_location['lat']
+        location.longitude = geo_location['lng']
+        location.verified_location = True
+        
+        timezone_result = gmaps.timezone((location.latitude, location.longitude))
+        location.timezone = timezone_result['timeZoneId']
+        location.save()
+        
+        messages.success(request, 'Location verified successfully!')
+    else:
+        messages.error(request, 'Could not verify location.')
+    
     return redirect('locations')
 
-def delete_location(request):
-    location_id = request.GET.get('id')
-    location = get_object_or_404(Location, pk=location_id)
-    location.delete()
-    return redirect('locations')
+def delete_location(request, location_id):
+    location = get_object_or_404(Location, id=location_id)
+    if request.method == 'POST':
+        location.delete()
+        messages.success(request, 'Location deleted successfully!')
+        return redirect('locations')
+    return render(request, 'telephony/confirm_delete.html', {'location': location})
 
 def location_list(request):
     locations = Location.objects.all()
@@ -134,7 +198,7 @@ def add_location(request):
         form = LocationForm(request.POST or None)
         if form.is_valid():
             address = form.cleaned_data['address']
-            api_key = 'GOOGLE_API_KEY'
+            api_key = settings.GOOGLE_API_KEY
             url = f'https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={api_key}'
             response = requests.get(url)
             data = response.json()
