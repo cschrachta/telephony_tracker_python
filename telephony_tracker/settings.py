@@ -143,8 +143,26 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'telephony/static'),)
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 GOOGLE_API_KEY = env('GOOGLE_API_KEY')
+GOOGLE_API_SECRET = env('GOOGLE_API_SECRET')
 
 
 CRONJOBS = [
   ('0 0 * * *', 'telephony.management.commands.update_countries.Command.handle'),
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    },
+}
