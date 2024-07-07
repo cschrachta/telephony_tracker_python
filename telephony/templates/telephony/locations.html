@@ -22,17 +22,17 @@
   <tr data-id="{{ location.id }}">
     <td>{% if location.name %}{{ location.name }}{% endif %}</td>
     <td>{% if location.display_name %}{{ location.display_name }}{% endif %}</td>
-    <td>
-      {% if location.house_number %}{{ location.house_number }} {% endif %}
-      {% if location.road %}{{ location.road }}{% endif %}
-      {% if location.road_suffix %}{{ location.road_suffix }}{% endif %}
-      {% if location.city %}{{ location.city }}{% endif %}
-      {% if location.state_abbreviation %}{{ location.state_abbreviation }}{% endif %}
-      {% if location.postcode %}{{ location.postcode }}{% endif %}
-      {% if location.country %}{{ location.country }}{% endif %}
+    <td style="width: 30%">
+        {% if location.house_number %}{{ location.house_number }} {% endif %}
+        {% if location.road %}{{ location.road }}{% endif %}
+        {% if location.road_suffix %}{{ location.road_suffix }}{% endif %}
+        {% if location.city %}{{ location.city }}{% endif %}
+        {% if location.state_abbreviation %}{{ location.state_abbreviation }}{% endif %}
+        {% if location.postcode %}{{ location.postcode }}{% endif %}
+        {% if location.country %}{{ location.country }}{% endif %}
     </td>
-    <td>{{ location.notes }}</td>
-    <td class="verified">{{ location.verified_location }}</td>
+    <td style="width: 35%;">{{ location.notes }}</td>
+    <td class="verified; width: 40px; location-td">{{ location.verified_location }}</td>
     <td class="actions">
       {% if not location.verified_location %}
       <button onclick="location.href='{% url 'verify_location' location.id %}'">Verify Address</button>

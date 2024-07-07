@@ -41,6 +41,7 @@ class LocationForm(forms.ModelForm):
         # Extract address components from the geocode result
         geo_location = geocode_result[0]['geometry']['location']
         address_components = geocode_result[0]['address_components']
+        formatted_address = geocode_result[0]['formatted_address']
         
         components = {
             'street_number': 'short_name',
@@ -49,7 +50,7 @@ class LocationForm(forms.ModelForm):
             'administrative_area_level_1': 'short_name',
             'administrative_area_level_2': 'long_name',
             'postal_code': 'short_name',
-            'country': 'short_name',
+            'country': 'long_name',
         }
         extracted_address = {}
         for component in address_components:
@@ -69,20 +70,18 @@ class LocationForm(forms.ModelForm):
         self.cleaned_data['city'] = extracted_address.get('locality', '')
         self.cleaned_data['postcode'] = extracted_address.get('postal_code', '')
 
-        # for component in address_components:
-        #     if 'locality' in component['types']:
-        #         self.cleaned_data['city'] = component['long_name']
-        #     if 'administrative_area_level_2' in component['types']:
-        #         self.cleaned_data['county'] = component['long_name']
-        #     if 'country' in component['types']:
-        #         country_code = component['short_name']
-        #         try:
-        #             country_instance = Country.objects.get(iso2_code=country_code)
-        #             self.cleaned_data['country'] = country_instance
-        #         except Country.DoesNotExist:
-        #             raise forms.ValidationError(f'Country with ISO code "{country_code}" does not exist in the database')
-
-        # return address
+        for component in address_components:
+            if 'locality' in component['types']:
+                self.cleaned_data['city'] = component['long_name']
+            if 'administrative_area_level_2' in component['types']:
+                self.cleaned_data['county'] = component['long_name']
+            if 'country' in component['types']:
+                country_code = component['short_name']
+                try:
+                    country_instance = Country.objects.get(iso2_code=country_code)
+                    self.cleaned_data['country'] = country_instance
+                except Country.DoesNotExist:
+                    raise forms.ValidationError(f'Country with ISO code "{country_code}" does not exist in the database')
 
         country_code = extracted_address.get('country', '')
         if country_code:
@@ -118,30 +117,6 @@ class LocationForm(forms.ModelForm):
         if commit:
             location.save()
         return location
-
-# class Location(models.Model):
-#     name = models.CharField(max_length=100)
-#     display_name = models.CharField(max_length=200, blank=True, null=True)
-#     house_number = models.CharField(max_length=20)
-#     road = models.CharField(max_length=50)
-#     road_suffix = models.CharField(max_length=25, blank=True, null=True)
-#     city = models.CharField(max_length=100)
-#     county = models.CharField(max_length=50, blank=True, null=True)
-#     state = models.CharField(max_length=50, blank=True, null=True)
-#     state_abbreviation = models.CharField(max_length=5)
-#     postcode = models.CharField(max_length=20)
-#     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-#     latitude = models.FloatField(blank=True, null=True)
-#     longitude = models.FloatField(blank=True, null=True)
-#     timezone = models.CharField(max_length=50, blank=True, null=True)
-#     contact_person = models.CharField(max_length=100, blank=True, null=True)
-#     contact_email = models.EmailField(max_length=100, blank=True, null=True)
-#     contact_phone = models.CharField(max_length=20, blank=True, null=True)
-#     location_type = models.CharField(max_length=50, blank=True, null=True)
-#     verified_location = models.BooleanField(default=False)
-#     notes = models.TextField(blank=True)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         model = Location
