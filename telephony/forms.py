@@ -60,7 +60,8 @@ class LocationForm(forms.ModelForm):
             if address_type == 'administrative_area_level_1':
                 self.cleaned_data['state_abbreviation'] = component['short_name']
                 self.cleaned_data['state'] = component['long_name']
-            self.cleaned_data['latitude'] = geo_location['lat']
+            if address_type == 'administrative_area_level_2':
+                self.cleaned_data['county'] = component['long_name']
             self.cleaned_data['longitude'] = geo_location['lng']
             self.cleaned_data['verified_location'] = True  # Set verified_location to True if coordinates are available
             # Set the validated address components to the form fields
@@ -69,7 +70,7 @@ class LocationForm(forms.ModelForm):
             self.cleaned_data['city'] = extracted_address.get('locality', '')
             self.cleaned_data['postcode'] = extracted_address.get('postal_code', '')
 
-            country_code = extracted_address.get('country', '')
+            country_code = extracted_address.get('country', '') 
             if country_code:
                 try:
                     country_instance = Country.objects.get(iso2_code=country_code)
@@ -87,6 +88,7 @@ class LocationForm(forms.ModelForm):
 
     def save(self, commit=True):
         location = super().save(commit=False)
+        location.name = self.cleaned_data.get('name','site')
         location.house_number = self.cleaned_data.get('house_number', '')
         location.road = self.cleaned_data.get('road', '')
         location.city = self.cleaned_data.get('city', '')
@@ -125,17 +127,23 @@ class LocationForm(forms.ModelForm):
             'location_type',
             'notes',
         ]
+
         widgets = {
-            'house_number': forms.HiddenInput(),
-            'road': forms.HiddenInput(),
-            'road_suffix': forms.HiddenInput(),
-            'city': forms.HiddenInput(),
-            'state': forms.HiddenInput(),
-            'state_abbreviation': forms.HiddenInput(),
-            'postcode': forms.HiddenInput(),
-            'country': forms.HiddenInput(),
+            'name': forms.TextInput(attrs={'placeholder': 'Example Name'}),
+            'display_name': forms.TextInput(attrs={'placeholder': 'Example Display Name'}),
+            'house_number': forms.TextInput(attrs={'placeholder': '123'}),
+            'road': forms.TextInput(attrs={'placeholder': 'Example Road'}),
+            'road_suffix': forms.TextInput(attrs={'placeholder': 'St, Ave, etc.'}),
+            'city': forms.TextInput(attrs={'placeholder': 'Example City'}),
+            'state_abbreviation': forms.TextInput(attrs={'placeholder': 'CA'}),
+            'state': forms.TextInput(attrs={'placeholder': 'California'}),
+            'postcode': forms.TextInput(attrs={'placeholder': '12345'}),
+            #'country': forms.TextInput(attrs={'placeholder': 'Choose from list'}),
+            #'timezone': forms.TextInput(attrs={'placeholder': 'GMT-8'}),
             'timezone': forms.HiddenInput(),
+            'notes': forms.Textarea(attrs={'placeholder': 'Additional notes here...'}),
         }
+
 
 class PhoneNumberRangeForm(forms.ModelForm):
     class Meta:
@@ -156,6 +164,6 @@ class PhoneNumberForm(forms.ModelForm):
 class CountryForm(forms.ModelForm):
     class Meta:
         model = Country
-        fields = ['name', 'e164_code', 'region', 'subregion', 'capital']
+        fields = ['name', 'iso2_code', 'iso3_code', 'e164_code', 'region', 'subregion', 'capital']
 
 

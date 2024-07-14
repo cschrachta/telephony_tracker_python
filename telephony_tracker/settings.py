@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django_crontab",
     "bootstrap5",
     "telephony",
+    "uc_data_import",
 ]
 
 MIDDLEWARE = [
@@ -166,3 +167,6 @@ LOGGING = {
         },
     },
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

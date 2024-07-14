@@ -1,6 +1,8 @@
 import googlemaps
 import logging
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, UpdateView
 from django.conf import settings
 from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
@@ -32,12 +34,18 @@ def locations(request):
 
 def verify_location(request, location_id):
     location = get_object_or_404(Location, pk=location_id)
-    success, message = verify_and_save_location(LocationForm(instance=location))
-    if success:
-        messages.success(request, message)
+    if request.method == "POST":
+        form = LocationForm(request.POST, instance=location)
+        if form.is_valid():
+            success, message = verify_and_save_location(form)
+            if success:
+                messages.success(request, message)
+            else:
+                messages.error(request, message)
+            return redirect('locations')
     else:
-        messages.error(request, message)
-    return redirect('locations')
+        form = LocationForm(instance=location)
+    return render(request, 'telephony/locations.html', {'form': form, 'locations': Location.objects.all()})
 
 def delete_location(request, location_id):
     location = get_object_or_404(Location, id=location_id)
@@ -117,6 +125,7 @@ def verify_and_save_location(form):
     location = form.save(commit=False)
     timezone_result = gmaps.timezone((location.latitude, location.longitude))
     location.timezone = timezone_result['timeZoneId']
+    location.verified_location = True
     location.save()
 
     logger.debug(f'Country code received: {country_code}')

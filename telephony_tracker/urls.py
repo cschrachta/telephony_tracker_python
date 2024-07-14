@@ -24,4 +24,6 @@ urlpatterns = [
     #path("", views.index, name="index"),
     #path("index/", views.index, name="index"),
     path("", include("telephony.urls")),
+    path("", include("uc_data_import.urls")),
+    #static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]
