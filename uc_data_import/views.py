@@ -7,10 +7,12 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from .forms import UploadFileForm
 from django.core.management import call_command
-# from dotenv import load_dotenv
+from django.http import HttpResponse
+from .models import UCSystemFile
+from .utils import handle_uploaded_file
+from .tasks import process_uploaded_uc_file
 
-# Load database connection details from .env file
-# load_dotenv()
+
 env = environ.Env(DEBUG=(bool, False))
 env.read_env(env_file='telephony_tracker/.env')
 
@@ -66,3 +68,13 @@ def upload_file(request):
 
 def success(request):
     return render(request, 'uc_data_import/success.html')
+
+def upload_uc_file(request):
+    if request.method == 'POST':
+        file = request.FILES['file']
+        file_path = handle_uploaded_file(file)
+        # Trigger the Celery task
+        process_uploaded_uc_file.delay(str(file_path))
+        
+        return HttpResponse(f"File uploaded and saved to {file_path}")
+    return render(request, 'upload.html')

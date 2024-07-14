@@ -3,7 +3,12 @@ import psycopg2
 import pandas as pd
 from django.core.management.base import BaseCommand
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-from dotenv import load_dotenv
+import environ
+
+
+env = environ.Env(DEBUG=(bool, False))
+env.read_env(env_file='telephony_tracker/.env')
+
 
 class Command(BaseCommand):
     help = 'Import UC data from CSV files'
@@ -17,11 +22,10 @@ class Command(BaseCommand):
         db_name = kwargs['db_name']
         
         # Load database connection details from .env file
-        load_dotenv()
-        DB_HOST = os.getenv("DB_HOST")
-        DB_PORT = os.getenv("DB_PORT")
-        DB_USER = os.getenv("DB_USER")
-        DB_PASSWORD = os.getenv("DB_PASSWORD")
+        DB_HOST = env("DB_HOST")
+        DB_PORT = env("DB_PORT")
+        DB_USER = env("DB_USER")
+        DB_PASSWORD = env("DB_PASSWORD")
 
         # Function to create a PostgreSQL connection to the default database
         def create_default_connection():
