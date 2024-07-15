@@ -22,16 +22,21 @@ class CircuitDetailForm(forms.ModelForm):
 
 
 class LocationForm(forms.ModelForm):
-    address = forms.CharField(max_length=255, required=True, widget=forms.TextInput(attrs={'id': 'id_address', 'placeholder': 'Enter Address:'}))
+    # Remove the address field
+    # address = forms.CharField(max_length=255, required=True, widget=forms.TextInput(attrs={'id': 'id_address', 'placeholder': 'Enter Address:'}))
 
     def __init__(self, *args, **kwargs):
         super(LocationForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             formatted_address = f'{self.instance.house_number} {self.instance.road}, {self.instance.city}, {self.instance.state_abbreviation} {self.instance.postcode}, {self.instance.country.iso2_code}'
-            self.fields['address'].initial = formatted_address
+            # self.fields['address'].initial = formatted_address
 
-    def clean_address(self):
-        submitted_address = self.cleaned_data['address']
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # Construct the address for Google geocoding
+        submitted_address = f"{cleaned_data.get('house_number')} {cleaned_data.get('road')}, {cleaned_data.get('city')}, {cleaned_data.get('state_abbreviation')} {cleaned_data.get('postcode')}, {cleaned_data.get('country').name}"
+
         gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
         geocode_result = gmaps.geocode(submitted_address)
 
@@ -39,9 +44,9 @@ class LocationForm(forms.ModelForm):
             raise forms.ValidationError('Invalid address')
 
         # Extract address components from the geocode result
-        geo_location = geocode_result[0]['geometry']['location']
         address_components = geocode_result[0]['address_components']
-        google_formatted_address = geocode_result[0]['formatted_address']
+        geo_location = geocode_result[0]['geometry']['location']
+        # google_formatted_address = geocode_result[0]['submitted_address']
         
         components = {
             'street_number': 'short_name',
@@ -50,55 +55,64 @@ class LocationForm(forms.ModelForm):
             'administrative_area_level_1': 'short_name',
             'administrative_area_level_2': 'long_name',
             'postal_code': 'short_name',
-            'country': 'long_name',
+            'country': 'short_name',
         }
+
         extracted_address = {}
         for component in address_components:
             address_type = component['types'][0]
             if address_type in components:
                 extracted_address[address_type] = component[components[address_type]]
             if address_type == 'administrative_area_level_1':
-                self.cleaned_data['state_abbreviation'] = component['short_name']
-                self.cleaned_data['state'] = component['long_name']
+                cleaned_data['state_abbreviation'] = component['short_name']
+                cleaned_data['state'] = component['long_name']
             if address_type == 'administrative_area_level_2':
-                self.cleaned_data['county'] = component['long_name']
-            self.cleaned_data['longitude'] = geo_location['lng']
-            self.cleaned_data['verified_location'] = True  # Set verified_location to True if coordinates are available
-            # Set the validated address components to the form fields
-            self.cleaned_data['house_number'] = extracted_address.get('street_number', '')
-            self.cleaned_data['road'] = extracted_address.get('route', '')
-            self.cleaned_data['city'] = extracted_address.get('locality', '')
-            self.cleaned_data['postcode'] = extracted_address.get('postal_code', '')
-
-            country_code = extracted_address.get('country', '') 
-            if country_code:
+                cleaned_data['county'] = component['long_name']
+        cleaned_data['house_number'] = extracted_address.get('street_number', '')
+        cleaned_data['road'] = extracted_address.get('route', '')
+        cleaned_data['city'] = extracted_address.get('locality', '')
+        cleaned_data['postcode'] = extracted_address.get('postal_code', '')
+        country_code = extracted_address.get('country', '') 
+        if country_code:
+            try:
+                country_instance = Country.objects.get(iso2_code=country_code)
+            except Country.DoesNotExist:
                 try:
-                    country_instance = Country.objects.get(iso2_code=country_code)
+                    country_instance = Country.objects.get(iso3_code=country_code)
                 except Country.DoesNotExist:
                     try:
-                        country_instance = Country.objects.get(iso3_code=country_code)
+                        country_instance = Country.objects.get(name=country_code)
                     except Country.DoesNotExist:
-                        try:
-                            country_instance = Country.objects.get(name=country_code)
-                        except Country.DoesNotExist:
-                            raise forms.ValidationError(f'Country with code "{country_code}" does not exist in the database')
-                self.cleaned_data['country'] = country_instance
+                        raise forms.ValidationError(f'Country with code "{country_code}" does not exist in the database')
+            cleaned_data['country'] = country_instance
 
-        return google_formatted_address
+        cleaned_data['longitude'] = geo_location['lng']
+        cleaned_data['latitude'] = geo_location['lat']
+        
+        cleaned_data['verified_location'] = True  # Set verified_location to True if coordinates are available
+
+        return cleaned_data
 
     def save(self, commit=True):
         location = super().save(commit=False)
-        location.name = self.cleaned_data.get('name','site')
+        location.name = self.cleaned_data.get('name',f'site {location.id}')
+        location.display_name = self.cleaned_data.get('display_name', '')
         location.house_number = self.cleaned_data.get('house_number', '')
         location.road = self.cleaned_data.get('road', '')
+        location.road_suffix = self.cleaned_data.get('road_suffix', '')
         location.city = self.cleaned_data.get('city', '')
+        location.county = self.cleaned_data.get('county', '')
         location.state = self.cleaned_data.get('state', '')
         location.state_abbreviation = self.cleaned_data.get('state_abbreviation', '')
         location.postcode = self.cleaned_data.get('postcode', '')
         location.country = self.cleaned_data.get('country', None)
         location.latitude = self.cleaned_data.get('latitude', None)
         location.longitude = self.cleaned_data.get('longitude', None)
-        location.county = self.cleaned_data.get('county', '')
+        location.contact_person = self.cleaned_data.get('contact_person', '')
+        location.contact_email = self.cleaned_data.get('contact_email', '')
+        location.contact_phone = self.cleaned_data.get('contact_phone', '')
+        location.location_type = self.cleaned_data.get('location_type', '')
+        location.notes = self.cleaned_data.get('notes', '')
 
         gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
         timezone_result = gmaps.timezone((location.latitude, location.longitude))
@@ -116,10 +130,13 @@ class LocationForm(forms.ModelForm):
             'road',
             'road_suffix',
             'city',
+            'county',
             'state',
             'state_abbreviation',
             'postcode',
             'country',
+            'latitude',
+            'longitude',
             'timezone',
             'contact_person',
             'contact_email',
@@ -129,17 +146,23 @@ class LocationForm(forms.ModelForm):
         ]
 
         widgets = {
-            'name': forms.TextInput(attrs={'placeholder': 'Example Name'}),
-            'display_name': forms.TextInput(attrs={'placeholder': 'Example Display Name'}),
+            'name': forms.TextInput(attrs={'placeholder': 'Site Referred to as'}),
+            'display_name': forms.TextInput(attrs={'placeholder': 'Site Reference Name'}),
             'house_number': forms.TextInput(attrs={'placeholder': '123'}),
-            'road': forms.TextInput(attrs={'placeholder': 'Example Road'}),
+            'road': forms.TextInput(attrs={'placeholder': 'Main, 1st, etc...'}),
             'road_suffix': forms.TextInput(attrs={'placeholder': 'St, Ave, etc.'}),
-            'city': forms.TextInput(attrs={'placeholder': 'Example City'}),
-            'state_abbreviation': forms.TextInput(attrs={'placeholder': 'CA'}),
+            'city': forms.TextInput(attrs={'placeholder': 'City Name'}),
+            'county': forms.TextInput(attrs={'placeholder': 'County Name'}),
             'state': forms.TextInput(attrs={'placeholder': 'California'}),
+            'state_abbreviation': forms.TextInput(attrs={'placeholder': 'CA'}),
             'postcode': forms.TextInput(attrs={'placeholder': '12345'}),
-            #'country': forms.TextInput(attrs={'placeholder': 'Choose from list'}),
-            #'timezone': forms.TextInput(attrs={'placeholder': 'GMT-8'}),
+            'country': forms.Select(attrs={'placeholder': 'Choose from list'}),
+            'latitude': forms.TextInput(attrs={'placeholder': 'Latitude'}),
+            'longitude': forms.TextInput(attrs={'placeholder': 'Longitude'}),
+            'contact_person': forms.TextInput(attrs={'placeholder': 'Main Support Person'}),
+            'contact_email': forms.TextInput(attrs={'placeholder': 'Main Support Email'}),
+            'contact_phone': forms.TextInput(attrs={'placeholder': 'Main Contacts Number'}),
+            'location_type': forms.TextInput(attrs={'placeholder': 'Admin, Manufacturing, etc...'}),
             'timezone': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={'placeholder': 'Additional notes here...'}),
         }

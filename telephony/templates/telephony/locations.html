@@ -6,8 +6,85 @@
 <h4>Add/Update Location</h4>
 <form method="post" action="" class="location-form">
   {% csrf_token %}
-  {{ form.as_p }}
+  <!-- {{ form.as_p }} -->
+  <div class="form-group">
+    <label for="id_name">Name:</label>
+    {{ form.name }}
+  </div>
+  <div class="form-group">
+    <label for="id_display_name">Display Name:</label>
+    {{ form.display_name }}
+  </div>
+  <div class="form-group">
+    <label for="id_house_number">House Number:</label>
+    {{ form.house_number }}
+  </div>
+  <div class="form-group">
+    <label for="id_road">Road:</label>
+    {{ form.road }}
+  </div>
+  <div class="form-group">
+    <label for="id_road_suffix">Road Suffix:</label>
+    {{ form.road_suffix }}
+  </div>
+  <div class="form-group">
+    <label for="id_city">City:</label>
+    {{ form.city }}
+  </div>
+  <div class="form-group">
+    <label for="id_county">County:</label>
+    {{ form.county }}
+  </div>
+  <div class="form-group">
+    <label for="id_state">State:</label>
+    {{ form.state }}
+  </div>
+  <div class="form-group">
+    <label for="id_state_abbreviation">State Abbreviation:</label>
+    {{ form.state_abbreviation }}
+  </div>
+  <div class="form-group">
+    <label for="id_postcode">Postcode:</label>
+    {{ form.postcode }}
+  </div>
+  <div class="form-group">
+    <label for="id_country">Country:</label>
+    {{ form.country }}
+  </div>
+  <div class="form-group">
+    <label for="id_latitude">Latitude:</label>
+    {{ form.latitude }}
+  </div>
+  <div class="form-group">
+    <label for="id_longitude">Longitude:</label>
+    {{ form.longitude }}
+  </div>
+  <div class="form-group">
+    <label for="id_timezone">Timezone:</label>
+    {{ form.timezone }}
+  </div>
+  <div class="form-group">
+    <label for="id_contact_person">Contact Person:</label>
+    {{ form.contact_person }}
+  </div>
+  <div class="form-group">
+    <label for="id_contact_email">Contact Email:</label>
+    {{ form.contact_email }}
+  </div>
+  <div class="form-group">
+    <label for="id_contact_phone">Contact Phone:</label>
+    {{ form.contact_phone }}
+  </div>
+  <div class="form-group">
+    <label for="id_location_type">Location Type:</label>
+    {{ form.location_type }}
+  </div>
+  <div class="form-group">
+    <label for="id_notes">Notes:</label>
+    {{ form.notes }}
+  </div>
   <button type="submit" class="btn btn-primary">Save</button>
+  <button type="button" class="btn btn-secondary" id="clear-form">Clear</button>
 </form>
 <table class="location-table">
   <tr class="location-th location-td">
@@ -28,6 +105,7 @@
         {% if location.road_suffix %}{{ location.road_suffix }}{% endif %}
         {% if location.city %}{{ location.city }}{% endif %}
         {% if location.state_abbreviation %}{{ location.state_abbreviation }}{% endif %}
+        {% if location.state %}{{ location.state }}{% endif %}
         {% if location.postcode %}{{ location.postcode }}{% endif %}
         {% if location.country %}{{ location.country }}{% endif %}
     </td>
@@ -60,12 +138,26 @@
           document.getElementById('id_road').value = data.road;
           document.getElementById('id_road_suffix').value = data.road_suffix;
           document.getElementById('id_city').value = data.city;
-          document.getElementById('id_state_abbreviation').value = data.state_abbreviation;
+          document.getElementById('id_county').value = data.county;
           document.getElementById('id_state').value = data.state;  // Full state name
+          document.getElementById('id_state_abbreviation').value = data.state_abbreviation;
           document.getElementById('id_postcode').value = data.postcode;
           document.getElementById('id_country').value = data.country;
+          document.getElementById('id_latitude').value = data.latitude;
+          document.getElementById('id_longitude').value = data.longitude;
           document.getElementById('id_timezone').value = data.timezone;
+          document.getElementById('id_contact_person').value = data.contact_person;
+          document.getElementById('id_contact_email').value = data.contact_email;
+          document.getElementById('id_contact_phone').value = data.contact_phone;
+          document.getElementById('id_location_type').value = data.location_type;
           document.getElementById('id_notes').value = data.notes;
+
+          // Set the country dropdown
+          // var countryDropdown = document.getElementById('id_country');
+          // for (var i = 0; i < countryDropdown.options.length; i++) {
+          //   if (countryDropdown.options[i].text === data.country) {
+          //     countryDropdown.selectedIndex = i;
+          //     break;
         });
       });
     });
@@ -74,7 +166,12 @@
       button.addEventListener('click', function (event) {
         event.stopPropagation();
         var id = button.getAttribute('data-id');
-        fetch(`/verify_location/${id}/`).then(response => response.json()).then(data => {
+        var form = document.querySelector('.location-form');
+        var formData = new FormData(form);
+        fetch(`/verify_location/${id}/`, {
+          method: 'POST',
+          body: formData,
+        }).then(response => response.json()).then(data => {
           if (data.success) {
             button.closest('td').innerText = 'True';
           } else {
@@ -83,6 +180,19 @@
         });
       });
     });
+    // document.querySelectorAll('.verify-btn').forEach(function (button) {
+    //   button.addEventListener('click', function (event) {
+    //     event.stopPropagation();
+    //     var id = button.getAttribute('data-id');
+    //     fetch(`/verify_location/${id}/`).then(response => response.json()).then(data => {
+    //       if (data.success) {
+    //         button.closest('td').innerText = 'True';
+    //       } else {
+    //         alert('Address verification failed.');
+    //       }
+    //     });
+    //   });
+    // });
 
     document.querySelectorAll('.delete-btn').forEach(function (button) {
       button.addEventListener('click', function (event) {
@@ -98,6 +208,22 @@
             alert('Failed to delete the location.');
           }
         });
+      });
+    });
+
+    // Add event listener for the Clear button
+    document.getElementById('clear-form').addEventListener('click', function () {
+      // Select the form
+      var form = document.querySelector('.location-form');
+
+      // Clear all input fields within the form
+      form.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], textarea').forEach(function (input) {
+        input.value = '';
+      });
+
+      // Clear all select fields within the form
+      form.querySelectorAll('select').forEach(function (select) {
+        select.selectedIndex = 0;
       });
     });
   });

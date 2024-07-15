@@ -43,7 +43,7 @@ class Location(models.Model):
     city = models.CharField(max_length=100)
     county = models.CharField(max_length=50, blank=True, null=True)
     state = models.CharField(max_length=50, blank=True, null=True)
-    state_abbreviation = models.CharField(max_length=5)
+    state_abbreviation = models.CharField(max_length=5, blank=True, null=True)
     postcode = models.CharField(max_length=20)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     latitude = models.FloatField(blank=True, null=True)

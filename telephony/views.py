@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, Country
 from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, CountryForm
+#from .utils import verify_and_save_location
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,17 @@ def locations(request):
     else:
         form = LocationForm()
     return render(request, 'telephony/locations.html', {'form': form, 'locations': Location.objects.all()})
+
+# def verify_location(request, id):
+#     location = get_object_or_404(Location, id=id)
+#     if request.method == 'POST':
+#         form = LocationForm(request.POST, instance=location)
+#         if form.is_valid():
+#             success, message = verify_and_save_location(form)
+#             return JsonResponse({'success': success, 'message': message})
+#         else:
+#             return JsonResponse({'success': False, 'message': 'Form data is not valid'})
+#     return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 def verify_location(request, location_id):
     location = get_object_or_404(Location, pk=location_id)
@@ -65,15 +77,29 @@ def get_location(request, location_id):
         'road': location.road,
         'road_suffix': location.road_suffix,
         'city': location.city,
+        'county': location.county,
+        'state': location.state,
         'state_abbreviation': location.state_abbreviation,
         'postcode': location.postcode,
         'country': location.country.name,
+        'latitude': location.latitude,
+        'longitude': location.longitude,
+        'timezone': location.timezone,
+        'contact_person': location.contact_person,
+        'contact_email': location.contact_email,
+        'contact_phone': location.contact_phone,
+        'location_type': location.location_type,
         'notes': location.notes,
     }
     return JsonResponse(data)
 
 def verify_and_save_location(form):
-    address = form.cleaned_data['address']
+    if not form.is_valid():
+        return False, 'Form is not valid'
+
+    cleaned_data = form.cleaned_data
+    address = f"{cleaned_data['house_number']} {cleaned_data['road']}, {cleaned_data['city']}, {cleaned_data['state_abbreviation']} {cleaned_data['postcode']}, {cleaned_data['country'].name}"
+
     gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
     geocode_result = gmaps.geocode(address)
 
@@ -87,11 +113,12 @@ def verify_and_save_location(form):
         'street_number': 'short_name',
         'route': 'long_name',
         'locality': 'long_name',
-        'administrative_area_level_1': 'long_name',
-        'administrative_area_level_2': 'short_name',
+        'administrative_area_level_1': 'short_name',
+        'administrative_area_level_2': 'long_name',
         'postal_code': 'short_name',
         'country': 'short_name',
     }
+
     extracted_address = {}
     for component in address_components:
         address_type = component['types'][0]
@@ -100,10 +127,9 @@ def verify_and_save_location(form):
         if address_type == 'administrative_area_level_1':
             form.cleaned_data['state_abbreviation'] = component['short_name']
             form.cleaned_data['state'] = component['long_name']
+        if address_type == 'administrative_area_level_2':
+            form.cleaned_data['county'] = component['long_name']
 
-    form.cleaned_data['latitude'] = geo_location['lat']
-    form.cleaned_data['longitude'] = geo_location['lng']
-    form.cleaned_data['verified_location'] = True
     form.cleaned_data['house_number'] = extracted_address.get('street_number', '')
     form.cleaned_data['road'] = extracted_address.get('route', '')
     form.cleaned_data['city'] = extracted_address.get('locality', '')
@@ -122,6 +148,10 @@ def verify_and_save_location(form):
                 except Country.DoesNotExist:
                     return False, f'Country with ISO code "{country_code}" does not exist in the database'
 
+    form.cleaned_data['latitude'] = geo_location['lat']
+    form.cleaned_data['longitude'] = geo_location['lng']
+    form.cleaned_data['verified_location'] = True
+
     location = form.save(commit=False)
     timezone_result = gmaps.timezone((location.latitude, location.longitude))
     location.timezone = timezone_result['timeZoneId']
@@ -132,6 +162,7 @@ def verify_and_save_location(form):
     logger.debug(f'Extracted address: {extracted_address}')
 
     return True, 'Location added successfully!'
+
 
 # Service Provider Views
 def service_providers(request):
