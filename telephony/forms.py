@@ -90,7 +90,7 @@ class LocationForm(forms.ModelForm):
         cleaned_data['latitude'] = geo_location['lat']
         
         cleaned_data['verified_location'] = True  # Set verified_location to True if coordinates are available
-
+        
         return cleaned_data
 
     def save(self, commit=True):
@@ -163,7 +163,7 @@ class LocationForm(forms.ModelForm):
             'contact_email': forms.TextInput(attrs={'placeholder': 'Main Support Email'}),
             'contact_phone': forms.TextInput(attrs={'placeholder': 'Main Contacts Number'}),
             'location_type': forms.TextInput(attrs={'placeholder': 'Admin, Manufacturing, etc...'}),
-            'timezone': forms.HiddenInput(),
+            'timezone': forms.TextInput(attrs={'placeholder': 'GMT'}),
             'notes': forms.Textarea(attrs={'placeholder': 'Additional notes here...'}),
         }
 

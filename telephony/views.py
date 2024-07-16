@@ -81,7 +81,7 @@ def get_location(request, location_id):
         'state': location.state,
         'state_abbreviation': location.state_abbreviation,
         'postcode': location.postcode,
-        'country': location.country.name,
+        'country': location.country.id,
         'latitude': location.latitude,
         'longitude': location.longitude,
         'timezone': location.timezone,
@@ -98,7 +98,35 @@ def verify_and_save_location(form):
         return False, 'Form is not valid'
 
     cleaned_data = form.cleaned_data
-    address = f"{cleaned_data['house_number']} {cleaned_data['road']}, {cleaned_data['city']}, {cleaned_data['state_abbreviation']} {cleaned_data['postcode']}, {cleaned_data['country'].name}"
+    house_number = cleaned_data.get('house_number', '')
+    road = cleaned_data.get('road', '')
+    city = cleaned_data.get('city', '')
+    state_abbreviation = cleaned_data.get('state_abbreviation', '')
+    postcode = cleaned_data.get('postcode', '')
+    country = cleaned_data.get('country', None)
+    contact_person = cleaned_data.get('contact_person', '')
+    contact_email = cleaned_data.get('contact_email', '')
+    contact_phone = cleaned_data.get('contact_phone', '')
+    location_type = cleaned_data.get('location_type', '')
+    notes = cleaned_data.get('notes', '')
+
+    # Check for duplicates
+    # if Location.objects.filter(house_number, road, city, state_abbreviation, postcode, country).exists():
+    #     return False, 'A location with this address already exists.'
+
+    try:
+        location = Location.objects.get(
+            house_number=house_number, 
+            road=road, 
+            city=city, 
+            state_abbreviation=state_abbreviation, 
+            postcode=postcode, 
+            country=country,
+        )
+    except Location.DoesNotExist:
+        location = None
+    
+    address = f"{house_number} {road}, {city}, {state_abbreviation} {postcode}, {country.name}"
 
     gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
     geocode_result = gmaps.geocode(address)
@@ -158,8 +186,8 @@ def verify_and_save_location(form):
     location.verified_location = True
     location.save()
 
-    logger.debug(f'Country code received: {country_code}')
-    logger.debug(f'Extracted address: {extracted_address}')
+    # logger.debug(f'Country code received: {country_code}')
+    # logger.debug(f'Extracted address: {extracted_address}')
 
     return True, 'Location added successfully!'
 
@@ -230,8 +258,26 @@ def add_service_provider(request):
         form = ServiceProviderForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('add_service_provider')  # Replace with the actual name of your list view
+            return redirect('telephony/service_provider')  # Replace with the actual name of your list view
     else:
         form = ServiceProviderForm()
     
-    return render(request, 'telephony/add_service_provider.html', {'form': form})
+    service_providers = ServiceProvider.objects.all()
+    return render(request, 'telephony/add_service_provider.html', {'form': form, 'service_providers': service_providers})
+
+def delete_service_provider(request, provider_id):
+    service_provider = get_object_or_404(ServiceProvider, id=provider_id)
+    service_provider.delete()
+    return redirect('telephony:service_provider')  # Adjust this to the correct URL name
+
+def get_service_provider(request, provider_id):
+    service_provider = get_object_or_404(ServiceProvider, id=provider_id)
+    data = {
+        'provider_name': service_provider.provider_name,
+        'support_number': service_provider.support_number,
+        'contract_number': service_provider.contract_number,
+        'contract_details': service_provider.contract_details,
+        'website_url': service_provider.website_url,
+        'notes': service_provider.notes,
+    }
+    return JsonResponse(data)

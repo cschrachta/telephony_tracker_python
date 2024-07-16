@@ -6,224 +6,140 @@
 <h4>Add/Update Location</h4>
 <form method="post" action="" class="location-form">
   {% csrf_token %}
-    <div class="container-fluid">
-      <div class="row">
-        <!-- Column 1 -->
-        <div class="col-md-4 form-group mb-2">
-          <div class="row">
-            <label for="id_name" class="col-4 text-right">Name:</label>
-            <div class="col-8">
-              {{ form.name }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_display_name" class="col-4 text-right">Display Name:</label>
-            <div class="col-8">
-              {{ form.display_name }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_house_number" class="col-4 text-right">House Number:</label>
-            <div class="col-8">
-              {{ form.house_number }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_road" class="col-4 text-right">Road:</label>
-            <div class="col-8">
-              {{ form.road }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_road_suffix" class="col-4 text-right">Road Suffix:</label>
-            <div class="col-8">
-              {{ form.road_suffix }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_city" class="col-4 text-right">City:</label>
-            <div class="col-8">
-              {{ form.city }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_county" class="col-4 text-right">County:</label>
-            <div class="col-8">
-              {{ form.county }}
-            </div>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Column 1 -->
+      <div class="col-md-4 form-group mb-2">
+        <div class="row">
+          <label for="id_name" class="col-4 text-right">Name:</label>
+          <div class="col-8">
+            {{ form.name }}
           </div>
         </div>
-    
-        <!-- Column 2 -->
-        <div class="col-md-4 form-group mb-2">
-          <div class="row">
-            <label for="id_state" class="col-4 text-right">State:</label>
-            <div class="col-8">
-              {{ form.state }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_state_abbreviation" class="col-4 text-right">State Abbreviation:</label>
-            <div class="col-8">
-              {{ form.state_abbreviation }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_postcode" class="col-4 text-right">Postcode:</label>
-            <div class="col-8">
-              {{ form.postcode }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_country" class="col-4 text-right">Country:</label>
-            <div class="col-8">
-              {{ form.country }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_latitude" class="col-4 text-right">Latitude:</label>
-            <div class="col-8">
-              {{ form.latitude }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_longitude" class="col-4 text-right">Longitude:</label>
-            <div class="col-8">
-              {{ form.longitude }}
-            </div>
-          </div>
-          <div class="row">
-            <label for="id_timezone" class="col-4 text-right">Timezone:</label>
-            <div class="col-8">
-              {{ form.timezone }}
-            </div>
+        <div class="row">
+          <label for="id_display_name" class="col-4 text-right">Display Name:</label>
+          <div class="col-8">
+            {{ form.display_name }}
           </div>
         </div>
-    
-        <!-- Column 3 -->
-        <div class="col-md-4 form-group mb-2">
-          <div class="row">
-            <label for="id_contact_person" class="col-4 text-right">Contact Person:</label>
-            <div class="col-8">
-              {{ form.contact_person }}
-            </div>
+        <div class="row">
+          <label for="id_house_number" class="col-4 text-right">House Number:</label>
+          <div class="col-8">
+            {{ form.house_number }}
           </div>
-          <div class="row">
-            <label for="id_contact_email" class="col-4 text-right">Contact Email:</label>
-            <div class="col-8">
-              {{ form.contact_email }}
-            </div>
+        </div>
+        <div class="row">
+          <label for="id_road" class="col-4 text-right">Road:</label>
+          <div class="col-8">
+            {{ form.road }}
           </div>
-          <div class="row">
-            <label for="id_contact_phone" class="col-4 text-right">Contact Phone:</label>
-            <div class="col-8">
-              {{ form.contact_phone }}
-            </div>
+        </div>
+        <div class="row">
+          <label for="id_road_suffix" class="col-4 text-right">Road Suffix:</label>
+          <div class="col-8">
+            {{ form.road_suffix }}
           </div>
-          <div class="row">
-            <label for="id_location_type" class="col-4 text-right">Location Type:</label>
-            <div class="col-8">
-              {{ form.location_type }}
-            </div>
+        </div>
+        <div class="row">
+          <label for="id_city" class="col-4 text-right">City:</label>
+          <div class="col-8">
+            {{ form.city }}
           </div>
-          <div class="form-group">
-            <label for="id_notes" class="col-4 text-right">Notes:</label>
-            {{ form.notes }}
+        </div>
+        <div class="row">
+          <label for="id_county" class="col-4 text-right">County:</label>
+          <div class="col-8">
+            {{ form.county }}
           </div>
         </div>
       </div>
-    
-      <div class="row mt-3">
-        <div class="col-md-12">
-          <button type="submit" class="btn btn-primary">Save</button>
-          <button type="button" class="btn btn-secondary" id="clear-form">Clear</button>
+      <!-- Column 2 -->
+      <div class="col-md-4 form-group mb-2">
+        <div class="row">
+          <label for="id_state" class="col-4 text-right">State:</label>
+          <div class="col-8">
+            {{ form.state }}
+          </div>
+        </div>
+        <div class="row">
+          <label for="id_state_abbreviation" class="col-4 text-right">State Abbreviation:</label>
+          <div class="col-8">
+            {{ form.state_abbreviation }}
+          </div>
+        </div>
+        <div class="row">
+          <label for="id_postcode" class="col-4 text-right">Postcode:</label>
+          <div class="col-8">
+            {{ form.postcode }}
+          </div>
+        </div>
+        <div class="row">
+          <label for="id_country" class="col-4 text-right">Country:</label>
+          <div class="col-8">
+            {{ form.country }}
+          </div>
+        </div>
+        <div class="row">
+          <label for="id_latitude" class="col-4 text-right">Latitude:</label>
+          <div class="col-8">
+            {{ form.latitude }}
+          </div>
+        </div>
+        <div class="row">
+          <label for="id_longitude" class="col-4 text-right">Longitude:</label>
+          <div class="col-8">
+            {{ form.longitude }}
+          </div>
+        </div>
+        <div class="row">
+          <label for="id_timezone" class="col-4 text-right">Timezone:</label>
+          <div class="col-8">
+            {{ form.timezone }}
+          </div>
+        </div>
+      </div>
+      <!-- Column 3 -->
+      <div class="col-md-4 form-group mb-2">
+        <div class="row">
+          <label for="id_contact_person" class="col-4 text-right">Contact Person:</label>
+          <div class="col-8">
+            {{ form.contact_person }}
+          </div>
+        </div>
+        <div class="row">
+          <label for="id_contact_email" class="col-4 text-right">Contact Email:</label>
+          <div class="col-8">
+            {{ form.contact_email }}
+          </div>
+        </div>
+        <div class="row">
+          <label for="id_contact_phone" class="col-4 text-right">Contact Phone:</label>
+          <div class="col-8">
+            {{ form.contact_phone }}
+          </div>
+        </div>
+        <div class="row">
+          <label for="id_location_type" class="col-4 text-right">Location Type:</label>
+          <div class="col-8">
+            {{ form.location_type }}
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="id_notes" class="col-4 text-right">Notes:</label>
+          {{ form.notes }}
         </div>
       </div>
     </div>
-  <!-- {{ form.as_p }} -->
-  <!-- <div class="container-fluid">
-    <div class="form-group">
-      <label for="id_name">Name:</label>
-      {{ form.name }}
+    <div class="row mt-3">
+      <div class="col-md-12">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" class="btn btn-secondary" id="clear-form">Clear</button>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="id_display_name">Display Name:</label>
-      {{ form.display_name }}
-    </div>
-    <div class="form-group">
-      <label for="id_house_number">House Number:</label>
-      {{ form.house_number }}
-    </div>
-    <div class="form-group">
-      <label for="id_road">Road:</label>
-      {{ form.road }}
-    </div>
-    <div class="form-group">
-      <label for="id_road_suffix">Road Suffix:</label>
-      {{ form.road_suffix }}
-    </div>
-    <div class="form-group">
-      <label for="id_city">City:</label>
-      {{ form.city }}
-    </div>
-    <div class="form-group">
-      <label for="id_county">County:</label>
-      {{ form.county }}
-    </div>
-    <div class="form-group">
-      <label for="id_state">State:</label>
-      {{ form.state }}
-    </div>
-    <div class="form-group">
-      <label for="id_state_abbreviation">State Abbreviation:</label>
-      {{ form.state_abbreviation }}
-    </div>
-    <div class="form-group">
-      <label for="id_postcode">Postcode:</label>
-      {{ form.postcode }}
-    </div>
-    <div class="form-group">
-      <label for="id_country">Country:</label>
-      {{ form.country }}
-    </div>
-    <div class="form-group">
-      <label for="id_latitude">Latitude:</label>
-      {{ form.latitude }}
-    </div>
-    <div class="form-group">
-      <label for="id_longitude">Longitude:</label>
-      {{ form.longitude }}
-    </div>
-    <div class="form-group">
-      <label for="id_timezone">Timezone:</label>
-      {{ form.timezone }}
-    </div>
-    <div class="form-group">
-      <label for="id_contact_person">Contact Person:</label>
-      {{ form.contact_person }}
-    </div>
-    <div class="form-group">
-      <label for="id_contact_email">Contact Email:</label>
-      {{ form.contact_email }}
-    </div>
-    <div class="form-group">
-      <label for="id_contact_phone">Contact Phone:</label>
-      {{ form.contact_phone }}
-    </div>
-    <div class="form-group">
-      <label for="id_location_type">Location Type:</label>
-      {{ form.location_type }}
-    </div>
-    <div class="form-group">
-      <label for="id_notes">Notes:</label>
-      {{ form.notes }}
-    </div>
-    <button type="submit" class="btn btn-primary">Save</button>
-    <button type="button" class="btn btn-secondary" id="clear-form">Clear</button>
-  </div> -->
+  </div>
 </form>
 <div class="container-fluid">
-  <table class="location-table">
+  <table class="location_table table table-hover" id="location_table">
     <tr class="location-th location-td">
       <th>Name</th>
       <th>Display Name</th>
@@ -242,7 +158,7 @@
           {% if location.road_suffix %}{{ location.road_suffix }}{% endif %}
           {% if location.city %}{{ location.city }}{% endif %}
           {% if location.state_abbreviation %}{{ location.state_abbreviation }}{% endif %}
-          {% if location.state %}{{ location.state }}{% endif %}
+          <!-- {% if location.state %}{{ location.state }}{% endif %} -->
           {% if location.postcode %}{{ location.postcode }}{% endif %}
           {% if location.country %}{{ location.country }}{% endif %}
       </td>
@@ -264,9 +180,15 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include DataTables CSS and JS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.location-table tr[data-id]').forEach(function (row) {
+    document.querySelectorAll('#location_table tr[data-id]').forEach(function (row) {
       row.addEventListener('click', function () {
         var id = row.getAttribute('data-id');
         fetch(`/locations/${id}/`).then(response => response.json()).then(data => {
@@ -280,7 +202,7 @@
           document.getElementById('id_state').value = data.state;  // Full state name
           document.getElementById('id_state_abbreviation').value = data.state_abbreviation;
           document.getElementById('id_postcode').value = data.postcode;
-          document.getElementById('id_country').value = data.country;
+          // document.getElementById('id_country').value_list = data.country;
           document.getElementById('id_latitude').value = data.latitude;
           document.getElementById('id_longitude').value = data.longitude;
           document.getElementById('id_timezone').value = data.timezone;
@@ -290,12 +212,26 @@
           document.getElementById('id_location_type').value = data.location_type;
           document.getElementById('id_notes').value = data.notes;
 
+          // Debugging output
+          // console.log('Fetched data:', data);
+
           // Set the country dropdown
-          // var countryDropdown = document.getElementById('id_country');
-          // for (var i = 0; i < countryDropdown.options.length; i++) {
-          //   if (countryDropdown.options[i].text === data.country) {
-          //     countryDropdown.selectedIndex = i;
-          //     break;
+          var countryDropdown = document.getElementById('id_country');
+          var countryFound = false;
+          for (var i = 0; i < countryDropdown.options.length; i++) {
+            if (countryDropdown.options[i].value == data.country) {
+              countryDropdown.selectedIndex = i;
+              countryFound = true;
+              break;
+            }
+          }
+
+          // Debugging output
+          if (!countryFound) {
+            console.error('Country not found in dropdown options:', data.country);
+          }
+        }).catch(error => {
+          console.error('Error fetching location data:', error);
         });
       });
     });
@@ -349,6 +285,17 @@
       // Clear all select fields within the form
       form.querySelectorAll('select').forEach(function (select) {
         select.selectedIndex = 0;
+      });
+    });
+
+    $(document).ready(function () {
+      $('#location_table').DataTable({
+        "paging": true,
+        "searching": true,
+        "ordering": true,
+        "info": true,
+        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        "pageLength": 10
       });
     });
   });

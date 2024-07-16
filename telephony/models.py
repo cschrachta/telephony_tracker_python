@@ -58,6 +58,9 @@ class Location(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = (('house_number', 'road', 'city', 'state_abbreviation', 'country'),)
+
     def __str__(self):
         return self.display_name or self.name or "Unnamed Location"
 
@@ -75,7 +78,7 @@ class UsageType(models.Model):
         return self.usage_type
 
 class ServiceProvider(models.Model):
-    provider_name = models.CharField(max_length=255, null=False)
+    provider_name = models.CharField(max_length=255, unique=True, null=False)
     website_url = models.URLField(max_length=255, blank=True)
     support_number = models.CharField(max_length=20, blank=True)
     contract_number = models.CharField(max_length=255, blank=True)
