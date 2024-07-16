@@ -2,6 +2,55 @@
 
 {% block content %}
 <h2>Service Providers</h2>
+<h4>Add Service Provider</h4>
+<form method="post">
+  {% csrf_token %}
+  <!-- {{ form.as_p }} -->
+    <form method="post" action="{% url 'add_service_provider' %}" action="" class="service-provider-form">
+      {% csrf_token %}
+      <div class="container-fluid">
+        <div class="row">
+          <!-- Column 1 -->
+          <div class="col-md-4 form-group mb-2">
+            <label for="id_provider_name" class="col-4 text-right">Provider Name:</label>
+            {{ form.provider_name }}
+          </div>
+          <div class="col-md-4 form-group mb-2">
+            <label for="id_contract_number" class="col-4 text-right">Contract Number:</label>
+            {{ form.contract_number }}
+          </div>
+        </div>
+        <div class="row">
+          <!-- Column 2 -->
+          <div class="col-md-4 form-group mb-2">
+            <label for="id_website_url" class="col-4 text-right">Website:</label>
+            {{ form.website_url }}
+          </div>
+        </div>
+        <div class="row">
+          <!-- Column 3 -->
+          <div class="col-md-4 form-group mb-2">
+            <label for="id_support_number" class="col-4 text-right">Support Number:</label>
+            {{ form.support_number }}
+          </div>
+          <div class="col-md-4 form-group mb-2">
+            <label for="id_contract_details" class="col-4 text-right">Contract Details:</label>
+            {{ form.contract_details }}
+          </div>
+          <div class="col-md-4 form-group mb-2">
+            <label for="id_notes" class="col-4 text-right">Notes:</label>
+            {{ form.notes }}
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" id="clear-form">Clear</button>
+          </div>
+        </div>
+      </div>
+    </form>
+</form>
 <!-- <ul>
   {% for provider_name in service_provider %}
   <li>{{ service_provider.provider_name }}</li>
@@ -18,7 +67,7 @@
   </tr>
   {% for service_provider in service_providers %}
   <tr >
-    <td>{{ service_provider.provider_name }}</td>
+    <td class="provider-td">{{ service_provider.provider_name }}</td>
     <td class="provider-td">{{ service_provider.support_number }}</td>
     <td class="provider-td">{{ service_provider.contract_number }}</td>
     <td class="provider-td">{{ service_provider.notes }}</td>
@@ -27,3 +76,21 @@
   {% endfor %}
 </table>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function () {
+    $('#service_providers_table').DataTable();
+
+    // Add event listener for the Clear button
+    document.getElementById('clear-form').addEventListener('click', function () {
+      // Clear all input fields within the form
+      document.querySelectorAll('.service-provider-form input, .service-provider-form textarea').forEach(function (input) {
+        input.value = '';
+      });
+    });
+  });
+</script>
+{% endblock %}
+
+

@@ -1,7 +1,7 @@
 import requests
 import googlemaps
 from django import forms
-from .models import CircuitDetail, ConnectionType, Location, PhoneNumberRange, PhoneNumber, Country
+from .models import CircuitDetail, ConnectionType, Location, PhoneNumberRange, PhoneNumber, Country, ServiceProvider
 from django.conf import settings
 
 class CircuitDetailForm(forms.ModelForm):
@@ -190,3 +190,22 @@ class CountryForm(forms.ModelForm):
         fields = ['name', 'iso2_code', 'iso3_code', 'e164_code', 'region', 'subregion', 'capital']
 
 
+class ServiceProviderForm(forms.ModelForm):
+    class Meta:
+        model = ServiceProvider
+        fields = [
+            'provider_name',
+            'website_url',
+            'support_number',
+            'contract_number',
+            'contract_details',
+            'notes'
+        ]
+        widgets = {
+            'provider_name': forms.TextInput(attrs={'placeholder': 'Provider Name'}),
+            'website_url': forms.URLInput(attrs={'placeholder': 'https://www.provider.com'}),
+            'support_number': forms.TextInput(attrs={'placeholder': 'Support: +18005551212'}),
+            'contract_number': forms.TextInput(attrs={'placeholder': 'Contract Number'}),
+            'contract_details': forms.Textarea(attrs={'placeholder': 'Contract Details'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'Notes'}),
+        }

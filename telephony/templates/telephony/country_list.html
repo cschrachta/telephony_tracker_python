@@ -8,6 +8,8 @@
   <thead>
     <tr>
       <th>Name</th>
+      <th>Abbr Short</th>
+      <th>Abbr Long</th>
       <th>E164 Code</th>
       <th>Region</th>
       <th>Subregion</th>
@@ -18,6 +20,8 @@
     {% for country in countries %}
     <tr>
       <td>{{ country.name }}</td>
+      <td>{{ country.iso2_code }}</td>
+      <td>{{ country.iso3_code }}</td>
       <td>{{ country.e164_code }}</td>
       <td>{{ country.region }}</td>
       <td>{{ country.subregion }}</td>

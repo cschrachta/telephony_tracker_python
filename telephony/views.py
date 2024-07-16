@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, Country
-from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, CountryForm
+from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, CountryForm, ServiceProviderForm
 #from .utils import verify_and_save_location
 
 logger = logging.getLogger(__name__)
@@ -205,7 +205,33 @@ def phone_numbers(request):
         'form': form,
     })
 
-# Country Views
+
+#Country Views
 def country_list(request):
     countries = Country.objects.all()
     return render(request, 'telephony/country_list.html', {'countries': countries})
+
+
+def service_provider(request):
+    if request.method == 'POST':
+        form = ServiceProviderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('service_provider')  # Replace with the actual name of your list view
+    else:
+        form = ServiceProviderForm()
+    
+    service_providers = ServiceProvider.objects.all()
+    return render(request, 'telephony/service_provider.html', {'form': form, 'service_providers': service_providers})
+
+
+def add_service_provider(request):
+    if request.method == 'POST':
+        form = ServiceProviderForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('add_service_provider')  # Replace with the actual name of your list view
+    else:
+        form = ServiceProviderForm()
+    
+    return render(request, 'telephony/add_service_provider.html', {'form': form})
