@@ -16,7 +16,7 @@
             {{ form.provider_name }}
           </div>
           <div class="col-md-4 form-group mb-2">
-            <label for="id_contract_number" class="col-4 text-right">Contract Number:</label>
+            <label for="id_contract_number" class="col-4 text-right">Contract ID:</label>
             {{ form.contract_number }}
           </div>
         </div>
@@ -86,6 +86,12 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Include DataTables CSS and JS -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     // Initialize DataTable
@@ -95,12 +101,12 @@
     document.getElementById('clear-form').addEventListener('click', function () {
       console.log('Clear button clicked');
       // Clear all input fields within the form
-      document.querySelectorAll('.service-provider-form input, .service-provider-form textarea').forEach(function (input) {
+      document.querySelectorAll('input[type="text"], input[type="email"], input[type="url"], textarea').forEach(function (input) {
         input.value = '';
       });
 
       // Clear all select fields within the form
-      document.querySelectorAll('.service-provider-form select').forEach(function (select) {
+      document.querySelectorAll('select').forEach(function (select) {
         select.selectedIndex = 0;
       });
     });

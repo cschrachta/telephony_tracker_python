@@ -59,7 +59,7 @@ class Location(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = (('house_number', 'road', 'city', 'state_abbreviation', 'country'),)
+        unique_together = ('house_number', 'road', 'city', 'state_abbreviation', 'country',)
 
     def __str__(self):
         return self.display_name or self.name or "Unnamed Location"

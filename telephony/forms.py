@@ -205,7 +205,7 @@ class ServiceProviderForm(forms.ModelForm):
             'provider_name': forms.TextInput(attrs={'placeholder': 'Provider Name'}),
             'website_url': forms.URLInput(attrs={'placeholder': 'https://www.provider.com'}),
             'support_number': forms.TextInput(attrs={'placeholder': 'Support: +18005551212'}),
-            'contract_number': forms.TextInput(attrs={'placeholder': 'Contract Number'}),
+            'contract_number': forms.TextInput(attrs={'placeholder': 'Contract ID'}),
             'contract_details': forms.Textarea(attrs={'placeholder': 'Contract Details'}),
             'notes': forms.Textarea(attrs={'placeholder': 'Notes'}),
         }

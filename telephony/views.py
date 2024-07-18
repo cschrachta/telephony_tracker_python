@@ -120,7 +120,7 @@ def verify_and_save_location(form):
             road=road, 
             city=city, 
             state_abbreviation=state_abbreviation, 
-            postcode=postcode, 
+            # postcode=postcode, 
             country=country,
         )
     except Location.DoesNotExist:
