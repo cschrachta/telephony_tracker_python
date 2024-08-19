@@ -2,13 +2,15 @@ import googlemaps
 import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
+from django.views.decorators.http import require_POST, require_http_methods
 from django.conf import settings
 from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, Country
+from .templatetags import custom_filters
 from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, CountryForm, ServiceProviderForm
 #from .utils import verify_and_save_location
 
@@ -16,186 +18,17 @@ logger = logging.getLogger(__name__)
 
 # Home View
 def index(request):
-    return render(request, 'telephony/index.html')
-
-# Location Views
-def locations(request):
-    if request.method == 'POST':
-        form = LocationForm(request.POST or None)
-        if form.is_valid():
-            success, message = verify_and_save_location(form)
-            if success:
-                messages.success(request, message)
-                return redirect('locations')
-            else:
-                messages.error(request, message)
-    else:
-        form = LocationForm()
-    return render(request, 'telephony/locations.html', {'form': form, 'locations': Location.objects.all()})
-
-# def verify_location(request, id):
-#     location = get_object_or_404(Location, id=id)
-#     if request.method == 'POST':
-#         form = LocationForm(request.POST, instance=location)
-#         if form.is_valid():
-#             success, message = verify_and_save_location(form)
-#             return JsonResponse({'success': success, 'message': message})
-#         else:
-#             return JsonResponse({'success': False, 'message': 'Form data is not valid'})
-#     return JsonResponse({'success': False, 'message': 'Invalid request method'})
-
-def verify_location(request, location_id):
-    location = get_object_or_404(Location, pk=location_id)
-    if request.method == "POST":
-        form = LocationForm(request.POST, instance=location)
-        if form.is_valid():
-            success, message = verify_and_save_location(form)
-            if success:
-                messages.success(request, message)
-            else:
-                messages.error(request, message)
-            return redirect('locations')
-    else:
-        form = LocationForm(instance=location)
-    return render(request, 'telephony/locations.html', {'form': form, 'locations': Location.objects.all()})
-
-def delete_location(request, location_id):
-    location = get_object_or_404(Location, id=location_id)
-    if request.method == 'POST':
-        location.delete()
-        messages.success(request, 'Location deleted successfully!')
-        return redirect('locations')
-    return render(request, 'telephony/confirm_delete.html', {'location': location})
-
-@require_http_methods(["GET"])
-def get_location(request, location_id):
-    location = get_object_or_404(Location, pk=location_id)
-    data = {
-        'name': location.name,
-        'display_name': location.display_name,
-        'house_number': location.house_number,
-        'road': location.road,
-        'road_suffix': location.road_suffix,
-        'city': location.city,
-        'county': location.county,
-        'state': location.state,
-        'state_abbreviation': location.state_abbreviation,
-        'postcode': location.postcode,
-        'country': location.country.id,
-        'latitude': location.latitude,
-        'longitude': location.longitude,
-        'timezone': location.timezone,
-        'contact_person': location.contact_person,
-        'contact_email': location.contact_email,
-        'contact_phone': location.contact_phone,
-        'location_type': location.location_type,
-        'notes': location.notes,
+    context = {
+        'view_name': 'index',
+        'show_form': False,
+        'show_table': False,
+        'table_class': None,  # Add this to prevent template errors
+        'clear_view_url': None,  # Add this to prevent template errors
+        'form_fields': None,  # Add this to prevent template errors
     }
-    return JsonResponse(data)
+    print(context)
+    return render(request, 'telephony/index.html', context)
 
-def verify_and_save_location(form):
-    if not form.is_valid():
-        return False, 'Form is not valid'
-
-    cleaned_data = form.cleaned_data
-    house_number = cleaned_data.get('house_number', '')
-    road = cleaned_data.get('road', '')
-    city = cleaned_data.get('city', '')
-    state_abbreviation = cleaned_data.get('state_abbreviation', '')
-    postcode = cleaned_data.get('postcode', '')
-    country = cleaned_data.get('country', None)
-    contact_person = cleaned_data.get('contact_person', '')
-    contact_email = cleaned_data.get('contact_email', '')
-    contact_phone = cleaned_data.get('contact_phone', '')
-    location_type = cleaned_data.get('location_type', '')
-    notes = cleaned_data.get('notes', '')
-
-    # Check for duplicates
-    # if Location.objects.filter(house_number, road, city, state_abbreviation, postcode, country).exists():
-    #     return False, 'A location with this address already exists.'
-
-    try:
-        location = Location.objects.get(
-            house_number=house_number, 
-            road=road, 
-            city=city, 
-            state_abbreviation=state_abbreviation, 
-            # postcode=postcode, 
-            country=country,
-        )
-    except Location.DoesNotExist:
-        location = None
-    
-    address = f"{house_number} {road}, {city}, {state_abbreviation} {postcode}, {country.name}"
-
-    gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
-    geocode_result = gmaps.geocode(address)
-
-    if not geocode_result:
-        return False, 'Invalid address'
-
-    geo_location = geocode_result[0]['geometry']['location']
-    address_components = geocode_result[0]['address_components']
-
-    components = {
-        'street_number': 'short_name',
-        'route': 'long_name',
-        'locality': 'long_name',
-        'administrative_area_level_1': 'short_name',
-        'administrative_area_level_2': 'long_name',
-        'postal_code': 'short_name',
-        'country': 'short_name',
-    }
-
-    extracted_address = {}
-    for component in address_components:
-        address_type = component['types'][0]
-        if address_type in components:
-            extracted_address[address_type] = component[components[address_type]]
-        if address_type == 'administrative_area_level_1':
-            form.cleaned_data['state_abbreviation'] = component['short_name']
-            form.cleaned_data['state'] = component['long_name']
-        if address_type == 'administrative_area_level_2':
-            form.cleaned_data['county'] = component['long_name']
-
-    form.cleaned_data['house_number'] = extracted_address.get('street_number', '')
-    form.cleaned_data['road'] = extracted_address.get('route', '')
-    form.cleaned_data['city'] = extracted_address.get('locality', '')
-    form.cleaned_data['postcode'] = extracted_address.get('postal_code', '')
-
-    country_code = extracted_address.get('country', '')
-    if country_code:
-        try:
-            form.cleaned_data['country'] = Country.objects.get(iso2_code=country_code)
-        except Country.DoesNotExist:
-            try:
-                form.cleaned_data['country'] = Country.objects.get(iso3_code=country_code)
-            except Country.DoesNotExist:
-                try:
-                    form.cleaned_data['country'] = Country.objects.get(name=country_code)
-                except Country.DoesNotExist:
-                    return False, f'Country with ISO code "{country_code}" does not exist in the database'
-
-    form.cleaned_data['latitude'] = geo_location['lat']
-    form.cleaned_data['longitude'] = geo_location['lng']
-    form.cleaned_data['verified_location'] = True
-
-    location = form.save(commit=False)
-    timezone_result = gmaps.timezone((location.latitude, location.longitude))
-    location.timezone = timezone_result['timeZoneId']
-    location.verified_location = True
-    location.save()
-
-    # logger.debug(f'Country code received: {country_code}')
-    # logger.debug(f'Extracted address: {extracted_address}')
-
-    return True, 'Location added successfully!'
-
-
-# Service Provider Views
-def service_providers(request):
-    service_providers = ServiceProvider.objects.all()
-    return render(request, 'telephony/service_provider.html', {'service_providers': service_providers})
 
 # Circuit Views
 def circuits(request):
@@ -212,72 +45,352 @@ def add_circuit_detail(request):
         form = CircuitDetailForm()
     return render(request, 'add_circuit_detail.html', {'form': form})
 
-# Phone Number Views
-def phone_numbers(request):
-    form = SearchForm(request.GET or None)
-    phone_numbers = PhoneNumber.objects.all()
-
-    if form.is_valid():
-        query = form.cleaned_data.get('query')
-        if query:
-            phone_numbers = phone_numbers.filter(directory_number__icontains=query)
-
-    sort_by = request.GET.get('sort_by', 'directory_number')
-    order = request.GET.get('order', 'asc')
-    phone_numbers = phone_numbers.order_by(f"{'-' if order == 'desc' else ''}{sort_by}")
-
-    return render(request, 'telephony/phone_numbers.html', {
-        'phone_numbers': phone_numbers,
-        'sort_by': sort_by,
-        'order': order,
-        'form': form,
-    })
-
 
 #Country Views
 def country_list(request):
     countries = Country.objects.all()
+    context = {
+        'view_name': 'country_list',
+        'show_form': False,
+        'show_table': True,
+    }
     return render(request, 'telephony/country_list.html', {'countries': countries})
 
 
-def service_provider(request):
-    if request.method == 'POST':
-        form = ServiceProviderForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('service_provider')  # Replace with the actual name of your list view
-    else:
-        form = ServiceProviderForm()
+
+
+
+
+
+class ServiceProviderListView(ListView):
+    model = ServiceProvider
+    form_class = ServiceProviderForm
+    template_name = 'telephony/service_provider.html'
+    context_object_name = 'items'
+    success_url = reverse_lazy('telephony:service_provider')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ServiceProviderForm()
+        context['items'] = ServiceProvider.objects.all() 
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': 'telephony:service_provider',
+            'new_url': 'telephony:service_provider_new',
+            'edit_url': 'telephony:service_provider_edit',
+            'delete_url': 'telephony:delete_service_provider',
+            'clear_view_url': 'service_provider',
+            'table_class': 'service_providers-table',
+            'table_headers': ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes'],
+            'table_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
+            'form_class': 'service_provider-form',
+            'form_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
+        })
+        return context
     
-    service_providers = ServiceProvider.objects.all()
-    return render(request, 'telephony/service_provider.html', {'form': form, 'service_providers': service_providers})
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
+class ServiceProviderCreateView(CreateView):
+    model = ServiceProvider
+    form_class = ServiceProviderForm
+    template_name = 'telephony/service_provider.html'
+    context_object_name = 'items'
+    success_url = reverse_lazy('telephony:service_provider')
 
-def add_service_provider(request):
-    if request.method == 'POST':
-        form = ServiceProviderForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('telephony/service_provider')  # Replace with the actual name of your list view
-    else:
-        form = ServiceProviderForm()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = ServiceProviderForm()
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': 'telephony:service_provider',
+            'new_url': 'telephony:service_provider_new',
+            'edit_url': 'telephony:service_provider_edit',
+            'delete_url': 'telephony:delete_service_provider',
+            'clear_view_url': 'service_provider',
+            'table_class': 'service_providers-table',
+            'table_headers': ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes'],
+            'table_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
+            'form_class': 'service_provider-form',
+            'form_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
+        })
+        return context
     
-    service_providers = ServiceProvider.objects.all()
-    return render(request, 'telephony/add_service_provider.html', {'form': form, 'service_providers': service_providers})
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
-def delete_service_provider(request, provider_id):
-    service_provider = get_object_or_404(ServiceProvider, id=provider_id)
-    service_provider.delete()
-    return redirect('telephony:service_provider')  # Adjust this to the correct URL name
+class ServiceProviderUpdateView(UpdateView):
+    model = ServiceProvider
+    form_class = ServiceProviderForm
+    template_name = 'telephony/service_provider.html'
+    success_url = reverse_lazy('telephony:service_provider')
 
-def get_service_provider(request, provider_id):
-    service_provider = get_object_or_404(ServiceProvider, id=provider_id)
-    data = {
-        'provider_name': service_provider.provider_name,
-        'support_number': service_provider.support_number,
-        'contract_number': service_provider.contract_number,
-        'contract_details': service_provider.contract_details,
-        'website_url': service_provider.website_url,
-        'notes': service_provider.notes,
-    }
-    return JsonResponse(data)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.get_form()
+        context['items'] = ServiceProvider.objects.all() 
+        context['object'] = self.get_object()
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': 'telephony:service_provider',
+            'new_url': 'telephony:service_provider_new',
+            'edit_url': 'telephony:service_provider_edit',
+            'delete_url': 'telephony:delete_service_provider',
+            'clear_view_url': 'service_provider',
+            'table_class': 'service_providers-table',
+            'table_headers': ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes'],
+            'table_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
+            'form_class': 'service_provider-form',
+            'form_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
+        })
+        return context
+    
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+
+class ServiceProviderDetailView(DetailView):
+    model = ServiceProvider
+
+    def get(self, request, *args, **kwargs):
+        service_provider = self.get_object()
+        data = {
+            'provider_name': service_provider.provider_name,
+            'support_number': service_provider.support_number,
+            'contract_number': service_provider.contract_number,
+            'contract_details': service_provider.contract_details,
+            'website_url': service_provider.website_url,
+            'notes': service_provider.notes,
+        }
+        return JsonResponse(data)
+
+class ServiceProviderDeleteView(DeleteView):
+    model = ServiceProvider
+    success_url = reverse_lazy('telephony:service_provider')
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        return JsonResponse({'result': 'success'})
+    
+
+class LocationListView(ListView):
+    model = Location
+    form_class = LocationForm
+    template_name = 'telephony/locations.html'
+    context_object_name = 'items'
+    success_url = reverse_lazy('telephony:locations')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = LocationForm()
+        context['items'] = Location.objects.all() 
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': 'telephony:locations',
+            'new_url': 'telephony:location_new',
+            'edit_url': 'telephony:location_edit',
+            'delete_url': 'telephony:delete_location',
+            'clear_view_url': 'locations',
+            'table_class': 'locations-table',
+            'table_headers': ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified'],
+            'table_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location'],
+            'form_class': 'location-form',
+            'form_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'verified_location'],
+        })
+        return context
+
+class LocationCreateView(CreateView):
+    model = Location
+    form_class = LocationForm
+    template_name = 'telephony/locations.html'
+    success_url = reverse_lazy('telephony:locations')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.get_form()
+        context['items'] = Location.objects.all()
+        context['object'] = self.get_object()
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': 'telephony:locations',
+            'new_url': 'telephony:location_new',
+            'edit_url': 'telephony:location_edit',
+            'delete_url': 'telephony:delete_location',
+            'clear_view_url': 'locations',
+            'table_class': 'locations-table',
+            'table_headers': ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified'],
+            'table_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location'],
+            'form_class': 'location-form',
+            'form_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'verified_location'],
+        })
+        return context
+
+class LocationUpdateView(UpdateView):
+    model = Location
+    form_class = LocationForm
+    template_name = 'telephony/locations.html'
+    success_url = reverse_lazy('telephony:locations')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.get_form()
+        context['items'] = Location.objects.all() 
+        context['object'] = self.get_object()
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': 'telephony:locations',
+            'new_url': 'telephony:location_new',
+            'edit_url': 'telephony:location_edit',
+            'delete_url': 'telephony:delete_location',
+            'clear_view_url': 'locations',
+            'table_class': 'locations-table',
+            'table_headers': ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified'],
+            'table_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location'],
+            'form_class': 'location-form',
+            'form_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'verified_location'],
+        })
+        return context
+
+class LocationDetailView(DetailView):
+    model = Location
+
+    def get(self, request, *args, **kwargs):
+        location = self.get_object()
+        data = {
+            'name': location.name,
+            'display_name': location.display_name,
+            'house_number': location.house_number,
+            'road': location.road,
+            'city': location.city,
+            'state': location.state,
+            'country': location.country.name,
+            'postcode': location.postcode,
+            'verified_location': location.verified_location,
+        }
+        return JsonResponse(data)
+
+class LocationDeleteView(DeleteView):
+    model = Location
+    success_url = reverse_lazy('telephony:locations')
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        return JsonResponse({'result': 'success'})
+
+
+
+class PhoneNumberListView(ListView):
+    model = PhoneNumber
+    form_class = PhoneNumberForm
+    template_name = 'telephony/phone_numbers.html'
+    context_object_name = 'items'
+    success_url = reverse_lazy('telephony:phone_numbers')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = PhoneNumberForm()
+        context['items'] = PhoneNumber.objects.exclude(pk=None)
+        print(context['items'])
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': 'telephony:phone_numbers',
+            'new_url': 'telephony:phone_number_new',
+            'edit_url': 'telephony:phone_number_edit',
+            'delete_url': 'telephony:delete_phone_number',
+            'clear_view_url': 'phone_numbers',
+            'table_class': 'phone-numbers-table',
+            'table_headers': ['Directory Number', 'Country', 'Subscriber Number', 'Location', 'Usage Type', 'Status'],
+            'table_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
+            'form_class': 'phone-number-form',
+            'form_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
+        })
+        return context
+
+class PhoneNumberCreateView(CreateView):
+    model = PhoneNumber
+    form_class = PhoneNumberForm
+    template_name = 'telephony/phone_numbers.html'
+    success_url = reverse_lazy('telephony:phone_numbers')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = PhoneNumberForm()
+        context['items'] = PhoneNumber.objects.all()
+        context['object'] = self.get_object()
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': 'telephony:phone_numbers',
+            'new_url': 'telephony:phone_number_new',
+            'edit_url': 'telephony:phone_number_edit',
+            'delete_url': 'telephony:delete_phone_number',
+            'clear_view_url': 'phone_numbers',
+            'table_class': 'phone-numbers-table',
+            'table_headers': ['Directory Number', 'Country', 'Subscriber Number', 'Location', 'Usage Type', 'Status'],
+            'table_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
+            'form_class': 'phone-number-form',
+            'form_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
+        })
+        return context
+
+class PhoneNumberUpdateView(UpdateView):
+    model = PhoneNumber
+    form_class = PhoneNumberForm
+    template_name = 'telephony/phone_numbers.html'
+    success_url = reverse_lazy('telephony:phone_numbers')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.get_form()
+        context['items'] = PhoneNumber.objects.all() 
+        context['object'] = self.get_object()
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': 'telephony:phone_numbers',
+            'new_url': 'telephony:phone_number_new',
+            'edit_url': 'telephony:phone_number_edit',
+            'delete_url': 'telephony:delete_phone_number',
+            'clear_view_url': 'phone_numbers',
+            'table_class': 'phone-numbers-table',
+            'table_headers': ['Directory Number', 'Country', 'Subscriber Number', 'Location', 'Usage Type', 'Status'],
+            'table_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
+            'form_class': 'phone-number-form',
+            'form_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
+        })
+        return context
+
+class PhoneNumberDetailView(DetailView):
+    model = PhoneNumber
+
+    def get(self, request, *args, **kwargs):
+        phone_number = self.get_object()
+        data = {
+            'directory_number': phone_number.directory_number,
+            'country': phone_number.country.name,
+            'subscriber_number': phone_number.subscriber_number,
+            'service_location': phone_number.service_location.name,
+            'usage_type': phone_number.usage_type.usage_type,
+            'status': phone_number.status,
+        }
+        return JsonResponse(data)
+
+class PhoneNumberDeleteView(DeleteView):
+    model = PhoneNumber
+    success_url = reverse_lazy('telephony:phone_numbers')
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        return JsonResponse({'result': 'success'})
+    
+

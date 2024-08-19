@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django_crontab",
     "django_celery_results",
     "bootstrap5",
+    "django_filters",
     "telephony",
     "uc_data_import",
 ]

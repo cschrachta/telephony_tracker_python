@@ -1,183 +1,46 @@
 {% extends 'telephony/base.html' %}
+{% load custom_filters %}
+
+{% block title %}
+Service Providers
+{% endblock %}
 
 {% block content %}
 <h2>Service Providers</h2>
-<h4>Add Service Provider</h4>
-<form method="post">
-  {% csrf_token %}
-  <!-- {{ form.as_p }} -->
-    <form method="post" action="{% url 'add_service_provider' %}" action="" class="service-provider-form">
-      {% csrf_token %}
-      <div class="container-fluid">
-        <div class="row">
-          <!-- Column 1 -->
-          <div class="col-md-4 form-group mb-2">
-            <label for="id_provider_name" class="col-4 text-right">Provider Name:</label>
-            {{ form.provider_name }}
-          </div>
-          <div class="col-md-4 form-group mb-2">
-            <label for="id_contract_number" class="col-4 text-right">Contract ID:</label>
-            {{ form.contract_number }}
-          </div>
-        </div>
-        <div class="row">
-          <!-- Column 2 -->
-          <div class="col-md-4 form-group mb-2">
-            <label for="id_website_url" class="col-4 text-right">Website:</label>
-            {{ form.website_url }}
-          </div>
-        </div>
-        <div class="row">
-          <!-- Column 3 -->
-          <div class="col-md-4 form-group mb-2">
-            <label for="id_support_number" class="col-4 text-right">Support Number:</label>
-            {{ form.support_number }}
-          </div>
-          <div class="col-md-4 form-group mb-2">
-            <label for="id_contract_details" class="col-4 text-right">Contract Details:</label>
-            {{ form.contract_details }}
-          </div>
-          <div class="col-md-4 form-group mb-2">
-            <label for="id_notes" class="col-4 text-right">Notes:</label>
-            {{ form.notes }}
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <button type="button" class="btn btn-secondary" id="clear-form">Clear</button>
-          </div>
-        </div>
-      </div>
-    </form>
-</form>
-<!-- <ul>
-  {% for provider_name in service_provider %}
-  <li>{{ service_provider.provider_name }}</li>
-  {% endfor %}
-</ul> -->
+{% endblock %}
 
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Support Number</th>
-      <th>Contract</th>
-      <th>Notes</th>
-      <th>Website</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for service_provider in service_providers %}
-    <tr data-id="{{ service_provider.id }}">
-      <td>{{ service_provider.provider_name }}</td>
-      <td>{{ service_provider.support_number }}</td>
-      <td>{{ service_provider.contract_number }}</td>
-      <td>{{ service_provider.notes }}</td>
-      <td><a href="{{ service_provider.website_url }}" target="_blank">{{ service_provider.website_url }}</a></td>
-      <td>
-        <button class="btn btn-danger delete-btn" data-id="{{ service_provider.id }}">Delete</button>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% block form_content %}
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <label for="id_provider_name" class="form-label">*Provider Name:</label>
+        {{ form.provider_name|add_class:"form-control" }}
+      </div>
+      <div class="col-md-3">
+        <label for="id_support_number" class="form-label">Support Number:</label>
+        {{ form.support_number|add_class:"form-control" }}
+      </div>
+      <div class="col-md-3">
+        <label for="id_website_url" class="form-label">Website:</label>
+        {{ form.website_url|add_class:"form-control" }}
+      </div>
+      <div class="col-md-3">
+        <label for="id_contract_number" class="form-label">Contract:</label>
+        {{ form.contract_number|add_class:"form-control" }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <label for="id_conract_details" class="form-label">Contract Details:</label>
+        {{ form.contract_details|add_class:"form-control" }}
+      </div>
+      <div class="col-md-6">
+        <label for="id_notes" class="form-label">Notes:</label>
+        {{ form.notes|add_class:"form-control" }}
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Include DataTables CSS and JS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Initialize DataTable
-    $('#service_providers_table').DataTable();
-
-    // Add event listener for the Clear button
-    document.getElementById('clear-form').addEventListener('click', function () {
-      console.log('Clear button clicked');
-      // Clear all input fields within the form
-      document.querySelectorAll('input[type="text"], input[type="email"], input[type="url"], textarea').forEach(function (input) {
-        input.value = '';
-      });
-
-      // Clear all select fields within the form
-      document.querySelectorAll('select').forEach(function (select) {
-        select.selectedIndex = 0;
-      });
-    });
-
-    // Add click event listener for table rows
-    document.querySelectorAll('table tr[data-id]').forEach(function (row) {
-      row.addEventListener('click', function () {
-        var id = row.getAttribute('data-id');
-        fetch(`/get_service_provider/${id}/`)
-          .then(response => response.json())
-          .then(data => {
-            document.getElementById('id_provider_name').value = data.provider_name;
-            document.getElementById('id_support_number').value = data.support_number;
-            document.getElementById('id_contract_number').value = data.contract_number;
-            document.getElementById('id_contract_details').value = data.contract_details;
-            document.getElementById('id_website_url').value = data.website_url;
-            document.getElementById('id_notes').value = data.notes;
-          });
-      });
-    });
-
-    // Function to get CSRF token
-    function getCookie(name) {
-      let cookieValue = null;
-      if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-          const cookie = cookies[i].trim();
-          // Does this cookie string begin with the name we want?
-          if (cookie.substring(0, name.length + 1) === (name + '=')) {
-            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-            break;
-          }
-        }
-      }
-      return cookieValue;
-    }
-    const csrftoken = getCookie('csrftoken');
-
-    // Add click event listener for delete buttons
-    document.querySelectorAll('.delete-btn').forEach(function (button) {
-      button.addEventListener('click', function (event) {
-        event.stopPropagation();
-        var id = button.getAttribute('data-id');
-        if (confirm('Are you sure you want to delete this service provider?')) {
-          fetch(`/delete_service_provider/${id}/`, {
-            method: 'DELETE',
-            headers: {
-              'X-CSRFToken': csrftoken
-            }
-          })
-            .then(response => {
-              if (response.ok) {
-                // Remove the row from the table
-                button.closest('tr').remove();
-              } else {
-                response.json().then(data => {
-                  alert('Failed to delete the service provider: ' + data.error);
-                }).catch(error => {
-                  alert('Failed to delete the service provider. Please try again.');
-                });
-              }
-            })
-            .catch(error => {
-              alert('Failed to delete the service provider. Please try again.');
-            });
-        }
-      });
-    });
-  });
-</script>
 {% endblock %}
-
-

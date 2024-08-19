@@ -1,5 +1,6 @@
 import phonenumbers
 from django.db import models
+from django import forms
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
@@ -209,7 +210,8 @@ class PhoneNumberRange(models.Model):
 
 
 class PhoneNumber(models.Model):
-    directory_number = models.CharField(max_length=20, primary_key=True)
+    id = models.AutoField(primary_key=True)  # Automatically added by Django if not specified
+    directory_number = models.CharField(max_length=20, unique=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     subscriber_number = models.BigIntegerField()
     service_location = models.ForeignKey(Location, on_delete=models.CASCADE)
@@ -228,6 +230,11 @@ class PhoneNumber(models.Model):
     service_provider = models.ForeignKey(ServiceProvider, on_delete=models.CASCADE, blank=True, null=True)
     phone_number_range = models.ForeignKey(PhoneNumberRange, on_delete=models.CASCADE, blank=True, null=True)
     circuit = models.ForeignKey(CircuitDetail, on_delete=models.CASCADE, blank=True, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['directory_number'], name='unique_directory_number')
+        ]
 
     def __str__(self):
         return str(self.directory_number)

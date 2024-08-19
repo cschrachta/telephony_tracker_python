@@ -53,7 +53,7 @@ table {
 } */
 
 .location-th {
-  letter-spacing: 2px;
+  /* letter-spacing: 2px; */
   padding: 10px;
   text-align: center;
   border: 1px solid #ddd;
@@ -71,7 +71,7 @@ table {
 }
 
 .provider-th {
-  letter-spacing: 2px;
+  /* letter-spacing: 1px; */
   padding: 10px;
   text-align: center;
   border: 1px solid #ddd;
@@ -89,7 +89,7 @@ table {
 }
 
 .circuit-th {
-letter-spacing: 2px;
+/* letter-spacing: 2px; */
 padding: 10px;
 text-align: center;
 border: 1px solid #ddd;
@@ -107,7 +107,7 @@ font-weight: bold;
 }
 
 .phonenumber-th {
-letter-spacing: 2px;
+/* letter-spacing: 2px; */
 padding: 10px;
 text-align: center;
 border: 1px solid #ddd;
@@ -224,4 +224,20 @@ tr:hover {
 
 .btn:hover {
   background-color: #0056b3;
+}
+
+.dataTables_wrapper .dataTables_scrollHeadInner th {
+  position: relative;
+}
+
+.dataTables_wrapper .dataTables_scrollHeadInner th:after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  cursor: col-resize;
+  z-index: 1000;
+  /* Increase as needed */
 }

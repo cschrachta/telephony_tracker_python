@@ -13,19 +13,22 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+
+# path("", include("telephony.urls")),
+# path("", include("uc_data_import.urls")),
 """
 
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-#from . import views
+
+from telephony import views as telephony_views
+from uc_data_import import views as uc_data_import_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    #path("", views.index, name="index"),
-    #path("index/", views.index, name="index"),
-    path("", include("telephony.urls")),
-    path("", include("uc_data_import.urls")),
-    
+    path("", telephony_views.index, name="index"),
+    path('telephony/', include('telephony.urls', namespace='telephony')),
+    path('uc_data_import/', include('uc_data_import.urls', namespace='uc_data_import')),    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

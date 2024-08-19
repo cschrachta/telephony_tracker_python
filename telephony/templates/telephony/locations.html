@@ -1,303 +1,51 @@
-
-{% extends 'telephony/base.html' %}
+{% extends "telephony/base.html" %}
+{% load custom_filters %}
 
 {% block content %}
 <h2>Locations</h2>
-<h4>Add/Update Location</h4>
-<form method="post" action="" class="location-form">
-  {% csrf_token %}
-  <div class="container-fluid">
-    <div class="row">
-      <!-- Column 1 -->
-      <div class="col-md-4 form-group mb-2">
-        <div class="row">
-          <label for="id_name" class="col-4 text-right">* Name:</label>
-          <div class="col-8">
-            {{ form.name }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_display_name" class="col-4 text-right">Display Name:</label>
-          <div class="col-8">
-            {{ form.display_name }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_house_number" class="col-4 text-right">* House Number:</label>
-          <div class="col-8">
-            {{ form.house_number }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_road" class="col-4 text-right">* Road:</label>
-          <div class="col-8">
-            {{ form.road }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_road_suffix" class="col-4 text-right">Road Suffix:</label>
-          <div class="col-8">
-            {{ form.road_suffix }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_city" class="col-4 text-right">* City:</label>
-          <div class="col-8">
-            {{ form.city }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_county" class="col-4 text-right">County:</label>
-          <div class="col-8">
-            {{ form.county }}
-          </div>
-        </div>
-      </div>
-      <!-- Column 2 -->
-      <div class="col-md-4 form-group mb-2">
-        <div class="row">
-          <label for="id_state" class="col-4 text-right">State:</label>
-          <div class="col-8">
-            {{ form.state }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_state_abbreviation" class="col-4 text-right">* State Abbreviation:</label>
-          <div class="col-8">
-            {{ form.state_abbreviation }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_postcode" class="col-4 text-right">* Postcode:</label>
-          <div class="col-8">
-            {{ form.postcode }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_country" class="col-4 text-right">* Country:</label>
-          <div class="col-8">
-            {{ form.country }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_latitude" class="col-4 text-right">Latitude:</label>
-          <div class="col-8">
-            {{ form.latitude }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_longitude" class="col-4 text-right">Longitude:</label>
-          <div class="col-8">
-            {{ form.longitude }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_timezone" class="col-4 text-right">Timezone:</label>
-          <div class="col-8">
-            {{ form.timezone }}
-          </div>
-        </div>
-      </div>
-      <!-- Column 3 -->
-      <div class="col-md-4 form-group mb-2">
-        <div class="row">
-          <label for="id_contact_person" class="col-4 text-right">Contact Person:</label>
-          <div class="col-8">
-            {{ form.contact_person }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_contact_email" class="col-4 text-right">Contact Email:</label>
-          <div class="col-8">
-            {{ form.contact_email }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_contact_phone" class="col-4 text-right">Contact Phone:</label>
-          <div class="col-8">
-            {{ form.contact_phone }}
-          </div>
-        </div>
-        <div class="row">
-          <label for="id_location_type" class="col-4 text-right">Location Type:</label>
-          <div class="col-8">
-            {{ form.location_type }}
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="id_notes" class="col-4 text-right">Notes:</label>
-          {{ form.notes }}
-        </div>
-      </div>
+{% endblock %}
+
+{% block form_content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3">
+      <label for="id_name" class="form-label">*Name:</label>
+      {{ form.name|add_class:"form-control" }}
     </div>
-    <div class="row mt-3">
-      <div class="col-md-12">
-        <button type="submit" class="btn btn-primary">Save</button>
-        <button type="button" class="btn btn-secondary" id="clear-form">Clear</button>
-      </div>
+    <div class="col-md-3">
+      <label for="id_display_name" class="form-label">Display Name:</label>
+      {{ form.display_name|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_house_number" class="form-label">House Number:</label>
+      {{ form.house_number|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_road" class="form-label">Road:</label>
+      {{ form.road|add_class:"form-control" }}
     </div>
   </div>
-</form>
-<div class="container-fluid">
-  <table class="location_table table table-hover" id="location_table">
-    <tr class="location-th location-td">
-      <th>Name</th>
-      <th>Display Name</th>
-      <th>Location Address</th>
-      <th>Notes</th>
-      <th>Verified</th>
-      <th>Actions</th>
-    </tr>
-    {% for location in locations %}
-    <tr data-id="{{ location.id }}">
-      <td>{% if location.name %}{{ location.name }}{% endif %}</td>
-      <td>{% if location.display_name %}{{ location.display_name }}{% endif %}</td>
-      <td style="width: 30%">
-          {% if location.house_number %}{{ location.house_number }} {% endif %}
-          {% if location.road %}{{ location.road }}{% endif %}
-          {% if location.road_suffix %}{{ location.road_suffix }}{% endif %}
-          {% if location.city %}{{ location.city }}{% endif %}
-          {% if location.state_abbreviation %}{{ location.state_abbreviation }}{% endif %}
-          <!-- {% if location.state %}{{ location.state }}{% endif %} -->
-          {% if location.postcode %}{{ location.postcode }}{% endif %}
-          {% if location.country %}{{ location.country }}{% endif %}
-      </td>
-      <td style="width: 35%;">{{ location.notes }}</td>
-      <td class="verified; width: 40px; location-td">{{ location.verified_location }}</td>
-      <td class="actions">
-        {% if not location.verified_location %}
-        <button onclick="location.href='{% url 'verify_location' location.id %}'">Verify Address</button>
-        {% endif %}
-        <form method="post" action="{% url 'delete_location' location.id %}" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" onclick="return confirm('Are you sure you want to delete this location?');">Delete</button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
+  <div class="row">
+    <div class="col-md-3">
+      <label for="id_city" class="form-label">City:</label>
+      {{ form.city|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_state" class="form-label">State:</label>
+      {{ form.state|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_country" class="form-label">Country:</label>
+      {{ form.country|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_postcode" class="form-label">Postcode:</label>
+      {{ form.postcode|add_class:"form-control" }}
+    </div>
+  </div>
 </div>
 {% endblock %}
 
+
 {% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Include DataTables CSS and JS -->
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
-<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('#location_table tr[data-id]').forEach(function (row) {
-      row.addEventListener('click', function () {
-        var id = row.getAttribute('data-id');
-        fetch(`/locations/${id}/`).then(response => response.json()).then(data => {
-          document.getElementById('id_name').value = data.name;
-          document.getElementById('id_display_name').value = data.display_name;
-          document.getElementById('id_house_number').value = data.house_number;
-          document.getElementById('id_road').value = data.road;
-          document.getElementById('id_road_suffix').value = data.road_suffix;
-          document.getElementById('id_city').value = data.city;
-          document.getElementById('id_county').value = data.county;
-          document.getElementById('id_state').value = data.state;  // Full state name
-          document.getElementById('id_state_abbreviation').value = data.state_abbreviation;
-          document.getElementById('id_postcode').value = data.postcode;
-          // document.getElementById('id_country').value_list = data.country;
-          document.getElementById('id_latitude').value = data.latitude;
-          document.getElementById('id_longitude').value = data.longitude;
-          document.getElementById('id_timezone').value = data.timezone;
-          document.getElementById('id_contact_person').value = data.contact_person;
-          document.getElementById('id_contact_email').value = data.contact_email;
-          document.getElementById('id_contact_phone').value = data.contact_phone;
-          document.getElementById('id_location_type').value = data.location_type;
-          document.getElementById('id_notes').value = data.notes;
-
-          // Debugging output
-          // console.log('Fetched data:', data);
-
-          // Set the country dropdown
-          var countryDropdown = document.getElementById('id_country');
-          var countryFound = false;
-          for (var i = 0; i < countryDropdown.options.length; i++) {
-            if (countryDropdown.options[i].value == data.country) {
-              countryDropdown.selectedIndex = i;
-              countryFound = true;
-              break;
-            }
-          }
-
-          // Debugging output
-          if (!countryFound) {
-            console.error('Country not found in dropdown options:', data.country);
-          }
-        }).catch(error => {
-          console.error('Error fetching location data:', error);
-        });
-      });
-    });
-
-    document.querySelectorAll('.verify-btn').forEach(function (button) {
-      button.addEventListener('click', function (event) {
-        event.stopPropagation();
-        var id = button.getAttribute('data-id');
-        var form = document.querySelector('.location-form');
-        var formData = new FormData(form);
-        fetch(`/verify_location/${id}/`, {
-          method: 'POST',
-          body: formData,
-        }).then(response => response.json()).then(data => {
-          if (data.success) {
-            button.closest('td').innerText = 'True';
-          } else {
-            alert('Address verification failed.');
-          }
-        });
-      });
-    });
-
-    document.querySelectorAll('.delete-btn').forEach(function (button) {
-      button.addEventListener('click', function (event) {
-        event.stopPropagation();
-        if (!confirm('Are you sure you want to delete this location?')) {
-          return;
-        }
-        var id = button.getAttribute('data-id');
-        fetch(`/delete_location/${id}/`, { method: 'DELETE' }).then(response => {
-          if (response.ok) {
-            button.closest('tr').remove();
-          } else {
-            alert('Failed to delete the location.');
-          }
-        });
-      });
-    });
-
-    // Add event listener for the Clear button
-    document.getElementById('clear-form').addEventListener('click', function () {
-      // Select the form
-      var form = document.querySelector('.location-form');
-
-      // Clear all input fields within the form
-      form.querySelectorAll('input[type="text"], input[type="email"], input[type="number"], textarea').forEach(function (input) {
-        input.value = '';
-      });
-
-      // Clear all select fields within the form
-      form.querySelectorAll('select').forEach(function (select) {
-        select.selectedIndex = 0;
-      });
-    });
-
-    $(document).ready(function () {
-      $('#location_table').DataTable({
-        "paging": true,
-        "searching": true,
-        "ordering": true,
-        "info": true,
-        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
-        "pageLength": 10
-      });
-    });
-  });
-</script>
 {% endblock %}

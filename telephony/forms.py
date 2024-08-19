@@ -1,8 +1,10 @@
 import requests
 import googlemaps
+import django_filters
 from django import forms
 from .models import CircuitDetail, ConnectionType, Location, PhoneNumberRange, PhoneNumber, Country, ServiceProvider
 from django.conf import settings
+from .templatetags import custom_filters
 
 class CircuitDetailForm(forms.ModelForm):
     class Meta:
@@ -181,7 +183,35 @@ class SearchForm(forms.Form):
 class PhoneNumberForm(forms.ModelForm):
     class Meta:
         model = PhoneNumber
-        fields = ['directory_number', 'country', 'service_provider', 'service_location', 'usage_type', 'notes']
+        fields = [
+            'directory_number',
+            'country',
+            'subscriber_number',
+            'service_location', 
+            'is_active',
+            'assigned_to',
+            'usage_type',
+            'last_used_at',
+            'notes', 
+            'number_format',
+            'status',
+            'activation_date',
+            'deactivation_date', 
+            'comments',
+            'service_provider',
+            'phone_number_range',
+            'circuit'
+        ]
+        
+        widgets = {
+            'last_used_at': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'activation_date': forms.DateInput(attrs={'type': 'date'}),
+            'deactivation_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+        def phone_number_list(request):
+            filter = PhoneNumberFilter(request.GET, queryset=PhoneNumber.objects.all())
+            return render(request, 'telephony/phone_numbers.html', {'filter': filter})
 
 
 class CountryForm(forms.ModelForm):
@@ -191,6 +221,7 @@ class CountryForm(forms.ModelForm):
 
 
 class ServiceProviderForm(forms.ModelForm):
+
     class Meta:
         model = ServiceProvider
         fields = [

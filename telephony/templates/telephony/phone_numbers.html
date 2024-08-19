@@ -5,34 +5,37 @@
 
 {% block content %}
 <h2>Phone Numbers</h2>
-<table id="phone_numbers_table" class="display">
-  <thead>
-    <tr>
-      <th>Directory Number</th>
-      <th>Assigned User</th>
-      <th>Usage Type</th>
-      <th>Associated DID Range</th>
-      <th>Notes</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for phone_number in phone_numbers %}
-    <tr>
-      <td>{{ phone_number.directory_number }}</td>
-      <td>{{ phone_number.assigned_to }}</td>
-      <td>{{ phone_number.usage_type }}</td>
-      <td>{{ phone_number.phone_number_range }}</td>
-      <td>{{ phone_number.notes }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
 {% endblock %}
 
-{% block extra_js %}
-<script>
-  $(document).ready(function () {
-    $('#phone_numbers_table').DataTable();
-  });
-</script>
+{% block form_content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3">
+      <label for="id_directory_number" class="form-label">*Directory Number:</label>
+      {{ form.directory_number|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_country" class="form-label">Country:</label>
+      {{ form.country|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_subscriber_number" class="form-label">Subscriber Number:</label>
+      {{ form.subscriber_number|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_service_location" class="form-label">Service Location:</label>
+      {{ form.service_location|add_class:"form-control" }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-3">
+      <label for="id_usage_type" class="form-label">Usage Type:</label>
+      {{ form.usage_type|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_status" class="form-label">Status:</label>
+      {{ form.status|add_class:"form-control" }}
+    </div>
+  </div>
+</div>
 {% endblock %}
