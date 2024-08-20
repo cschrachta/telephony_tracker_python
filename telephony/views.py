@@ -2,7 +2,7 @@ import googlemaps
 import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView
+from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, View
 from django.views.decorators.http import require_POST, require_http_methods
 from django.conf import settings
 from django.http import JsonResponse, HttpResponseRedirect
@@ -53,12 +53,11 @@ def country_list(request):
         'view_name': 'country_list',
         'show_form': False,
         'show_table': True,
+        'clear_view_url': 'countries',  # Add this
+        'form_fields': None,
+        'countries': countries,
     }
-    return render(request, 'telephony/country_list.html', {'countries': countries})
-
-
-
-
+    return render(request, 'telephony/country_list.html', context)
 
 
 
@@ -202,7 +201,7 @@ class LocationListView(ListView):
             'table_headers': ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified'],
             'table_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location'],
             'form_class': 'location-form',
-            'form_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'verified_location'],
+            'form_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes'],
         })
         return context
 
@@ -286,6 +285,18 @@ class LocationDeleteView(DeleteView):
         response = super().post(request, *args, **kwargs)
         return JsonResponse({'result': 'success'})
 
+class ValidateLocationView(View):
+    def post(self, request, pk, *args, **kwargs):
+        location = get_object_or_404(Location, pk=pk)
+        address = f"{location.house_number} {location.road}, {location.city}, {location.state}, {location.country.name} {location.postcode}"
+        formatted_address, is_valid = validate_address(address)
+        if is_valid:
+            location.verified_location = True
+            location.save()
+            messages.success(request, "Address has been validated.")
+        else:
+            messages.error(request, "Address could not be validated.")
+        return HttpResponseRedirect(reverse_lazy('telephony:locations'))
 
 
 class PhoneNumberListView(ListView):

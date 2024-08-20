@@ -43,8 +43,26 @@
       {{ form.postcode|add_class:"form-control" }}
     </div>
   </div>
+  <div class="row">
+    <div class="col-md-9">
+        <div class="col-md-3">
+          <label for="id_postcode" class="form-label">Postcode:</label>
+          {{ form.postcode|add_class:"form-control" }}
+        </div>
+        <div class="col-md-3">
+          <label for="id_postcode" class="form-label">Postcode:</label>
+          {{ form.postcode|add_class:"form-control" }}
+        </div>
+
+    </div>
+    <div class="col-md-3">
+      <label for="id_notes" class="form-label">Notes:</label>
+      {{ form.notes|add_class:"form-control" }}
+    </div>
+  </div>
 </div>
 {% endblock %}
+
 
 
 {% block extra_js %}

@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
-  ServiceProviderListView, ServiceProviderCreateView, ServiceProviderUpdateView, ServiceProviderDetailView, ServiceProviderDeleteView, 
-  LocationListView, LocationCreateView, LocationUpdateView, LocationDetailView, LocationDeleteView,
+  ServiceProviderListView, ServiceProviderCreateView, ServiceProviderUpdateView, ServiceProviderDetailView, ServiceProviderDeleteView,
+  LocationListView, LocationCreateView, LocationUpdateView, LocationDetailView, LocationDeleteView, ValidateLocationView,
   PhoneNumberListView, PhoneNumberCreateView, PhoneNumberUpdateView, PhoneNumberDetailView, PhoneNumberDeleteView,
   country_list
 )
@@ -15,6 +15,7 @@ urlpatterns = [
     path('locations/<int:pk>/edit/', LocationUpdateView.as_view(), name='location_edit'),
     path('locations/<int:pk>/details/', LocationDetailView.as_view(), name='location_details'),
     path('locations/<int:pk>/delete/', LocationDeleteView.as_view(), name='delete_location'),
+    path('locations/<int:pk>/validate/', ValidateLocationView.as_view(), name='validate_location'),
     
     # Service provider-related URLs
     path('service_provider/', ServiceProviderListView.as_view(), name='service_provider'),
@@ -32,6 +33,7 @@ urlpatterns = [
     path('phone_numbers/<int:pk>/edit/', PhoneNumberUpdateView.as_view(), name='phone_number_edit'),
     path('phone_numbers/<int:pk>/details/', PhoneNumberDetailView.as_view(), name='phone_number_details'),
     path('phone_numbers/<int:pk>/delete/', PhoneNumberDeleteView.as_view(), name='delete_phone_number'),
+    # path('phone_numbers/<int:pk>/validate/', ValidatePhoneNumbersView.as_view(), name='validate_phone_number'),
 
     # path('service_provider_list/', views.service_provider_list, name='service_provider_list'),
     # path('phone_number/<int:phone_number_id>/', views.phone_numbers, name='phone_number_edit'),

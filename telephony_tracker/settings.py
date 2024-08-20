@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_crontab",
     "django_celery_results",
+    "django_google_maps",
     "bootstrap5",
     "django_filters",
     "telephony",

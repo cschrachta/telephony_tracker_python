@@ -1,8 +1,12 @@
-import phonenumbers
+import phonenumbers, googlemaps, requests
 from django.db import models
 from django import forms
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.conf import settings
+from .utils import validate_address
+
+gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
 
 # Create your models here.
 
@@ -55,6 +59,8 @@ class Location(models.Model):
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
     location_type = models.CharField(max_length=50, blank=True, null=True)
     verified_location = models.BooleanField(default=False)
+    formatted_address = models.CharField(max_length=255, blank=True)
+    google_maps_place_id = models.CharField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -64,6 +70,64 @@ class Location(models.Model):
 
     def __str__(self):
         return self.display_name or self.name or "Unnamed Location"
+    
+    def clean(self):
+        # Construct the address for submission
+        address = f"{self.house_number} {self.road}, {self.city}, {self.state}, {self.postcode}, {self.country.name}"
+        api_key = settings.GOOGLE_API_KEY
+        url = f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={api_key}"
+
+        response = requests.get(url)
+        result = response.json()
+        print(result)
+        if result['status'] == 'OK' and result['results']:
+            validated_address = result['results'][0]
+
+            # Update the model fields with the validated data
+            self.formatted_address = validated_address.get('formatted_address', '')
+            self.google_maps_place_id = validated_address.get('place_id', '')
+            self.house_number = next((component['long_name'] for component in validated_address['address_components'] if 'street_number' in component['types']), self.house_number)
+            self.road = next((component['long_name'] for component in validated_address['address_components'] if 'route' in component['types']), self.road)
+            self.city = next((component['long_name'] for component in validated_address['address_components'] if 'locality' in component['types']), self.city)
+            self.state = next((component['short_name'] for component in validated_address['address_components'] if 'administrative_area_level_1' in component['types']), self.state)
+            self.postcode = next((component['long_name'] for component in validated_address['address_components'] if 'postal_code' in component['types']), self.postcode)
+            
+            # Match country using ISO2 code, and if not found, try ISO3 code
+            country_code_iso2 = next((component['short_name'] for component in validated_address['address_components'] if 'country' in component['types']), None)
+            country_code_iso3 = next((component['long_name'] for component in validated_address['address_components'] if 'country' in component['types']), None)
+            
+            if country_code_iso2:
+                try:
+                    self.country = Country.objects.get(iso2_code=country_code_iso2)
+                except Country.DoesNotExist:
+                    if country_code_iso3:
+                        try:
+                            self.country = Country.objects.get(iso3_code=country_code_iso3)
+                        except Country.DoesNotExist:
+                            raise ValidationError(f"Country with ISO2 code {country_code_iso2} or ISO3 code {country_code_iso3} does not exist in the database.")
+                    else:
+                        raise ValidationError(f"Country with ISO2 code {country_code_iso2} does not exist in the database.")
+            else:
+                raise ValidationError("No country code found in the Google Maps API response.")
+
+            self.latitude = validated_address['geometry']['location']['lat']
+            self.longitude = validated_address['geometry']['location']['lng']
+
+            # Set verified_location to True if the address validation was successful
+            self.verified_location = True
+
+        else:
+            # If validation fails, raise an error or handle it appropriately
+            raise ValidationError('Address could not be verified.')
+
+        # Call the parent class’s clean method (if any)
+        super().clean()
+
+    def save(self, *args, **kwargs):
+        self.clean()  # Ensure the clean method is called before saving
+        super().save(*args, **kwargs)
+
+
 
 class StreetSuffix(models.Model):
     abbreviation = models.CharField(max_length=10, unique=True)
