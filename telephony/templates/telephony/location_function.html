@@ -1,0 +1,21 @@
+{% extends 'telephony/base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<h2>Location Functions</h2>
+{% endblock %}
+
+{% block form_content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3">
+      <label for="id_function_name" class="form-label">*Name:</label>
+      {{ form.function_name|add_class:"form-control" }}
+    </div>
+    <div class="col-md-9">
+      <label for="id_description" class="form-label">Description:</label>
+      {{ form.description|add_class:"form-control" }}
+    </div>
+  </div>
+</div>
+{% endblock %}

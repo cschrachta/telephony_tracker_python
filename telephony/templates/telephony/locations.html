@@ -45,15 +45,43 @@
   </div>
   <div class="row">
     <div class="col-md-9">
-        <div class="col-md-3">
-          <label for="id_postcode" class="form-label">Postcode:</label>
-          {{ form.postcode|add_class:"form-control" }}
+      <div class="row">
+        <div class="col-md-4">
+          <div>
+            <label for="id_contact_person" class="form-label">Location Contact:</label>
+            {{ form.contact_person|add_class:"form-control" }}
+          </div>
+          <div>
+            <label for="id_contact_email" class="form-label">Contact Email:</label>
+            {{ form.contact_email|add_class:"form-control" }}
+          </div>
+          <div>
+            <label for="id_contact_phone" class="form-label">Contact Phone:</label>
+            {{ form.contact_phone|add_class:"form-control" }}
+          </div>
         </div>
-        <div class="col-md-3">
-          <label for="id_postcode" class="form-label">Postcode:</label>
-          {{ form.postcode|add_class:"form-control" }}
-        </div>
+        <div class="col-md-4">
+          <div>
+            <label for="id_location_function" class="form-label">Location Function:</label>
+            {{ form.location_function|add_class:"form-control" }}
+          </div>
 
+        </div>
+        <div class="col-md-4">
+          <div>
+            <label for="id_timezone" class="form-label">Timezone:</label>
+            {{ form.timezone|add_class:"form-control" }}
+          </div>
+          <div>
+            <label for="id_latitude" class="form-label">Latitude:</label>
+            {{ form.latitude|add_class:"form-control" }}
+          </div>
+          <div>
+            <label for="id_longitude" class="form-label">Longitude:</label>
+            {{ form.longitude|add_class:"form-control" }}
+          </div>
+        </div>
+      </div>
     </div>
     <div class="col-md-3">
       <label for="id_notes" class="form-label">Notes:</label>

@@ -7,22 +7,22 @@
 <table id="country_table" class="table table-hover">
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Abbr Short</th>
-      <th>Abbr Long</th>
-      <th>E164 Code</th>
-      <th>Region</th>
-      <th>Subregion</th>
-      <th>Capital</th>
+      <th style="text-align:center">Common Name</th>
+      <th style="text-align:center">ISO2</th>
+      <th style="text-align:center">ISO3</th>
+      <th style="text-align:center">E164 Code</th>
+      <th style="text-align:center">Region</th>
+      <th style="text-align:center">Subregion</th>
+      <th style="text-align:center">Capital</th>
     </tr>
   </thead>
   <tbody>
     {% for country in countries %}
     <tr>
       <td>{{ country.name }}</td>
-      <td>{{ country.iso2_code }}</td>
-      <td>{{ country.iso3_code }}</td>
-      <td>{{ country.e164_code }}</td>
+      <td style="text-align:center">{{ country.iso2_code }}</td>
+      <td style="text-align:center">{{ country.iso3_code }}</td>
+      <td style="text-align:center">{{ country.e164_code }}</td>
       <td>{{ country.region }}</td>
       <td>{{ country.subregion }}</td>
       <td>{{ country.capital }}</td>

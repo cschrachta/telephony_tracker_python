@@ -2,9 +2,13 @@ import phonenumbers, googlemaps, requests
 from django.db import models
 from django import forms
 from django.utils import timezone
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.conf import settings
+from django.contrib.auth.models import User
 from .utils import validate_address
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
 
@@ -38,6 +42,31 @@ class Country(models.Model):
 
     def __str__(self):
         return self.name
+    
+    
+class LocationFunction(models.Model):
+    function_name = models.CharField(max_length=50, unique=True)
+    description = models.TextField(blank=True, null=True)
+    function_code = models.CharField(max_length=1, unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.function_code:
+            self.function_code = self.generate_function_code()
+        super().save(*args, **kwargs)
+
+    def generate_function_code(self):
+        # Implement logic to generate a unique function_code [0-9A-Z]
+        # This could be based on the existing codes or a predefined set
+        existing_codes = set(LocationFunction.objects.values_list('function_code', flat=True))
+        available_codes = set('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ') - existing_codes
+        if available_codes:
+            return min(available_codes)  # or some other logic to pick the code
+        else:
+            raise ValueError("No available function codes left.")
+
+    def __str__(self):
+        return self.function_name
+
 
 class Location(models.Model):
     name = models.CharField(max_length=100)
@@ -57,11 +86,12 @@ class Location(models.Model):
     contact_person = models.CharField(max_length=100, blank=True, null=True)
     contact_email = models.EmailField(max_length=100, blank=True, null=True)
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
-    location_type = models.CharField(max_length=50, blank=True, null=True)
+    location_function = models.ForeignKey(LocationFunction, on_delete=models.CASCADE, default=0)
     verified_location = models.BooleanField(default=False)
     formatted_address = models.CharField(max_length=255, blank=True)
     google_maps_place_id = models.CharField(max_length=255, blank=True)
     notes = models.TextField(blank=True)
+    site_id = models.CharField(max_length=50, unique=True, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -120,12 +150,26 @@ class Location(models.Model):
             # If validation fails, raise an error or handle it appropriately
             raise ValidationError('Address could not be verified.')
 
-        # Call the parent class’s clean method (if any)
         super().clean()
 
     def save(self, *args, **kwargs):
-        self.clean()  # Ensure the clean method is called before saving
+        if not self.site_id:  # Generate site_id if not already set
+            self.site_id = self.generate_site_id()
         super().save(*args, **kwargs)
+
+    def generate_site_id(self):
+        country_code = self.country.iso2_code
+        state_code = self.state_abbreviation[:2]  # or some other logic
+        function_code = self.location_function.function_code
+        site_id = f"{country_code}{state_code}{function_code}"
+        return site_id
+
+    def find_next_site_id(self, existing_ids):
+        # Logic to find the next available ID...
+        charset = '0123456789ABCDEF'
+        existing_indices = [int(id[-5:], 16) for id in existing_ids]
+        next_index = max(existing_indices) + 1 if existing_indices else 0
+        return f"{next_index:05X}"  # Return as 5-character hexadecimal
 
 
 
@@ -137,10 +181,17 @@ class StreetSuffix(models.Model):
         return self.abbreviation
 
 class UsageType(models.Model):
-    usage_type = models.CharField(max_length=50, unique=True, null=False)
+    USAGE_FOR_CHOICES = (
+        ('PhoneNumber', 'Phone Number'),
+        ('VoiceGateway', 'Voice Gateway'),
+        ('AnalogGateway', 'Analog Gateway'),
+        # Add more as needed
+    )
+    usage_type = models.CharField(max_length=50, unique=True, null=False, default='Phone')
+    usage_for = models.CharField(max_length=50, choices=USAGE_FOR_CHOICES, default='PhoneNumber')
 
     def __str__(self):
-        return self.usage_type
+        return f"{self.usage_type} ({self.get_usage_for_display()})"
 
 class ServiceProvider(models.Model):
     provider_name = models.CharField(max_length=255, unique=True, null=False)
@@ -323,4 +374,78 @@ class PhoneNumber(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()  # This will call clean() method
         super().save(*args, **kwargs)
+
+
+
+class HardwareDevice(models.Model):
+    manufacturer = models.CharField(max_length=255, null=False)
+    model = models.CharField(max_length=255, blank=True)
+    serial_number = models.CharField(max_length=20, blank=True, unique=True)
+    mac_address = models.CharField(max_length=255, blank=True, unique=True)
+    service_location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    exists_in_phone_system = models.BooleanField(default=True)
+    asset_tag = models.CharField(max_length=255, blank=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    fqdn = models.CharField(max_length=255, null=False)
+    firmware_version = models.CharField(max_length=100, blank=True)
+    purchase_date = models.DateField(blank=True, null=True)
+    warranty_expiration = models.DateField(blank=True, null=True)
+    status = models.CharField(max_length=50, choices=[('Active', 'Active'), ('Inactive', 'Inactive'), ('Decommissioned', 'Decommissioned')], default='Active')
+    owner = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    last_maintenance_date = models.DateField(blank=True, null=True)
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        abstract = True
+
+class HardwarePhone(HardwareDevice):
+    phone_number = models.CharField(max_length=20, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class HardwareGateway(HardwareDevice):
+
+    def __str__(self):
+        return self.name
+
+
+class HardwareAnalogGateway(HardwareDevice):
+
+    def __str__(self):
+        return self.name
+
+
+class Company(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    domain = models.CharField(max_length=255, unique=True)  # e.g., domain.com
+    subscription_level = models.CharField(max_length=50, choices=[('free', 'Free'), ('premium', 'Premium')], default='free')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='users')
+    role = models.CharField(max_length=50, choices=[('admin', 'Admin'), ('user', 'User')])
+    subscription_level = models.CharField(max_length=50, choices=[('free', 'Free'), ('premium', 'Premium')], default='free')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} ({self.company.name})"
+
+
+class Subscription(models.Model):
+    company = models.OneToOneField(Company, on_delete=models.CASCADE)
+    level = models.CharField(max_length=50, choices=[('free', 'Free'), ('premium', 'Premium')], default='free')
+    started_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.company.name} - {self.level}"
 

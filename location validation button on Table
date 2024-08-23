@@ -1,0 +1,15 @@
+{% for item in items %}
+<tr>
+  <td>{{ item.name }}</td>
+  <!-- other fields -->
+  <td>
+    {{ item.verified_location }}
+    {% if not item.verified_location %}
+    <form action="{% url 'telephony:validate_location' item.id %}" method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">Validate</button>
+    </form>
+    {% endif %}
+  </td>
+</tr>
+{% endfor %}

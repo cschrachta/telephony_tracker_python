@@ -1,0 +1,41 @@
+{% extends 'telephony/base.html' %}
+{% load custom_filters %}
+
+{% block title %}
+Service Providers
+{% endblock %}
+
+{% block content %}
+<h2>Service Provider Representatives</h2>
+{% endblock %}
+
+{% block form_content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-3">
+      <label for="id_provider" class="form-label">*Provider:</label>
+      {{ form.provider|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_account_rep_name" class="form-label">Representative:</label>
+      {{ form.account_rep_name|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_account_rep_phone" class="form-label">Phone Number:</label>
+      {{ form.account_rep_phone|add_class:"form-control" }}
+    </div>
+    <div class="col-md-3">
+      <label for="id_account_rep_email" class="form-label">Email Address:</label>
+      {{ form.account_rep_email|add_class:"form-control" }}
+    </div>
+  </div>
+    <div class="col-md-6">
+      <label for="id_notes" class="form-label">Notes:</label>
+      {{ form.notes|add_class:"form-control" }}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

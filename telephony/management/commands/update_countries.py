@@ -7,6 +7,14 @@ from telephony.models import Country
 class Command(BaseCommand):
     help = 'Updates the countries table with data from a REST Countries public source API'
 
+    # Define a dictionary for specific cases where E.164 codes need special handling
+    special_cases = {
+        'VAT': lambda root, suffixes: f"{root}{suffixes[-1]}",  # Vatican City
+        'ESH': lambda root, suffixes: '+212',  # Western Sahara
+        'SJM': lambda root, suffixes: '+47',   # Svalbard and Jan Mayen
+        'ALA': lambda root, suffixes: '+358',   # Åland Islands
+    }
+
     def handle(self, *args, **kwargs):
         url = 'https://restcountries.com/v3.1/all'
         response = requests.get(url)
@@ -21,15 +29,18 @@ class Command(BaseCommand):
                 e164_suffixes = calling_codes.get('suffixes', [])
                 region = country_data.get('region', '')
                 subregion = country_data.get('subregion', '')
-                capital = country_data.get('capital', [None])[0]
-                if capital is None:
-                    capital = "N/A"  # Default value for missing capital
-                if e164_root == '+1':
+                capital = country_data.get('capital', [None])[0] or "N/A"
+
+                # Handle special cases using the dictionary
+                if iso3_code in self.special_cases:
+                    e164_code = self.special_cases[iso3_code](e164_root, e164_suffixes)
+                elif e164_root == '+1' or e164_root == '+7':
                     e164_code = e164_root
                 elif e164_root and e164_suffixes:
                     e164_code = f"{e164_root}{e164_suffixes[0]}"
                 else:
                     e164_code = None
+
                 flag = country_data.get('flags', {})
                 flag_png_url = flag.get('png')
                 flag_svg_url = flag.get('svg')
@@ -37,8 +48,10 @@ class Command(BaseCommand):
                 postal_code_data = country_data.get('postalCode', {})
                 postal_code_format = postal_code_data.get('format', '')
                 postal_code_regex = postal_code_data.get('regex', '')
+
+                # Update or create the country record in the database
                 country, created = Country.objects.update_or_create(
-                    name=country_data['name']['common'],
+                    name=name,
                     defaults={
                         'iso2_code': iso2_code,
                         'iso3_code': iso3_code,
@@ -54,7 +67,6 @@ class Command(BaseCommand):
                         'postal_code_format': postal_code_format,
                         'postal_code_regex': postal_code_regex,
                     }
-                
                 )
             self.stdout.write(self.style.SUCCESS('Successfully updated countries'))
         else:

@@ -1,6 +1,7 @@
+from django import forms
 from django.contrib import admin
-from .models import Country, Location, UsageType, ServiceProvider, ServiceProviderRep, SwitchType, ConnectionType, CircuitDetail, PhoneNumber, PhoneNumberRange
-from .forms import PhoneNumberRangeForm
+from .models import Country, Location, LocationFunction, UsageType, ServiceProvider, ServiceProviderRep, SwitchType, ConnectionType, CircuitDetail, PhoneNumber, PhoneNumberRange, UsageType
+# from .forms import UsageTypeAdminForm
 
 def populate_phone_numbers(modeladmin, request, queryset):
     for number_range in queryset:
@@ -26,14 +27,29 @@ def populate_phone_numbers(modeladmin, request, queryset):
 
 populate_phone_numbers.short_description = "Populate phone numbers from selected ranges"
 
-class PhoneNumberAdmin(admin.ModelAdmin):
-    list_display = ['directory_number', 'service_location', 'circuit', 'is_active']
-    form = PhoneNumberRangeForm
+# class PhoneNumberAdmin(admin.ModelAdmin):
+#     list_display = ['directory_number', 'service_location', 'circuit', 'is_active']
+#     form = PhoneNumberRangeForm
 
-class PhoneNumberRangeAdmin(admin.ModelAdmin):
-    list_display = ['start_number', 'end_number', 'service_provider', 'location', 'circuit']
-    actions = [populate_phone_numbers]
-    form = PhoneNumberRangeForm
+# class PhoneNumberRangeAdmin(admin.ModelAdmin):
+#     list_display = ['start_number', 'end_number', 'service_provider', 'location', 'circuit']
+#     actions = [populate_phone_numbers]
+#     form = PhoneNumberRangeForm
+
+
+
+# class UsageTypeAdmin(admin.ModelAdmin):
+#     form = UsageTypeAdminForm
+
+#     def get_form(self, request, obj=None, **kwargs):
+#         form = super().get_form(request, obj, **kwargs)
+#         referer = request.META.get('HTTP_REFERER', '')
+#         if 'phone_numbers' in referer:
+#             form.base_fields['usage_for'].initial = 'PhoneNumber'
+#         elif 'voice_gateways' in referer:
+#             form.base_fields['usage_for'].initial = 'VoiceGateway'
+#         # Add more elif cases for other models as needed
+#         return form
 
 
 # Register your models here.
@@ -52,5 +68,7 @@ admin.site.register(SwitchType)
 admin.site.register(ConnectionType)
 admin.site.register(CircuitDetail)
 admin.site.register(PhoneNumber)
+admin.site.register(LocationFunction)
 #admin.site.register(PhoneNumberAdmin)
-admin.site.register(PhoneNumberRange, PhoneNumberRangeAdmin)
+# admin.site.register(PhoneNumberRange, PhoneNumberRangeAdmin)
+# admin.site.register(UsageType, UsageTypeAdmin)

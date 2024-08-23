@@ -1,7 +1,9 @@
 from django.urls import path
 from .views import (
   ServiceProviderListView, ServiceProviderCreateView, ServiceProviderUpdateView, ServiceProviderDetailView, ServiceProviderDeleteView,
+  ServiceProviderRepListView, ServiceProviderRepCreateView, ServiceProviderRepUpdateView, ServiceProviderRepDeleteView,
   LocationListView, LocationCreateView, LocationUpdateView, LocationDetailView, LocationDeleteView, ValidateLocationView,
+  LocationFunctionListView, LocationFunctionCreateView, LocationFunctionUpdateView, LocationFunctionDeleteView,
   PhoneNumberListView, PhoneNumberCreateView, PhoneNumberUpdateView, PhoneNumberDetailView, PhoneNumberDeleteView,
   country_list
 )
@@ -16,6 +18,12 @@ urlpatterns = [
     path('locations/<int:pk>/details/', LocationDetailView.as_view(), name='location_details'),
     path('locations/<int:pk>/delete/', LocationDeleteView.as_view(), name='delete_location'),
     path('locations/<int:pk>/validate/', ValidateLocationView.as_view(), name='validate_location'),
+
+    #Location-Function/Purpose URLs
+    path('location_functions/', LocationFunctionListView.as_view(), name='location_function_list'),
+    path('location_functions/new/', LocationFunctionCreateView.as_view(), name='location_function_new'),
+    path('location_functions/<int:pk>/edit/', LocationFunctionUpdateView.as_view(), name='location_function_edit'),
+    path('location_functions/<int:pk>/delete/', LocationFunctionDeleteView.as_view(), name='location_function_delete'),
     
     # Service provider-related URLs
     path('service_provider/', ServiceProviderListView.as_view(), name='service_provider'),
@@ -24,6 +32,12 @@ urlpatterns = [
     path('service_provider/<int:pk>/details/', ServiceProviderDetailView.as_view(), name='get_service_provider'),
     path('service_provider/<int:pk>/delete/', ServiceProviderDeleteView.as_view(), name='delete_service_provider'),
     
+    # Service provider rep-related URLs
+    path('service_provider_rep/', ServiceProviderRepListView.as_view(), name='service_provider_rep'),
+    path('service_provider_rep/new/', ServiceProviderRepCreateView.as_view(), name='service_provider_rep_new'),
+    path('service_provider_rep/<int:pk>/edit', ServiceProviderRepUpdateView.as_view(), name='service_provider_rep_edit'),
+    path('service_provider_rep/<int:pk>/delete/', ServiceProviderRepDeleteView.as_view(), name='service_provider_rep_delete'),
+   
     # Circuit-related URL
     # path('circuits/', views.circuits, name='circuits'),
 

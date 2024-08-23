@@ -2,7 +2,7 @@ import requests
 import googlemaps
 import django_filters
 from django import forms
-from .models import CircuitDetail, ConnectionType, Location, PhoneNumberRange, PhoneNumber, Country, ServiceProvider
+from .models import CircuitDetail, ConnectionType, Location, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, UsageType, ServiceProviderRep
 from django.conf import settings
 from .templatetags import custom_filters
 
@@ -113,7 +113,7 @@ class LocationForm(forms.ModelForm):
         location.contact_person = self.cleaned_data.get('contact_person', '')
         location.contact_email = self.cleaned_data.get('contact_email', '')
         location.contact_phone = self.cleaned_data.get('contact_phone', '')
-        location.location_type = self.cleaned_data.get('location_type', '')
+        location.location_function = self.cleaned_data.get('location_function', '')
         location.notes = self.cleaned_data.get('notes', '')
 
         gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
@@ -143,7 +143,7 @@ class LocationForm(forms.ModelForm):
             'contact_person',
             'contact_email',
             'contact_phone',
-            'location_type',
+            'location_function',
             'notes',
         ]
 
@@ -163,11 +163,16 @@ class LocationForm(forms.ModelForm):
             'longitude': forms.TextInput(attrs={'placeholder': 'Longitude'}),
             'contact_person': forms.TextInput(attrs={'placeholder': 'Main Support Person'}),
             'contact_email': forms.TextInput(attrs={'placeholder': 'Main Support Email'}),
-            'contact_phone': forms.TextInput(attrs={'placeholder': 'Main Contacts Number'}),
-            'location_type': forms.TextInput(attrs={'placeholder': 'Admin, Manufacturing, etc...'}),
+            'contact_phone': forms.TextInput(attrs={'placeholder': 'Main Contact Number'}),
+            'location_function': forms.Select(attrs={'placeholder': 'Admin, Manufacturing, etc...'}),
             'timezone': forms.TextInput(attrs={'placeholder': 'GMT'}),
             'notes': forms.Textarea(attrs={'placeholder': 'Additional notes here...'}),
         }
+
+class LocationFunctionForm(forms.ModelForm):
+    class Meta:
+        model = LocationFunction
+        fields = ['function_name', 'description', 'function_code']
 
 
 class PhoneNumberRangeForm(forms.ModelForm):
@@ -192,7 +197,7 @@ class PhoneNumberForm(forms.ModelForm):
             'assigned_to',
             'usage_type',
             'last_used_at',
-            'notes', 
+            'notes',
             'number_format',
             'status',
             'activation_date',
@@ -212,6 +217,10 @@ class PhoneNumberForm(forms.ModelForm):
         def phone_number_list(request):
             filter = PhoneNumberFilter(request.GET, queryset=PhoneNumber.objects.all())
             return render(request, 'telephony/phone_numbers.html', {'filter': filter})
+        
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['usage_type'].queryset = UsageType.objects.filter(usage_for='PhoneNumber')
 
 
 class CountryForm(forms.ModelForm):
@@ -240,3 +249,36 @@ class ServiceProviderForm(forms.ModelForm):
             'contract_details': forms.Textarea(attrs={'placeholder': 'Contract Details'}),
             'notes': forms.Textarea(attrs={'placeholder': 'Notes'}),
         }
+    
+
+class ServiceProviderRepForm(forms.ModelForm):
+
+    class Meta:
+        model = ServiceProviderRep
+        fields = [
+            'provider',
+            'account_rep_name',
+            'account_rep_phone',
+            'account_rep_email',
+            'notes'
+        ]
+        widgets = {
+            'provider': forms.Select(attrs={'placeholder': 'AT&T, Verizon, BT, NTT, etc...'}),
+            'account_rep_name': forms.TextInput(attrs={'placeholder': 'Full Name'}),
+            'account_rep_phone': forms.TextInput(attrs={'placeholder': 'Mobile: +18005551212'}),
+            'account_rep_email': forms.TextInput(attrs={'placeholder': 'name@example.com'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'Notes'}),
+        }
+
+
+# class UsageTypeAdminForm(forms.ModelForm):
+#     class Meta:
+#         model = UsageType
+#         fields = ['name', 'usage_for']
+
+#     def __init__(self, *args, **kwargs):
+#         initial_usage_for = kwargs.pop('initial_usage_for', None)
+#         super().__init__(*args, **kwargs)
+#         if initial_usage_for:
+#             self.fields['usage_for'].initial = initial_usage_for
+#             self.fields['usage_for'].widget.attrs['readonly'] = True
