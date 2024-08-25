@@ -1,5 +1,6 @@
 import googlemaps
 import logging
+import inflection
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, View
@@ -61,349 +62,6 @@ def country_list(request):
 
 
 
-class ServiceProviderListView(ListView):
-    model = ServiceProvider
-    form_class = ServiceProviderForm
-    template_name = 'telephony/service_provider.html'
-    context_object_name = 'items'
-    success_url = reverse_lazy('telephony:service_provider')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = ServiceProviderForm()
-        context['items'] = ServiceProvider.objects.all() 
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:service_provider',
-            'new_url': 'telephony:service_provider_new',
-            'edit_url': 'telephony:service_provider_edit',
-            'delete_url': 'telephony:delete_service_provider',
-            'clear_view_url': 'service_provider',
-            'table_class': 'service_providers-table',
-            'table_headers': ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes'],
-            'table_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
-            'form_class': 'service_provider-form',
-            'form_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
-        })
-        return context
-    
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-class ServiceProviderCreateView(CreateView):
-    model = ServiceProvider
-    form_class = ServiceProviderForm
-    template_name = 'telephony/service_provider.html'
-    context_object_name = 'items'
-    success_url = reverse_lazy('telephony:service_provider')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = ServiceProviderForm()
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:service_provider',
-            'new_url': 'telephony:service_provider_new',
-            'edit_url': 'telephony:service_provider_edit',
-            'delete_url': 'telephony:delete_service_provider',
-            'clear_view_url': 'service_provider',
-            'table_class': 'service_providers-table',
-            'table_headers': ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes'],
-            'table_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
-            'form_class': 'service_provider-form',
-            'form_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
-        })
-        return context
-    
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-class ServiceProviderUpdateView(UpdateView):
-    model = ServiceProvider
-    form_class = ServiceProviderForm
-    template_name = 'telephony/service_provider.html'
-    success_url = reverse_lazy('telephony:service_provider')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = self.get_form()
-        context['items'] = ServiceProvider.objects.all() 
-        context['object'] = self.get_object()
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:service_provider',
-            'new_url': 'telephony:service_provider_new',
-            'edit_url': 'telephony:service_provider_edit',
-            'delete_url': 'telephony:delete_service_provider',
-            'clear_view_url': 'service_provider',
-            'table_class': 'service_providers-table',
-            'table_headers': ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes'],
-            'table_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
-            'form_class': 'service_provider-form',
-            'form_fields': ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes'],
-        })
-        return context
-    
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-
-class ServiceProviderDetailView(DetailView):
-    model = ServiceProvider
-
-    def get(self, request, *args, **kwargs):
-        service_provider = self.get_object()
-        data = {
-            'provider_name': service_provider.provider_name,
-            'support_number': service_provider.support_number,
-            'contract_number': service_provider.contract_number,
-            'contract_details': service_provider.contract_details,
-            'website_url': service_provider.website_url,
-            'notes': service_provider.notes,
-        }
-        return JsonResponse(data)
-
-class ServiceProviderDeleteView(DeleteView):
-    model = ServiceProvider
-    success_url = reverse_lazy('telephony:service_provider')
-
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        return JsonResponse({'result': 'success'})
-    
-
-
-class ServiceProviderRepListView(ListView):
-    model = ServiceProviderRep
-    form_class = ServiceProviderRepForm
-    template_name = 'telephony/service_provider_rep.html'
-    context_object_name = 'items'
-    success_url = reverse_lazy('telephony:service_provider_rep')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = ServiceProviderRepForm()
-        context['items'] = ServiceProviderRep.objects.all() 
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:service_provider_rep',
-            'new_url': 'telephony:service_provider_rep_new',
-            'edit_url': 'telephony:service_provider_rep_edit',
-            'delete_url': 'telephony:service_provider_rep_delete',
-            'clear_view_url': 'service_provider_rep',
-            'table_class': 'service_provider_rep-table',
-            'table_headers': ['Provider', 'Representative Name', 'Contact Number', 'Contract Email', 'Notes'],
-            'table_fields': ['provider', 'account_rep_name', 'account_rep_phone', 'account_rep_email', 'notes'],
-            'form_class': 'service_provider_rep-form',
-            'form_fields': ['provider', 'account_rep_name', 'account_rep_phone', 'account_rep_email', 'notes'],
-        })
-        return context
-    
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-class ServiceProviderRepCreateView(CreateView):
-    model = ServiceProviderRep
-    form_class = ServiceProviderRepForm
-    template_name = 'telephony/service_provider_rep.html'
-    context_object_name = 'items'
-    success_url = reverse_lazy('telephony:service_provider_rep')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = ServiceProviderRepForm()
-        context['items'] = ServiceProviderRep.objects.all() 
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:service_provider_rep',
-            'new_url': 'telephony:service_provider_rep_new',
-            'edit_url': 'telephony:service_provider_rep_edit',
-            'delete_url': 'telephony:service_provider_rep_delete',
-            'clear_view_url': 'service_provider_rep',
-            'table_class': 'service_provider_rep-table',
-            'table_headers': ['Provider', 'Representative Name', 'Contact Number', 'Contract Email', 'Notes'],
-            'table_fields': ['provider', 'account_rep_name', 'account_rep_phone', 'account_rep_email', 'notes'],
-            'form_class': 'service_provider_rep-form',
-            'form_fields': ['provider', 'account_rep_name', 'account_rep_phone', 'account_rep_email', 'notes'],
-        })
-        return context
-    
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-class ServiceProviderRepUpdateView(UpdateView):
-    model = ServiceProviderRep
-    form_class = ServiceProviderRepForm
-    template_name = 'telephony/service_provider_rep.html'
-    context_object_name = 'items'
-    success_url = reverse_lazy('telephony:service_provider_rep')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = ServiceProviderRepForm()
-        context['items'] = ServiceProviderRep.objects.all() 
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:service_provider_rep',
-            'new_url': 'telephony:service_provider_rep_new',
-            'edit_url': 'telephony:service_provider_rep_edit',
-            'delete_url': 'telephony:service_provider_rep_delete',
-            'clear_view_url': 'service_provider_rep',
-            'table_class': 'service_provider_rep-table',
-            'table_headers': ['Provider', 'Representative Name', 'Contact Number', 'Contract Email', 'Notes'],
-            'table_fields': ['provider', 'account_rep_name', 'account_rep_phone', 'account_rep_email', 'notes'],
-            'form_class': 'service_provider_rep-form',
-            'form_fields': ['provider', 'account_rep_name', 'account_rep_phone', 'account_rep_email', 'notes'],
-        })
-        return context
-    
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-
-class ServiceProviderRepDetailView(DetailView):
-    model = ServiceProviderRep
-
-    def get(self, request, *args, **kwargs):
-        service_provider_rep = self.get_object()
-        data = {
-            'provider': service_provider_rep.provider,
-            'account_rep_name': service_provider_rep.support_number,
-            'account_rep_phone': service_provider_rep.contract_number,
-            'accouht_rep_email': service_provider_rep.contract_details,
-            'notes': service_provider_rep.notes,
-        }
-        return JsonResponse(data)
-
-class ServiceProviderRepDeleteView(DeleteView):
-    model = ServiceProviderRep
-    success_url = reverse_lazy('telephony:service_provider_rep')
-
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        return JsonResponse({'result': 'success'})
-    
-
-
-class LocationListView(ListView):
-    model = Location
-    form_class = LocationForm
-    template_name = 'telephony/locations.html'
-    context_object_name = 'items'
-    success_url = reverse_lazy('telephony:locations')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = LocationForm()
-        context['items'] = Location.objects.all() 
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:locations',
-            'new_url': 'telephony:location_new',
-            'edit_url': 'telephony:location_edit',
-            'delete_url': 'telephony:delete_location',
-            'clear_view_url': 'locations',
-            'table_class': 'locations-table',
-            'table_headers': ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified'],
-            'table_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location'],
-            'form_class': 'location-form',
-            'form_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes'],
-        })
-        return context
-
-class LocationCreateView(CreateView):
-    model = Location
-    form_class = LocationForm
-    template_name = 'telephony/locations.html'
-    success_url = reverse_lazy('telephony:locations')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = self.get_form()
-        context['items'] = Location.objects.all()
-        context['object'] = self.get_object()
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:locations',
-            'new_url': 'telephony:location_new',
-            'edit_url': 'telephony:location_edit',
-            'delete_url': 'telephony:delete_location',
-            'clear_view_url': 'locations',
-            'table_class': 'locations-table',
-            'table_headers': ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified'],
-            'table_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location'],
-            'form_class': 'location-form',
-            'form_fields': ['name', 'display_name', 'house_number', 'road', 'road_suffix', 'city', 'county', 'state', 'state_abbreviation', 'postcode', 'country', 'latitude', 'longitude', 'timezone', 'contact_person', 'contact_email', 'contact_phone', 'location_function', 'verified_location', 'notes'],
-        })
-        return context
-
-class LocationUpdateView(UpdateView):
-    model = Location
-    form_class = LocationForm
-    template_name = 'telephony/locations.html'
-    success_url = reverse_lazy('telephony:locations')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = self.get_form()
-        context['items'] = Location.objects.all() 
-        context['object'] = self.get_object()
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:locations',
-            'new_url': 'telephony:location_new',
-            'edit_url': 'telephony:location_edit',
-            'delete_url': 'telephony:delete_location',
-            'clear_view_url': 'locations',
-            'table_class': 'locations-table',
-            'table_headers': ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified'],
-            'table_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location'],
-            'form_class': 'location-form',
-            'form_fields': ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'verified_location'],
-        })
-        return context
-
-class LocationDetailView(DetailView):
-    model = Location
-
-    def get(self, request, *args, **kwargs):
-        location = self.get_object()
-        data = {
-            'name': location.name,
-            'display_name': location.display_name,
-            'house_number': location.house_number,
-            'road': location.road,
-            'city': location.city,
-            'state': location.state,
-            'country': location.country.name,
-            'postcode': location.postcode,
-            'verified_location': location.verified_location,
-        }
-        return JsonResponse(data)
-
-class LocationDeleteView(DeleteView):
-    model = Location
-    success_url = reverse_lazy('telephony:locations')
-
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        return JsonResponse({'result': 'success'})
-
 class ValidateLocationView(View):
     def post(self, request, pk, *args, **kwargs):
         location = get_object_or_404(Location, pk=pk)
@@ -416,200 +74,363 @@ class ValidateLocationView(View):
         else:
             messages.error(request, "Address could not be validated.")
         return HttpResponseRedirect(reverse_lazy('telephony:locations'))
+    
 
-
-class LocationFunctionListView(ListView):
-    model = LocationFunction
-    template_name = 'telephony/location_function.html'
+class BaseListView(ListView):
+    """
+    Base class for ListView that handles common context data setup.
+    """
+    model = None
+    form_class = None
+    template_name = None
     context_object_name = 'items'
+    table_headers = []
+    table_fields = []
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = LocationFunctionForm()
+        model_name_snake_case = inflection.underscore(self.model._meta.object_name)
+        context['form'] = self.form_class()
+        context['items'] = self.model.objects.all()
         context.update({
             'show_form': True,
             'show_table': True,
-            'view_name': 'telephony:location_function',
-            'new_url': 'telephony:location_function_new',
-            'edit_url': 'telephony:location_function_edit',
-            'delete_url': 'telephony:location_function_delete',
-            'clear_view_url': 'location_functions',
-            'table_class': 'location-function-table',
-            'table_headers': ['Name', 'Function Code', 'Description'],
-            'table_fields': ['function_name', 'function_code', 'description'],
-            'form_class': 'location-function-form',
-            'form_fields': ['function_name', 'description'],
+            'view_name': self.request.resolver_match.view_name,
+            'new_url': f'telephony:{model_name_snake_case}_new',
+            'edit_url': f'telephony:{model_name_snake_case}_edit',
+            'delete_url': f'telephony:{model_name_snake_case}_delete',
+            'clear_view_url': reverse_lazy('telephony:service_provider'),
+            'table_class': f'{model_name_snake_case}-table',
+            'table_headers': self.table_headers,
+            'table_fields': self.table_fields,
+            'form_class': f'{model_name_snake_case}-form',
+            'form_fields': [field.name for field in self.model._meta.fields],
         })
         return context
+    
+    def get_template_names(self):
+        model_name_str = str(self.model._meta.object_name)  # Ensure it's a string
+        model_name_snake_case = inflection.underscore(model_name_str)
+        return [f'telephony/{model_name_snake_case}.html']
 
-class LocationFunctionCreateView(CreateView):
-    model = LocationFunction
-    form_class = LocationFunctionForm
-    template_name = 'telephony/location_function.html'
-    success_url = reverse_lazy('telephony:location_function_list')
+class BaseCreateView(CreateView):
+    """
+    Base class for CreateView that handles common context data setup.
+    """
+    model = None
+    form_class = None
+    template_name = None
+    success_url = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = LocationFunctionForm()
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:location_function_list',
-            'new_url': 'telephony:location_function_new',
-            'edit_url': 'telephony:location_function_edit',
-            'delete_url': 'telephony:location_function_delete',
-            'clear_view_url': 'location_functions',
-            'table_class': 'location-functions-table',
-            'table_headers': ['Function Name', 'Description'],
-            'table_fields': ['function_name', 'description'],
-            'form_class': 'location-function-form',
-            'form_fields': ['function_name', 'description'],
-        })
-        return context
-
-class LocationFunctionUpdateView(UpdateView):
-    model = LocationFunction
-    form_class = LocationFunctionForm
-    template_name = 'telephony/location_function.html'
-    success_url = reverse_lazy('telephony:location_function_list')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = self.get_form()
-        context['items'] = LocationFunction.objects.all()
+        model_name_snake_case = inflection.underscore(self.model._meta.object_name)
+        context['form'] = self.form_class()
+        context['items'] = self.model.objects.all()
         context['object'] = self.get_object()
         context.update({
             'show_form': True,
             'show_table': True,
-            'view_name': 'telephony:location_function_list',
-            'new_url': 'telephony:location_function_new',
-            'edit_url': 'telephony:location_function_edit',
-            'delete_url': 'telephony:location_function_delete',
-            'clear_view_url': 'location_functions',
-            'table_class': 'location-functions-table',
-            'table_headers': ['Function Name', 'Description'],
-            'table_fields': ['function_name', 'description'],
-            'form_class': 'location-function-form',
-            'form_fields': ['function_name', 'description'],
+            'view_name': self.request.resolver_match.view_name,
+            'new_url': f'telephony:{model_name_snake_case}_new',
+            'edit_url': f'telephony:{model_name_snake_case}_edit',
+            'delete_url': f'telephony:{model_name_snake_case}_delete',
+            'clear_view_url': reverse_lazy('telephony:service_provider'),
+            'table_class': f'{model_name_snake_case}-table',
+            'table_headers': self.table_headers,
+            'table_fields': self.table_fields,
+            'form_class': f'{model_name_snake_case}-form',
+            'form_fields': [field.name for field in self.model._meta.fields],
         })
         return context
+    
+    def get_template_names(self):
+        model_name_str = str(self.model._meta.object_name)  # Ensure it's a string
+        model_name_snake_case = inflection.underscore(model_name_str)
+        return [f'telephony/{model_name_snake_case}.html']
 
-class LocationFunctionDeleteView(DeleteView):
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+class BaseUpdateView(UpdateView):
+    """
+    Base class for UpdateView that handles common context data setup.
+    """
+    model = None
+    form_class = None
+    template_name = None
+    success_url = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        model_name_snake_case = inflection.underscore(self.model._meta.object_name)
+        context['form'] = self.get_form()
+        context['items'] = self.model.objects.all()
+        context['object'] = self.get_object()
+        context.update({
+            'show_form': True,
+            'show_table': True,
+            'view_name': self.request.resolver_match.view_name,
+            'new_url': f'telephony:{model_name_snake_case}_new',
+            'edit_url': f'telephony:{model_name_snake_case}_edit',
+            'delete_url': f'telephony:{model_name_snake_case}_delete',
+            'clear_view_url': reverse_lazy('telephony:service_provider'),
+            'table_class': f'{model_name_snake_case}-table',
+            'table_headers': self.table_headers,
+            'table_fields': self.table_fields,
+            'form_class': f'{model_name_snake_case}-form',
+            'form_fields': [field.name for field in self.model._meta.fields],
+        })
+        return context
+    
+    def get_template_names(self):
+        model_name_str = str(self.model._meta.object_name)  # Ensure it's a string
+        model_name_snake_case = inflection.underscore(model_name_str)
+        return [f'telephony/{model_name_snake_case}.html']
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
+
+    
+
+class BaseDetailView(DetailView):
+    """
+    Base class for DetailView that returns JSON data.
+    """
+    model = None
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        data = {field.name: getattr(obj, field.name) for field in self.model._meta.fields}
+        return JsonResponse(data)
+
+class BaseDeleteView(DeleteView):
+    """
+    Base class for DeleteView that returns a JSON response.
+    """
+    model = None
+    success_url = None
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        return JsonResponse({'result': 'success'})
+
+
+
+
+class ServiceProviderListView(BaseListView):
+    model = ServiceProvider
+    form_class = ServiceProviderForm
+    table_headers = ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes']
+    table_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
+    form_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
+
+class ServiceProviderCreateView(BaseCreateView):
+    model = ServiceProvider
+    form_class = ServiceProviderForm
+    success_url = reverse_lazy('telephony:service_provider')
+
+class ServiceProviderUpdateView(BaseUpdateView):
+    model = ServiceProvider
+    form_class = ServiceProviderForm
+    table_headers = ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes']
+    table_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
+    success_url = reverse_lazy('telephony:service_provider')
+
+class ServiceProviderDetailView(BaseDetailView):
+    model = ServiceProvider
+
+class ServiceProviderDeleteView(BaseDeleteView):
+    model = ServiceProvider
+    success_url = reverse_lazy('telephony:service_provider')
+
+
+class ServiceProviderRepListView(BaseListView):
+    model = ServiceProviderRep
+    form_class = ServiceProviderRepForm
+    table_headers = ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes']
+    table_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
+    
+
+class ServiceProviderRepCreateView(BaseCreateView):
+    model = ServiceProviderRep
+    form_class = ServiceProviderRepForm
+    success_url = reverse_lazy('telephony:service_provider_rep')
+
+class ServiceProviderRepUpdateView(BaseUpdateView):
+    model = ServiceProviderRep
+    form_class = ServiceProviderRepForm
+    table_headers = ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes']
+    table_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
+    success_url = reverse_lazy('telephony:service_provider_rep')
+
+class ServiceProviderRepDetailView(BaseDetailView):
+    model = ServiceProviderRep
+
+class ServiceProviderRepDeleteView(BaseDeleteView):
+    model = ServiceProviderRep
+    form_class = ServiceProviderRepForm
+    success_url = reverse_lazy('telephony:service_provider_rep')
+
+
+
+class LocationListView(BaseListView):
+    model = Location
+    form_class = LocationForm
+    table_headers = ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified']
+    table_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location']
+    form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes']
+
+class LocationCreateView(BaseCreateView):
+    model = Location
+    form_class = LocationForm
+    success_url = reverse_lazy('telephony:location')
+
+class LocationUpdateView(BaseUpdateView):
+    model = Location
+    form_class = LocationForm
+    template_name = 'telephony/location.html'
+    table_headers = ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified']
+    table_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location']
+    form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes']
+    success_url = reverse_lazy('telephony:location')
+
+class LocationDetailView(BaseDetailView):
+    model = Location
+
+class LocationDeleteView(BaseDeleteView):
+    model = Location
+    success_url = reverse_lazy('telephony:location')
+
+
+class LocationFunctionListView(BaseListView):
+    model = LocationFunction
+    form_class = LocationFunctionForm
+    template_name = 'telephony/location_function.html'
+    table_headers = ['Name', 'Function Code', 'Description']
+    table_fields = ['function_name', 'function_code', 'description']
+    form_fields = ['function_name', 'description'],
+
+class LocationFunctionCreateView(BaseCreateView):
+    model = LocationFunction
+    form_class = LocationFunctionForm
+    template_name = 'telephony/location_function.html'
+    success_url = reverse_lazy('telephony:location_function')
+
+class LocationFunctionUpdateView(BaseUpdateView):
+    model = LocationFunction
+    form_class = LocationFunctionForm
+    template_name = 'telephony/location_function.html'
+    table_headers = ['Name', 'Function Code', 'Description']
+    table_fields = ['function_name', 'function_code', 'description']
+    form_fields = ['function_name', 'description'],
+    success_url = reverse_lazy('telephony:location_function')
+
+class LocationFunctionDetailView(BaseDetailView):
+    model = LocationFunction
+
+class LocationFunctionDeleteView(BaseDeleteView):
     model = LocationFunction
     success_url = reverse_lazy('telephony:location_function')
 
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        return JsonResponse({'result': 'success'})
 
-
-
-
-
-
-class PhoneNumberListView(ListView):
+class PhoneNumberListView(BaseListView):
     model = PhoneNumber
     form_class = PhoneNumberForm
-    template_name = 'telephony/phone_numbers.html'
-    context_object_name = 'items'
-    success_url = reverse_lazy('telephony:phone_numbers')
+    table_headers = [
+        'Directory Number', 
+        'Country', 
+        'Subscriber Number', 
+        'Service Location', 
+        'Usage Type', 
+        'Status',
+        'Assigned To',
+        'Activation Date',
+        'Deactivation Date',
+        'Notes'
+    ]
+    table_fields = [
+        'directory_number', 
+        'country', 
+        'subscriber_number', 
+        'service_location', 
+        'usage_type', 
+        'status',
+        'assigned_to',
+        'activation_date',
+        'deactivation_date',
+        'notes'
+    ]
+    form_fields = [
+        'directory_number',
+        'country',
+        'subscriber_number',
+        'service_location',
+        'usage_type',
+        'status',
+        'assigned_to',
+        'activation_date',
+        'deactivation_date',
+        'notes',
+        'service_provider',
+        'phone_number_range',
+        'circuit'
+    ]
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = PhoneNumberForm()
-        context['items'] = PhoneNumber.objects.exclude(pk=None)
-        print(context['items'])
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:phone_numbers',
-            'new_url': 'telephony:phone_number_new',
-            'edit_url': 'telephony:phone_number_edit',
-            'delete_url': 'telephony:delete_phone_number',
-            'clear_view_url': 'phone_numbers',
-            'table_class': 'phone-numbers-table',
-            'table_headers': ['Directory Number', 'Country', 'Subscriber Number', 'Location', 'Usage Type', 'Status'],
-            'table_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
-            'form_class': 'phone-number-form',
-            'form_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
-        })
-        return context
-
-class PhoneNumberCreateView(CreateView):
+class PhoneNumberCreateView(BaseCreateView):
     model = PhoneNumber
     form_class = PhoneNumberForm
-    template_name = 'telephony/phone_numbers.html'
-    success_url = reverse_lazy('telephony:phone_numbers')
+    success_url = reverse_lazy('telephony:phone_number')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = PhoneNumberForm()
-        context['items'] = PhoneNumber.objects.all()
-        context['object'] = self.get_object()
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:phone_numbers',
-            'new_url': 'telephony:phone_number_new',
-            'edit_url': 'telephony:phone_number_edit',
-            'delete_url': 'telephony:delete_phone_number',
-            'clear_view_url': 'phone_numbers',
-            'table_class': 'phone-numbers-table',
-            'table_headers': ['Directory Number', 'Country', 'Subscriber Number', 'Location', 'Usage Type', 'Status'],
-            'table_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
-            'form_class': 'phone-number-form',
-            'form_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
-        })
-        return context
-
-class PhoneNumberUpdateView(UpdateView):
+class PhoneNumberUpdateView(BaseUpdateView):
     model = PhoneNumber
     form_class = PhoneNumberForm
-    template_name = 'telephony/phone_numbers.html'
-    success_url = reverse_lazy('telephony:phone_numbers')
+    table_headers = [
+        'Directory Number', 
+        'Country', 
+        'Subscriber Number', 
+        'Service Location', 
+        'Usage Type', 
+        'Status',
+        'Assigned To',
+        'Activation Date',
+        'Deactivation Date',
+        'Notes'
+    ]
+    table_fields = [
+        'directory_number', 
+        'country', 
+        'subscriber_number', 
+        'service_location', 
+        'usage_type', 
+        'status',
+        'assigned_to',
+        'activation_date',
+        'deactivation_date',
+        'notes'
+    ]
+    form_fields = [
+        'directory_number',
+        'country',
+        'subscriber_number',
+        'service_location',
+        'usage_type',
+        'status',
+        'assigned_to',
+        'activation_date',
+        'deactivation_date',
+        'notes',
+        'service_provider',
+        'phone_number_range',
+        'circuit'
+    ]
+    success_url = reverse_lazy('telephony:phone_number')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = self.get_form()
-        context['items'] = PhoneNumber.objects.all() 
-        context['object'] = self.get_object()
-        context.update({
-            'show_form': True,
-            'show_table': True,
-            'view_name': 'telephony:phone_numbers',
-            'new_url': 'telephony:phone_number_new',
-            'edit_url': 'telephony:phone_number_edit',
-            'delete_url': 'telephony:delete_phone_number',
-            'clear_view_url': 'phone_numbers',
-            'table_class': 'phone-numbers-table',
-            'table_headers': ['Directory Number', 'Country', 'Subscriber Number', 'Location', 'Usage Type', 'Status'],
-            'table_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
-            'form_class': 'phone-number-form',
-            'form_fields': ['directory_number', 'country', 'subscriber_number', 'service_location', 'usage_type', 'status'],
-        })
-        return context
-
-class PhoneNumberDetailView(DetailView):
+class PhoneNumberDetailView(BaseDetailView):
     model = PhoneNumber
 
-    def get(self, request, *args, **kwargs):
-        phone_number = self.get_object()
-        data = {
-            'directory_number': phone_number.directory_number,
-            'country': phone_number.country.name,
-            'subscriber_number': phone_number.subscriber_number,
-            'service_location': phone_number.service_location.name,
-            'usage_type': phone_number.usage_type.usage_type,
-            'status': phone_number.status,
-        }
-        return JsonResponse(data)
-
-class PhoneNumberDeleteView(DeleteView):
+class PhoneNumberDeleteView(BaseDeleteView):
     model = PhoneNumber
-    success_url = reverse_lazy('telephony:phone_numbers')
-
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        return JsonResponse({'result': 'success'})
-    
-
+    success_url = reverse_lazy('telephony:phone_number')

@@ -56,8 +56,7 @@
   {% block form %}
   <div class="container-fluid mb-5">
     {% if show_form %}
-    <form method="post"
-      action="{% if form.instance.pk %}{% url edit_url form.instance.pk %}{% else %}{% url new_url %}{% endif %}" class="{{ form_class }}">
+    <form method="post" action="{% if form.instance.pk %}{% url edit_url form.instance.pk %}{% else %}{% url new_url %}{% endif %}" class="{{ form_class }}">
       {% csrf_token %}
       {% block form_content %}
       {{ form.as_p }}
@@ -143,7 +142,7 @@
       });
 
       // Reset the URL to base /service_provider/ without the trailing ID
-      window.history.pushState({}, document.title, '/telephony/{{ clear_view_url }}/');
+      window.history.pushState({}, document.title, '{{ clear_view_url }}');
     });
 
     // Add click event listener for table rows

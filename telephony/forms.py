@@ -2,9 +2,9 @@ import requests
 import googlemaps
 import django_filters
 from django import forms
-from .models import CircuitDetail, ConnectionType, Location, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, UsageType, ServiceProviderRep
 from django.conf import settings
 from .templatetags import custom_filters
+from .models import Location, CircuitDetail, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, ServiceProviderRep
 
 class CircuitDetailForm(forms.ModelForm):
     class Meta:
@@ -24,9 +24,6 @@ class CircuitDetailForm(forms.ModelForm):
 
 
 class LocationForm(forms.ModelForm):
-    # Remove the address field
-    # address = forms.CharField(max_length=255, required=True, widget=forms.TextInput(attrs={'id': 'id_address', 'placeholder': 'Enter Address:'}))
-
     def __init__(self, *args, **kwargs):
         super(LocationForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
@@ -35,8 +32,6 @@ class LocationForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-
-        # Construct the address for Google geocoding
         submitted_address = f"{cleaned_data.get('house_number')} {cleaned_data.get('road')}, {cleaned_data.get('city')}, {cleaned_data.get('state_abbreviation')} {cleaned_data.get('postcode')}, {cleaned_data.get('country').name}"
 
         gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
@@ -45,11 +40,9 @@ class LocationForm(forms.ModelForm):
         if not geocode_result:
             raise forms.ValidationError('Invalid address')
 
-        # Extract address components from the geocode result
         address_components = geocode_result[0]['address_components']
         geo_location = geocode_result[0]['geometry']['location']
-        # google_formatted_address = geocode_result[0]['submitted_address']
-        
+
         components = {
             'street_number': 'short_name',
             'route': 'long_name',
@@ -91,7 +84,7 @@ class LocationForm(forms.ModelForm):
         cleaned_data['longitude'] = geo_location['lng']
         cleaned_data['latitude'] = geo_location['lat']
         
-        cleaned_data['verified_location'] = True  # Set verified_location to True if coordinates are available
+        cleaned_data['verified_location'] = True
         
         return cleaned_data
 
@@ -174,12 +167,10 @@ class LocationFunctionForm(forms.ModelForm):
         model = LocationFunction
         fields = ['function_name', 'description', 'function_code']
 
-
 class PhoneNumberRangeForm(forms.ModelForm):
     class Meta:
         model = PhoneNumberRange
         fields = ['start_number', 'end_number', 'country', 'location', 'usage_type', 'notes']
-
 
 class SearchForm(forms.Form):
     query = forms.CharField(label='Search', max_length=100)
@@ -216,7 +207,7 @@ class PhoneNumberForm(forms.ModelForm):
 
         def phone_number_list(request):
             filter = PhoneNumberFilter(request.GET, queryset=PhoneNumber.objects.all())
-            return render(request, 'telephony/phone_numbers.html', {'filter': filter})
+            return render(request, 'telephony/phone_number.html', {'filter': filter})
         
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -228,18 +219,12 @@ class CountryForm(forms.ModelForm):
         model = Country
         fields = ['name', 'iso2_code', 'iso3_code', 'e164_code', 'region', 'subregion', 'capital']
 
-
 class ServiceProviderForm(forms.ModelForm):
-
     class Meta:
         model = ServiceProvider
         fields = [
-            'provider_name',
-            'website_url',
-            'support_number',
-            'contract_number',
-            'contract_details',
-            'notes'
+            'provider_name', 'website_url', 'support_number', 
+            'contract_number', 'contract_details', 'notes'
         ]
         widgets = {
             'provider_name': forms.TextInput(attrs={'placeholder': 'Provider Name'}),
@@ -249,18 +234,13 @@ class ServiceProviderForm(forms.ModelForm):
             'contract_details': forms.Textarea(attrs={'placeholder': 'Contract Details'}),
             'notes': forms.Textarea(attrs={'placeholder': 'Notes'}),
         }
-    
 
 class ServiceProviderRepForm(forms.ModelForm):
-
     class Meta:
         model = ServiceProviderRep
         fields = [
-            'provider',
-            'account_rep_name',
-            'account_rep_phone',
-            'account_rep_email',
-            'notes'
+            'provider', 'account_rep_name', 'account_rep_phone', 
+            'account_rep_email', 'notes'
         ]
         widgets = {
             'provider': forms.Select(attrs={'placeholder': 'AT&T, Verizon, BT, NTT, etc...'}),
@@ -269,16 +249,3 @@ class ServiceProviderRepForm(forms.ModelForm):
             'account_rep_email': forms.TextInput(attrs={'placeholder': 'name@example.com'}),
             'notes': forms.Textarea(attrs={'placeholder': 'Notes'}),
         }
-
-
-# class UsageTypeAdminForm(forms.ModelForm):
-#     class Meta:
-#         model = UsageType
-#         fields = ['name', 'usage_for']
-
-#     def __init__(self, *args, **kwargs):
-#         initial_usage_for = kwargs.pop('initial_usage_for', None)
-#         super().__init__(*args, **kwargs)
-#         if initial_usage_for:
-#             self.fields['usage_for'].initial = initial_usage_for
-#             self.fields['usage_for'].widget.attrs['readonly'] = True

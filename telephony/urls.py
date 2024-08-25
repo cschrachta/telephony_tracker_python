@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
   ServiceProviderListView, ServiceProviderCreateView, ServiceProviderUpdateView, ServiceProviderDetailView, ServiceProviderDeleteView,
-  ServiceProviderRepListView, ServiceProviderRepCreateView, ServiceProviderRepUpdateView, ServiceProviderRepDeleteView,
+  ServiceProviderRepListView, ServiceProviderRepCreateView, ServiceProviderRepUpdateView, ServiceProviderRepDetailView, ServiceProviderRepDeleteView,
   LocationListView, LocationCreateView, LocationUpdateView, LocationDetailView, LocationDeleteView, ValidateLocationView,
   LocationFunctionListView, LocationFunctionCreateView, LocationFunctionUpdateView, LocationFunctionDeleteView,
   PhoneNumberListView, PhoneNumberCreateView, PhoneNumberUpdateView, PhoneNumberDetailView, PhoneNumberDeleteView,
@@ -12,25 +12,25 @@ app_name = 'telephony'
 
 urlpatterns = [
     # Location-related URLs
-    path('locations/', LocationListView.as_view(), name='locations'),
-    path('locations/new/', LocationCreateView.as_view(), name='location_new'),
-    path('locations/<int:pk>/edit/', LocationUpdateView.as_view(), name='location_edit'),
-    path('locations/<int:pk>/details/', LocationDetailView.as_view(), name='location_details'),
-    path('locations/<int:pk>/delete/', LocationDeleteView.as_view(), name='delete_location'),
-    path('locations/<int:pk>/validate/', ValidateLocationView.as_view(), name='validate_location'),
+    path('location/', LocationListView.as_view(), name='location'),
+    path('location/new/', LocationCreateView.as_view(), name='location_new'),
+    path('location/<int:pk>/edit/', LocationUpdateView.as_view(), name='location_edit'),
+    path('location/<int:pk>/details/', LocationDetailView.as_view(), name='location_details'),
+    path('location/<int:pk>/delete/', LocationDeleteView.as_view(), name='location_delete'),
+    path('location/<int:pk>/validate/', ValidateLocationView.as_view(), name='validate_location'),
 
     #Location-Function/Purpose URLs
-    path('location_functions/', LocationFunctionListView.as_view(), name='location_function_list'),
-    path('location_functions/new/', LocationFunctionCreateView.as_view(), name='location_function_new'),
-    path('location_functions/<int:pk>/edit/', LocationFunctionUpdateView.as_view(), name='location_function_edit'),
-    path('location_functions/<int:pk>/delete/', LocationFunctionDeleteView.as_view(), name='location_function_delete'),
+    path('location_function/', LocationFunctionListView.as_view(), name='location_function_list'),
+    path('location_function/new/', LocationFunctionCreateView.as_view(), name='location_function_new'),
+    path('location_function/<int:pk>/edit/', LocationFunctionUpdateView.as_view(), name='location_function_edit'),
+    path('location_function/<int:pk>/delete/', LocationFunctionDeleteView.as_view(), name='location_function_delete'),
     
     # Service provider-related URLs
     path('service_provider/', ServiceProviderListView.as_view(), name='service_provider'),
     path('service_provider/new/', ServiceProviderCreateView.as_view(), name='service_provider_new'),
     path('service_provider/<int:pk>/edit', ServiceProviderUpdateView.as_view(), name='service_provider_edit'),
-    path('service_provider/<int:pk>/details/', ServiceProviderDetailView.as_view(), name='get_service_provider'),
-    path('service_provider/<int:pk>/delete/', ServiceProviderDeleteView.as_view(), name='delete_service_provider'),
+    path('service_provider/<int:pk>/details/', ServiceProviderDetailView.as_view(), name='service_provider_get'),
+    path('service_provider/<int:pk>/delete/', ServiceProviderDeleteView.as_view(), name='service_provider_delete'),
     
     # Service provider rep-related URLs
     path('service_provider_rep/', ServiceProviderRepListView.as_view(), name='service_provider_rep'),
@@ -42,11 +42,11 @@ urlpatterns = [
     # path('circuits/', views.circuits, name='circuits'),
 
     # Phone number-related URLs
-    path('phone_numbers/', PhoneNumberListView.as_view(), name='phone_numbers'),
-    path('phone_numbers/new/', PhoneNumberCreateView.as_view(), name='phone_number_new'),
-    path('phone_numbers/<int:pk>/edit/', PhoneNumberUpdateView.as_view(), name='phone_number_edit'),
-    path('phone_numbers/<int:pk>/details/', PhoneNumberDetailView.as_view(), name='phone_number_details'),
-    path('phone_numbers/<int:pk>/delete/', PhoneNumberDeleteView.as_view(), name='delete_phone_number'),
+    path('phone_number/', PhoneNumberListView.as_view(), name='phone_number'),
+    path('phone_number/new/', PhoneNumberCreateView.as_view(), name='phone_number_new'),
+    path('phone_number/<int:pk>/edit/', PhoneNumberUpdateView.as_view(), name='phone_number_edit'),
+    path('phone_number/<int:pk>/details/', PhoneNumberDetailView.as_view(), name='phone_number_details'),
+    path('phone_number/<int:pk>/delete/', PhoneNumberDeleteView.as_view(), name='phone_number_delete'),
     # path('phone_numbers/<int:pk>/validate/', ValidatePhoneNumbersView.as_view(), name='validate_phone_number'),
 
     # path('service_provider_list/', views.service_provider_list, name='service_provider_list'),
