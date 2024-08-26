@@ -99,7 +99,7 @@ class BaseListView(ListView):
             'new_url': f'telephony:{model_name_snake_case}_new',
             'edit_url': f'telephony:{model_name_snake_case}_edit',
             'delete_url': f'telephony:{model_name_snake_case}_delete',
-            'clear_view_url': reverse_lazy('telephony:service_provider'),
+            'clear_view_url': reverse_lazy(f'telephony:{model_name_snake_case}'),
             'table_class': f'{model_name_snake_case}-table',
             'table_headers': self.table_headers,
             'table_fields': self.table_fields,
@@ -112,6 +112,10 @@ class BaseListView(ListView):
         model_name_str = str(self.model._meta.object_name)  # Ensure it's a string
         model_name_snake_case = inflection.underscore(model_name_str)
         return [f'telephony/{model_name_snake_case}.html']
+    
+    def get_success_url(self):
+        model_name_snake_case = inflection.underscore(self.model._meta.object_name)
+        return reverse_lazy(f'telephony:{model_name_snake_case}')
 
 class BaseCreateView(CreateView):
     """
@@ -135,7 +139,7 @@ class BaseCreateView(CreateView):
             'new_url': f'telephony:{model_name_snake_case}_new',
             'edit_url': f'telephony:{model_name_snake_case}_edit',
             'delete_url': f'telephony:{model_name_snake_case}_delete',
-            'clear_view_url': reverse_lazy('telephony:service_provider'),
+            'clear_view_url': reverse_lazy(f'telephony:{model_name_snake_case}'),
             'table_class': f'{model_name_snake_case}-table',
             'table_headers': self.table_headers,
             'table_fields': self.table_fields,
@@ -148,6 +152,10 @@ class BaseCreateView(CreateView):
         model_name_str = str(self.model._meta.object_name)  # Ensure it's a string
         model_name_snake_case = inflection.underscore(model_name_str)
         return [f'telephony/{model_name_snake_case}.html']
+    
+    def get_success_url(self):
+        model_name_snake_case = inflection.underscore(self.model._meta.object_name)
+        return reverse_lazy(f'telephony:{model_name_snake_case}')
 
     def form_valid(self, form):
         form.save()
@@ -175,7 +183,7 @@ class BaseUpdateView(UpdateView):
             'new_url': f'telephony:{model_name_snake_case}_new',
             'edit_url': f'telephony:{model_name_snake_case}_edit',
             'delete_url': f'telephony:{model_name_snake_case}_delete',
-            'clear_view_url': reverse_lazy('telephony:service_provider'),
+            'clear_view_url': reverse_lazy(f'telephony:{model_name_snake_case}'),
             'table_class': f'{model_name_snake_case}-table',
             'table_headers': self.table_headers,
             'table_fields': self.table_fields,
@@ -188,6 +196,10 @@ class BaseUpdateView(UpdateView):
         model_name_str = str(self.model._meta.object_name)  # Ensure it's a string
         model_name_snake_case = inflection.underscore(model_name_str)
         return [f'telephony/{model_name_snake_case}.html']
+    
+    def get_success_url(self):
+        model_name_snake_case = inflection.underscore(self.model._meta.object_name)
+        return reverse_lazy(f'telephony:{model_name_snake_case}')
 
     def form_valid(self, form):
         form.save()
@@ -292,8 +304,8 @@ class LocationUpdateView(BaseUpdateView):
     model = Location
     form_class = LocationForm
     template_name = 'telephony/location.html'
-    table_headers = ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified']
-    table_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location']
+    table_headers = ['Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified']
+    table_fields = ['display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location']
     form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes']
     success_url = reverse_lazy('telephony:location')
 
@@ -347,6 +359,7 @@ class PhoneNumberListView(BaseListView):
         'Usage Type', 
         'Status',
         'Assigned To',
+        'Provider',
         'Activation Date',
         'Deactivation Date',
         'Notes'
@@ -359,6 +372,7 @@ class PhoneNumberListView(BaseListView):
         'usage_type', 
         'status',
         'assigned_to',
+        'service_provider',
         'activation_date',
         'deactivation_date',
         'notes'
@@ -382,7 +396,6 @@ class PhoneNumberListView(BaseListView):
 class PhoneNumberCreateView(BaseCreateView):
     model = PhoneNumber
     form_class = PhoneNumberForm
-    success_url = reverse_lazy('telephony:phone_number')
 
 class PhoneNumberUpdateView(BaseUpdateView):
     model = PhoneNumber
@@ -426,11 +439,9 @@ class PhoneNumberUpdateView(BaseUpdateView):
         'phone_number_range',
         'circuit'
     ]
-    success_url = reverse_lazy('telephony:phone_number')
 
 class PhoneNumberDetailView(BaseDetailView):
     model = PhoneNumber
 
 class PhoneNumberDeleteView(BaseDeleteView):
     model = PhoneNumber
-    success_url = reverse_lazy('telephony:phone_number')

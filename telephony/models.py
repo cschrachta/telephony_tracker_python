@@ -87,6 +87,7 @@ class Location(models.Model):
     contact_email = models.EmailField(max_length=100, blank=True, null=True)
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
     location_function = models.ForeignKey(LocationFunction, on_delete=models.CASCADE, default=0)
+    site_dial_code = models.IntegerField(max_length=6, blank=True, null=True)
     verified_location = models.BooleanField(default=False)
     formatted_address = models.CharField(max_length=255, blank=True)
     google_maps_place_id = models.CharField(max_length=255, blank=True)
@@ -264,38 +265,32 @@ class PhoneNumberRange(models.Model):
         return f"{self.start_number} - {self.end_number if self.end_number else self.start_number}"
 
     def clean(self):
-        # Remove non-numeric characters
-        cleaned_start_number = ''.join(filter(str.isdigit, self.start_number))
-        cleaned_end_number = ''.join(filter(str.isdigit, self.end_number)) if self.end_number else None
-
-        # Validate the start number
-        e164_code = self.country.e164_code
-        full_start_number = f"+{e164_code}{cleaned_start_number}"
-        try:
-            parsed_start_number = phonenumbers.parse(full_start_number, None)
-            if not phonenumbers.is_valid_number(parsed_start_number):
-                raise ValidationError('The start phone number is not valid.')
-        except phonenumbers.NumberParseException:
-            raise ValidationError('The start phone number could not be parsed.')
-
-        # Validate the end number if it exists
-        if cleaned_end_number:
-            full_end_number = f"+{e164_code}{cleaned_end_number}"
-            try:
-                parsed_end_number = phonenumbers.parse(full_end_number, None)
-                if not phonenumbers.is_valid_number(parsed_end_number):
-                    raise ValidationError('The end phone number is not valid.')
-            except phonenumbers.NumberParseException:
-                raise ValidationError('The end phone number could not be parsed.')
-
+        # Validate and format start number
+        self.start_number = self._validate_and_format_number(self.start_number)
+        
+        # Validate and format end number if provided
+        if self.end_number:
+            self.end_number = self._validate_and_format_number(self.end_number)
+            
             # Ensure the start number is less than the end number
-            if int(cleaned_start_number) > int(cleaned_end_number):
+            start_num_int = int(self.start_number.lstrip('+'))
+            end_num_int = int(self.end_number.lstrip('+'))
+            if start_num_int > end_num_int:
                 raise ValidationError('The start number must be less than the end number.')
+        else:
+            self.end_number = self.start_number  # Treat as a single number range
 
-        # Store the cleaned numbers in E164 format
-        self.start_number = phonenumbers.format_number(parsed_start_number, phonenumbers.PhoneNumberFormat.E164)
-        if cleaned_end_number:
-            self.end_number = phonenumbers.format_number(parsed_end_number, phonenumbers.PhoneNumberFormat.E164)
+    def _validate_and_format_number(self, number):
+        """Validate and format a phone number."""
+        cleaned_number = ''.join(filter(str.isdigit, number))
+        full_number = f"+{self.country.e164_code}{cleaned_number}"
+        try:
+            parsed_number = phonenumbers.parse(full_number, None)
+            if not phonenumbers.is_valid_number(parsed_number):
+                raise ValidationError(f'The phone number {number} is not valid.')
+            return phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
+        except phonenumbers.NumberParseException:
+            raise ValidationError(f'The phone number {number} could not be parsed.')
 
     def save(self, *args, **kwargs):
         self.full_clean()  # This will call clean() method

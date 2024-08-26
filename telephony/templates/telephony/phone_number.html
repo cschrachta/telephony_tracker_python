@@ -10,31 +10,48 @@
 {% block form_content %}
 <div class="container-fluid">
   <div class="row">
-    <div class="col-md-3">
-      <label for="id_directory_number" class="form-label">*Directory Number:</label>
-      {{ form.directory_number|add_class:"form-control" }}
+    <div class="col-md-9">
+      <div class="row">
+        <div class="col-md-4">
+          <div>
+            <label for="id_directory_number" class="form-label">*Directory Number:<span class="info-icon" data-bs-toggle="tooltip" title="Enter the phone number in E.164 format, e.g., +16512422144.">ℹ️</span></label>
+            {{ form.directory_number|add_class:"form-control" }}
+          </div>
+          <div>
+            <label for="id_country" class="form-label">Country:<span class="info-icon" data-bs-toggle="tooltip" title="Country of Origin for this phone number.">ℹ️</span></label>
+            {{ form.country|add_class:"form-control" }}
+          </div>
+          <div>
+            <label for="id_subscriber_number" class="form-label">Subscriber Extension:<span class="info-icon" data-bs-toggle="tooltip" title="The internal phone number receiving service from the public Directory Number above.">ℹ️</span></label>
+            {{ form.subscriber_number|add_class:"form-control" }}
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div>
+            <label for="id_service_location" class="form-label">Service Location:<span class="info-icon" data-bs-toggle="tooltip" title="The physical company office location this number is provisioned to.">ℹ️</span></label>
+            {{ form.service_location|add_class:"form-control" }}
+          </div>
+  
+        </div>
+        <div class="col-md-4">
+          <div>
+            <label for="id_usage_type" class="form-label">Usage Type:<span class="info-icon" data-bs-toggle="tooltip" title="The primary function this directory number is providing.">ℹ️</span></label>
+            {{ form.usage_type|add_class:"form-control" }}
+          </div>
+          <div>
+            <label for="id_status" class="form-label">Status:</label>
+            {{ form.status|add_class:"form-control" }}
+          </div>
+          <div>
+            <label for="id_status" class="form-label">Service Provider:<span class="info-icon" data-bs-toggle="tooltip" title="The contracted carrier provisioned to providing service for this directory number.">ℹ️</span></label>
+            {{ form.service_provider|add_class:"form-control" }}
+          </div>
+        </div>
+      </div>
     </div>
     <div class="col-md-3">
-      <label for="id_country" class="form-label">Country:</label>
-      {{ form.country|add_class:"form-control" }}
-    </div>
-    <div class="col-md-3">
-      <label for="id_subscriber_number" class="form-label">Subscriber Extension:</label>
-      {{ form.subscriber_number|add_class:"form-control" }}
-    </div>
-    <div class="col-md-3">
-      <label for="id_service_location" class="form-label">Service Location:</label>
-      {{ form.service_location|add_class:"form-control" }}
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-md-3">
-      <label for="id_usage_type" class="form-label">Usage Type:</label>
-      {{ form.usage_type|add_class:"form-control" }}
-    </div>
-    <div class="col-md-3">
-      <label for="id_status" class="form-label">Status:</label>
-      {{ form.status|add_class:"form-control" }}
+      <label for="id_notes" class="form-label">Notes:</label>
+      {{ form.notes|add_class:"form-control" }}
     </div>
   </div>
 </div>

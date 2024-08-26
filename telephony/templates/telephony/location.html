@@ -9,37 +9,37 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-3">
-      <label for="id_name" class="form-label">*Name:</label>
+      <label for="id_name" class="form-label">*Name:<span class="info-icon" data-bs-toggle="tooltip" title="Unique name for identifying the company location in the Telephony Tracker Portal."> ℹ️</span></label>
       {{ form.name|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_display_name" class="form-label">Display Name:</label>
+      <label for="id_display_name" class="form-label">Display Name:<span class="info-icon" data-bs-toggle="tooltip" title="Name of the facility as telephony system administrators are familiar with.  This is the name displayed on the table below."> ℹ️</span></label>
       {{ form.display_name|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_house_number" class="form-label">House Number:</label>
+      <label for="id_house_number" class="form-label">*House Number:<span class="info-icon" data-bs-toggle="tooltip" title="The numeric portion of the physical locations address."> ℹ️</span></label>
       {{ form.house_number|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_road" class="form-label">Road:</label>
+      <label for="id_road" class="form-label">*Road:<span class="info-icon" data-bs-toggle="tooltip"  title="The name of the road/street this location is at according to the local postal service."> ℹ️</span></label>
       {{ form.road|add_class:"form-control" }}
     </div>
   </div>
   <div class="row">
     <div class="col-md-3">
-      <label for="id_city" class="form-label">City:</label>
+      <label for="id_city" class="form-label">*City:<span class="info-icon" data-bs-toggle="tooltip" title="Name of the City this location is at according to the local postal service."> ℹ️</span></label>
       {{ form.city|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_state" class="form-label">State:</label>
+      <label for="id_state" class="form-label">*State:<span class="info-icon" data-bs-toggle="tooltip" title="Name or Abbreviation of the State this physical site is located within."> ℹ️</span></label>
       {{ form.state|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_country" class="form-label">Country:</label>
+      <label for="id_country" class="form-label">*Country:<span class="info-icon" data-bs-toggle="tooltip" title="Select the Country from the list where this facility is physically located."> ℹ️</span></label>
       {{ form.country|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_postcode" class="form-label">Postcode:</label>
+      <label for="id_postcode" class="form-label">*Postcode:<span class="info-icon" data-bs-toggle="tooltip" title="The Post Code/Zip Code for this physical location according to the local postal service."> ℹ️</span></label>
       {{ form.postcode|add_class:"form-control" }}
     </div>
   </div>
@@ -48,24 +48,27 @@
       <div class="row">
         <div class="col-md-4">
           <div>
-            <label for="id_contact_person" class="form-label">Location Contact:</label>
+            <label for="id_contact_person" class="form-label">Location Contact:<span class="info-icon" data-bs-toggle="tooltip" title="Point of contact when you need someone at the facility."> ℹ️</span></label>
             {{ form.contact_person|add_class:"form-control" }}
           </div>
           <div>
-            <label for="id_contact_email" class="form-label">Contact Email:</label>
+            <label for="id_contact_email" class="form-label">Contact Email:<span class="info-icon" data-bs-toggle="tooltip" title="Email address for the locations contact person."> ℹ️</span></label>
             {{ form.contact_email|add_class:"form-control" }}
           </div>
           <div>
-            <label for="id_contact_phone" class="form-label">Contact Phone:</label>
+            <label for="id_contact_phone" class="form-label">Contact Phone:<span class="info-icon" data-bs-toggle="tooltip" title="Phone number where the locations site contact can be reached, preferably a mobile device."> ℹ️</span></label>
             {{ form.contact_phone|add_class:"form-control" }}
           </div>
         </div>
         <div class="col-md-4">
           <div>
-            <label for="id_location_function" class="form-label">Location Function:</label>
+            <label for="id_location_function" class="form-label">Location Function:<span class="info-icon" data-bs-toggle="tooltip" title="The primary fuction or role this facilty provides."> ℹ️</span></label>
             {{ form.location_function|add_class:"form-control" }}
           </div>
-
+          <div>
+            <label for="id_site_dial_code" class="form-label">Site Dial Code:<span class="info-icon" data-bs-toggle="tooltip" title="If a unique code/prefix is required to be dialed internally when calling this facility instead of using a public number."> ℹ️</span></label>
+            {{ form.site_dial_code|add_class:"form-control" }}
+          </div>
         </div>
         <div class="col-md-4">
           <div>

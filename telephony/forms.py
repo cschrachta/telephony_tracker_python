@@ -107,6 +107,7 @@ class LocationForm(forms.ModelForm):
         location.contact_email = self.cleaned_data.get('contact_email', '')
         location.contact_phone = self.cleaned_data.get('contact_phone', '')
         location.location_function = self.cleaned_data.get('location_function', '')
+        location.site_dial_code = self.cleaned_data.get('site_dial_code', '')
         location.notes = self.cleaned_data.get('notes', '')
 
         gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
@@ -137,6 +138,7 @@ class LocationForm(forms.ModelForm):
             'contact_email',
             'contact_phone',
             'location_function',
+            'site_dial_code',
             'notes',
         ]
 
@@ -158,6 +160,7 @@ class LocationForm(forms.ModelForm):
             'contact_email': forms.TextInput(attrs={'placeholder': 'Main Support Email'}),
             'contact_phone': forms.TextInput(attrs={'placeholder': 'Main Contact Number'}),
             'location_function': forms.Select(attrs={'placeholder': 'Admin, Manufacturing, etc...'}),
+            'site_dial_code': forms.TextInput(attrs={'placeholder': '123456'}),
             'timezone': forms.TextInput(attrs={'placeholder': 'GMT'}),
             'notes': forms.Textarea(attrs={'placeholder': 'Additional notes here...'}),
         }
