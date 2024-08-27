@@ -203,6 +203,8 @@ class PhoneNumberForm(forms.ModelForm):
         ]
         
         widgets = {
+            'directory_number': forms.TextInput(attrs={'placeholder': '+12345551212'}),
+            'subscriber_number': forms.TextInput(attrs={'placeholder': '1212'}),
             'last_used_at': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
             'activation_date': forms.DateInput(attrs={'type': 'date'}),
             'deactivation_date': forms.DateInput(attrs={'type': 'date'}),
@@ -215,6 +217,43 @@ class PhoneNumberForm(forms.ModelForm):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.fields['usage_type'].queryset = UsageType.objects.filter(usage_for='PhoneNumber')
+
+
+class PhoneNumberRangeForm(forms.ModelForm):
+    class Meta:
+        model = PhoneNumberRange
+        fields = [
+            'start_number',
+            'end_number',
+            'country',
+            'service_provider',
+            'location', 
+            'usage_type',
+            'circuit',
+            'notes',
+        ]
+        
+        widgets = {
+            'start_number': forms.TextInput(attrs={'placeholder': '+12345551200'}),
+            'end_number': forms.TextInput(attrs={'placeholder': '+12345552199'}),
+        }
+
+        def phone_number_list(request):
+            filter = PhoneNumberRangeFilter(request.GET, queryset=PhoneNumberRange.objects.all())
+            return render(request, 'telephony/phone_number_range.html', {'filter': filter})
+        
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['usage_type'].queryset = UsageType.objects.filter(usage_for='PhoneNumberRange')
+
+
+
+
+
+
+
+
+
 
 
 class CountryForm(forms.ModelForm):

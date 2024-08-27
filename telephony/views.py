@@ -10,9 +10,9 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, Country, LocationFunction, ServiceProviderRep
+from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, PhoneNumberRange, Country, LocationFunction, ServiceProviderRep
 from .templatetags import custom_filters
-from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, CountryForm, ServiceProviderForm, LocationFunctionForm, ServiceProviderRepForm
+from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, PhoneNumberRangeForm, CountryForm, ServiceProviderForm, LocationFunctionForm, ServiceProviderRepForm
 from .utils import validate_address
 
 logger = logging.getLogger(__name__)
@@ -262,9 +262,8 @@ class ServiceProviderDeleteView(BaseDeleteView):
 class ServiceProviderRepListView(BaseListView):
     model = ServiceProviderRep
     form_class = ServiceProviderRepForm
-    table_headers = ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes']
-    table_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
-    
+    table_headers = ['Representative', 'Contact Number', 'Contact Email', 'Provider', 'Notes']
+    table_fields = ['account_rep_name', 'account_rep_phone', 'account_rep_email', 'provider', 'notes']
 
 class ServiceProviderRepCreateView(BaseCreateView):
     model = ServiceProviderRep
@@ -274,8 +273,8 @@ class ServiceProviderRepCreateView(BaseCreateView):
 class ServiceProviderRepUpdateView(BaseUpdateView):
     model = ServiceProviderRep
     form_class = ServiceProviderRepForm
-    table_headers = ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes']
-    table_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
+    table_headers = ['Representative', 'Contact Number', 'Contact Email', 'Provider', 'Notes']
+    table_fields = ['account_rep_name', 'account_rep_phone', 'account_rep_email', 'provider', 'notes']
     success_url = reverse_lazy('telephony:service_provider_rep')
 
 class ServiceProviderRepDetailView(BaseDetailView):
@@ -357,11 +356,11 @@ class PhoneNumberListView(BaseListView):
         'Subscriber Number', 
         'Service Location', 
         'Usage Type', 
-        'Status',
+        # 'Status',
         'Assigned To',
         'Provider',
-        'Activation Date',
-        'Deactivation Date',
+        # 'Activation Date',
+        # 'Deactivation Date',
         'Notes'
     ]
     table_fields = [
@@ -370,11 +369,11 @@ class PhoneNumberListView(BaseListView):
         'subscriber_number', 
         'service_location', 
         'usage_type', 
-        'status',
+        # 'status',
         'assigned_to',
         'service_provider',
-        'activation_date',
-        'deactivation_date',
+        # 'activation_date',
+        # 'deactivation_date',
         'notes'
     ]
     form_fields = [
@@ -445,3 +444,78 @@ class PhoneNumberDetailView(BaseDetailView):
 
 class PhoneNumberDeleteView(BaseDeleteView):
     model = PhoneNumber
+
+
+
+###############################################################################################################
+class PhoneNumberRangeListView(BaseListView):
+    model = PhoneNumberRange
+    form_class = PhoneNumberRangeForm
+    table_headers = [
+        'Range Start Number',
+        'Range End Number',
+        'Country',
+        'Provider',
+        'Service Location', 
+        'Usage Type', 
+        'Notes'
+    ]
+    table_fields = [
+        'start_number',
+        'end_number',
+        'country',
+        'service_provider',
+        'location',
+        'usage_type', 
+        'notes'
+    ]
+    form_fields = [
+        'start_number',
+        'end_number',
+        'country',
+        'service_provider',
+        'location',
+        'usage_type', 
+        'notes'
+    ]
+
+class PhoneNumberRangeCreateView(BaseCreateView):
+    model = PhoneNumberRange
+    form_class = PhoneNumberRangeForm
+
+class PhoneNumberRangeUpdateView(BaseUpdateView):
+    model = PhoneNumberRange
+    form_class = PhoneNumberRangeForm
+    table_headers = [
+        'Range Start Number',
+        'Range End Number',
+        'Country',
+        'Provider',
+        'Service Location', 
+        'Usage Type', 
+        'Notes'
+    ]
+    table_fields = [
+        'start_number',
+        'end_number',
+        'country',
+        'service_provider',
+        'location',
+        'usage_type', 
+        'notes'
+    ]
+    form_fields = [
+        'start_number',
+        'end_number',
+        'country',
+        'service_provider',
+        'location',
+        'usage_type', 
+        'notes'
+    ]
+
+class PhoneNumberRangeDetailView(BaseDetailView):
+    model = PhoneNumberRange
+
+class PhoneNumberRangeDeleteView(BaseDeleteView):
+    model = PhoneNumberRange

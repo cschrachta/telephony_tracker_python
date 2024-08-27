@@ -5,6 +5,7 @@ from .views import (
   LocationListView, LocationCreateView, LocationUpdateView, LocationDetailView, LocationDeleteView, ValidateLocationView,
   LocationFunctionListView, LocationFunctionCreateView, LocationFunctionUpdateView, LocationFunctionDeleteView,
   PhoneNumberListView, PhoneNumberCreateView, PhoneNumberUpdateView, PhoneNumberDetailView, PhoneNumberDeleteView,
+  PhoneNumberRangeListView, PhoneNumberRangeCreateView, PhoneNumberRangeUpdateView, PhoneNumberRangeDetailView, PhoneNumberRangeDeleteView,
   country_list
 )
 
@@ -48,6 +49,14 @@ urlpatterns = [
     path('phone_number/<int:pk>/details/', PhoneNumberDetailView.as_view(), name='phone_number_details'),
     path('phone_number/<int:pk>/delete/', PhoneNumberDeleteView.as_view(), name='phone_number_delete'),
     # path('phone_numbers/<int:pk>/validate/', ValidatePhoneNumbersView.as_view(), name='validate_phone_number'),
+
+    # Phone Number Range-related URLs
+    path('phone_number_range/', PhoneNumberRangeListView.as_view(), name='phone_number_range'),
+    path('phone_number_range/new/', PhoneNumberRangeCreateView.as_view(), name='phone_number_range_new'),
+    path('phone_number_range/<int:pk>/edit/', PhoneNumberRangeUpdateView.as_view(), name='phone_number_range_edit'),
+    path('phone_number_range/<int:pk>/details/', PhoneNumberRangeDetailView.as_view(), name='phone_number_range_details'),
+    path('phone_number_range/<int:pk>/delete/', PhoneNumberRangeDeleteView.as_view(), name='phone_number_range_delete'),
+
 
     # path('service_provider_list/', views.service_provider_list, name='service_provider_list'),
     # path('phone_number/<int:phone_number_id>/', views.phone_numbers, name='phone_number_edit'),
