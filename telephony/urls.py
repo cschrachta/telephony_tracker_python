@@ -4,10 +4,12 @@ from .views import (
   ServiceProviderRepListView, ServiceProviderRepCreateView, ServiceProviderRepUpdateView, ServiceProviderRepDetailView, ServiceProviderRepDeleteView,
   LocationListView, LocationCreateView, LocationUpdateView, LocationDetailView, LocationDeleteView, ValidateLocationView,
   LocationFunctionListView, LocationFunctionCreateView, LocationFunctionUpdateView, LocationFunctionDeleteView,
-  PhoneNumberListView, PhoneNumberCreateView, PhoneNumberUpdateView, PhoneNumberDetailView, PhoneNumberDeleteView,
+  PhoneNumberListView, PhoneNumberCreateView, PhoneNumberUpdateView, PhoneNumberDetailView, PhoneNumberDeleteView, PhoneNumberBulkUpdateView,
   PhoneNumberRangeListView, PhoneNumberRangeCreateView, PhoneNumberRangeUpdateView, PhoneNumberRangeDetailView, PhoneNumberRangeDeleteView,
-  country_list
+  country_list,
+  generic_bulk_update, generic_bulk_delete
 )
+from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, PhoneNumberRange, Country, LocationFunction, ServiceProviderRep
 
 app_name = 'telephony'
 
@@ -19,6 +21,8 @@ urlpatterns = [
     path('location/<int:pk>/details/', LocationDetailView.as_view(), name='location_details'),
     path('location/<int:pk>/delete/', LocationDeleteView.as_view(), name='location_delete'),
     path('location/<int:pk>/validate/', ValidateLocationView.as_view(), name='validate_location'),
+    path('location/batch_edit/', generic_bulk_update, {'model_class': Location}, name='location_batch_edit'),
+    path('location/batch_delete/', generic_bulk_delete, {'model_class': Location}, name='location_batch_delete'),
 
     #Location-Function/Purpose URLs
     path('location_function/', LocationFunctionListView.as_view(), name='location_function_list'),
@@ -48,7 +52,9 @@ urlpatterns = [
     path('phone_number/<int:pk>/edit/', PhoneNumberUpdateView.as_view(), name='phone_number_edit'),
     path('phone_number/<int:pk>/details/', PhoneNumberDetailView.as_view(), name='phone_number_details'),
     path('phone_number/<int:pk>/delete/', PhoneNumberDeleteView.as_view(), name='phone_number_delete'),
-    # path('phone_numbers/<int:pk>/validate/', ValidatePhoneNumbersView.as_view(), name='validate_phone_number'),
+    path('phone_number/batch_edit/', generic_bulk_update, {'model_class': PhoneNumber}, name='phone_number_batch_edit'),
+    path('phone_number/batch_delete/', generic_bulk_delete, {'model_class': PhoneNumber}, name='phone_number_batch_delete'),
+    path('phone_number_bulk_update/', PhoneNumberBulkUpdateView.as_view(), name='phone_number_bulk_update'),
 
     # Phone Number Range-related URLs
     path('phone_number_range/', PhoneNumberRangeListView.as_view(), name='phone_number_range'),
@@ -56,6 +62,7 @@ urlpatterns = [
     path('phone_number_range/<int:pk>/edit/', PhoneNumberRangeUpdateView.as_view(), name='phone_number_range_edit'),
     path('phone_number_range/<int:pk>/details/', PhoneNumberRangeDetailView.as_view(), name='phone_number_range_details'),
     path('phone_number_range/<int:pk>/delete/', PhoneNumberRangeDeleteView.as_view(), name='phone_number_range_delete'),
+    
 
 
     # path('service_provider_list/', views.service_provider_list, name='service_provider_list'),

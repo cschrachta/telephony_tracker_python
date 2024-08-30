@@ -277,3 +277,8 @@ footer {
   /* Adjust height as needed */
   overflow-y: auto;
 }
+
+a:link, a:visited {
+  text-decoration: none;
+  cursor: auto;
+}

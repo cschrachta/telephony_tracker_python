@@ -17,6 +17,14 @@
   <!-- DataTables CSS -->
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
 
+
+  <style>
+    a:link, a:visited {
+      text-decoration: none;
+      cursor: auto;
+    }
+  </style>
+
   {% block extra_css %}
   {% endblock %}
 
@@ -67,6 +75,10 @@
           <button type="submit" name="action" value="update" class="btn btn-primary" {% if not form.instance.pk %}disabled{% endif %}>Update</button>
           <button type="button" class="btn btn-secondary" id="clear-form">Clear</button>
         </div>
+        <div id="bulk-action-buttons" class="d-none" style="margin-top: 5px;">
+          <button id="bulk-update-btn" class="btn btn-primary" data-url="{{ bulk_edit_url }}">Bulk Update</button>
+          <button id="bulk-delete-btn" class="btn btn-danger" data-url="{{ bulk_delete_url }}">Bulk Delete</button>
+        </div>
       </div>
     </form>
     {% endif %}
@@ -75,11 +87,13 @@
 
   <div class="content container-fluid py-4">
     {% block table %}
+    <p>Service provider edit link: {{ service_provider_edit_link }}</p>
     {% if show_table %}
     <div class="col-12 table-container"></div>
-      <table class="{{ table_class }} table table-hover">
+      <table class="{{ table_class }} table table-hover table" style="table-layout: auto;">
         <thead>
           <tr>
+            <th style="text-align:center; vertical-align: middle;"><input type="checkbox" id="select-all"></th>
             {% for column in table_headers %}
             <th style="text-align:center; vertical-align: middle;">{{ column }}</th>
             {% endfor %}
@@ -90,15 +104,23 @@
           {% for item in items %}
           {% if item.id %}
           <tr data-id="{{ item.id }}">
+            <td style="text-align: center"><input type="checkbox" class="select-record select-item" value="{{ item.id }}"></td>
             {% for field in table_fields %}
-            <td style="text-align: center; vertical-align: middle;">{{ item|get_attr:field }}</td>
+            <td style="text-align: center; vertical-align: middle;">
+              {% if field == 'directory_number' and phone_number_edit_link %}
+                <a href="{% url 'telephony:phone_number_edit' item.id %}">{{ item.directory_number }}</a>
+              {% elif field == 'provider_name' and service_provider_edit_link %}
+                <a href="{% url 'telephony:service_provider_edit' item.id %}">{{ item.provider_name }}</a>
+              {% else %}
+                {{ item|get_attr:field }}
+              {% endif%}
+            </td>
             {% endfor %}
             <td style="text-align: center; vertical-align: middle;">
               <a href="{% url edit_url item.id %}" class="btn btn-sm btn-primary">Edit</a>
               <form method="post" action="{% url delete_url item.id %}" style="display:inline;">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-danger"
-                  onclick="return confirm('Are you sure you want to delete this entry?');">Delete</button>
+                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this entry?');">Delete</button>
               </form>
             </td>
           </tr>
@@ -120,11 +142,42 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    const bulkActionButtons = document.getElementById('bulk-action-buttons');
+    const checkboxes = document.querySelectorAll('.select-record');
+    const selectAllCheckbox = document.getElementById('select-all');
+    
+    // Function to update the visibility of bulk action buttons
+    function updateBulkActionButtons() {
+      const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+      if (anyChecked) {
+        bulkActionButtons.classList.remove('d-none');
+      } else {
+        bulkActionButtons.classList.add('d-none');
+      }
+    }
+
+    // Event listener for individual checkboxes
+    checkboxes.forEach(function (checkbox) {
+      checkbox.addEventListener('change', updateBulkActionButtons);
+    });
+
+    // Event listener for "Select All" checkbox
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', function () {
+        const checked = this.checked;
+        checkboxes.forEach(function (checkbox) {
+          checkbox.checked = checked;
+        });
+        updateBulkActionButtons();
+      });
+    }
+
     // Enable all tooltips on the page
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)
     })
+
     // Initialize DataTable
     $('.{{ table_class }}').DataTable({
       "paging": true,
@@ -138,10 +191,8 @@
       "dom": '<"top"flip>rt<"bottom"ip><"clear">',
     });
 
-
     // Add event listener for the Clear button
     document.getElementById('clear-form').addEventListener('click', function () {
-      // console.log('Clear button clicked');
       // Clear all input fields within the form
       document.querySelectorAll('input[type="text"], input[type="email"], input[type="url"], textarea').forEach(function (input) {
         input.value = '';
@@ -163,7 +214,7 @@
         fetch('/telephony/{{ clear_view_url }}/' + id + '/')
           .then(response => response.json())
           .then(data => {
-            // Create fields from form fields dynamically
+            // Populate form fields dynamically
             {% for field in form_fields %}
             document.getElementById('id_{{ field }}').value = data.{{ field }};
             {% endfor %}
@@ -178,7 +229,6 @@
         const cookies = document.cookie.split(';');
         for (let i = 0; i < cookies.length; i++) {
           const cookie = cookies[i].trim();
-          // Does this cookie string begin with the name we want?
           if (cookie.substring(0, name.length + 1) === (name + '=')) {
             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
             break;
@@ -203,7 +253,6 @@
           })
             .then(response => {
               if (response.ok) {
-                // Remove the row from the table
                 button.closest('tr').remove();
               } else {
                 response.json().then(data => {
@@ -219,6 +268,187 @@
         }
       });
     });
+
+    
+
+    // Select/Deselect all checkboxes for batch selection
+    document.getElementById('select-all').addEventListener('click', function () {
+      let checkboxes = document.querySelectorAll('.select-item');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = this.checked;
+      });
+    });
+
+    // Collect selected IDs and send to the server for batch editing
+    document.getElementById('batch-edit').addEventListener('click', function () {
+      let selectedIds = [];
+      document.querySelectorAll('.select-item:checked').forEach(checkbox => {
+        selectedIds.push(checkbox.value);
+      });
+
+      // Perform AJAX request to update selected records
+      fetch('/telephony/phone_number/batch_edit/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken,
+        },
+        body: JSON.stringify({
+          ids: selectedIds,
+          update_data: {
+            'usage_type': document.getElementById('usage_type').value,
+            // Add other fields as necessary
+          }
+        })
+      }).then(response => response.json()).then(data => {
+        if (data.success) {
+          alert('Records updated successfully');
+          window.location.reload();
+        } else {
+          alert('Failed to update records');
+        }
+      });
+    });
+
+    // Generalized Bulk Update Function
+    function bulkUpdate(url, formId) {
+      var selectedIds = [];
+      document.querySelectorAll('.select-record:checked').forEach(function (checkbox) {
+        selectedIds.push(checkbox.value);
+      });
+
+      if (selectedIds.length > 0) {
+        var formData = new FormData(document.getElementById(formId));
+
+        // Remove directory_number from formData to prevent it from being updated
+        formData.delete('directory_number');
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken
+          },
+          body: JSON.stringify({
+            ids: selectedIds,
+            data: Object.fromEntries(formData.entries())
+          })
+        }).then(response => {
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            alert('Bulk update failed. Please try again.');
+          }
+        }).catch(error => {
+          alert('Bulk update failed. Please try again.');
+        });
+      } else {
+        alert('Please select at least one record to update.');
+      }
+    }
+
+    // Generalized Bulk Delete Function
+    function bulkDelete(url) {
+      var selectedIds = [];
+      document.querySelectorAll('.select-record:checked').forEach(function (checkbox) {
+        selectedIds.push(checkbox.value);
+      });
+
+      if (selectedIds.length > 0) {
+        if (confirm('Are you sure you want to delete the selected records?')) {
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify({
+              ids: selectedIds
+            })
+          }).then(response => {
+            if (response.ok) {
+              window.location.reload();
+            } else {
+              alert('Bulk delete failed. Please try again.');
+            }
+          }).catch(error => {
+            alert('Bulk delete failed. Please try again.');
+          });
+        }
+      } else {
+        alert('Please select at least one record to delete.');
+      }
+    }
+
+    // Add event listeners for bulk actions
+    // Bulk Update
+    document.getElementById('bulk-update-btn').addEventListener('click', function () {
+      var selectedIds = [];
+      document.querySelectorAll('.select-record:checked').forEach(function (checkbox) {
+        selectedIds.push(checkbox.value);
+      });
+
+      if (selectedIds.length > 0) {
+        var formData = new FormData(document.getElementById('main-form'));
+
+        // Remove directory_number or any other field you don't want to update in bulk
+        formData.delete('directory_number');
+
+        var updateData = Object.fromEntries(formData.entries());
+        updateData['ids'] = selectedIds;
+
+        fetch('{{ bulk_update_url }}', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify(updateData)
+        }).then(response => {
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            alert('Bulk update failed. Please try again.');
+          }
+        }).catch(error => {
+          alert('Bulk update failed. Please try again.');
+        });
+      } else {
+        alert('Please select at least one record to update.');
+      }
+    });
+
+    // Bulk Delete
+    document.getElementById('bulk-delete-btn').addEventListener('click', function () {
+      var selectedIds = [];
+      document.querySelectorAll('.select-record:checked').forEach(function (checkbox) {
+        selectedIds.push(checkbox.value);
+      });
+
+      if (selectedIds.length > 0) {
+        if (confirm('Are you sure you want to delete the selected records?')) {
+          fetch('{{ bulk_delete_url }}', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': getCookie('csrftoken'),
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              ids: selectedIds
+            })
+          }).then(response => {
+            if (response.ok) {
+              window.location.reload();
+            } else {
+              alert('Bulk delete failed. Please try again.');
+            }
+          }).catch(error => {
+            alert('Bulk delete failed. Please try again.');
+          });
+        }
+      } else {
+        alert('Please select at least one record to delete.');
+      }
+    });
+
+
 
   });
 </script>

@@ -1,7 +1,8 @@
 import googlemaps
 import logging
 import inflection
-from django.shortcuts import render, redirect, get_object_or_404
+import json
+from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, View
 from django.views.decorators.http import require_POST, require_http_methods
@@ -11,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, PhoneNumberRange, Country, LocationFunction, ServiceProviderRep
-from .templatetags import custom_filters
+from telephony.templatetags import custom_filters
 from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, PhoneNumberRangeForm, CountryForm, ServiceProviderForm, LocationFunctionForm, ServiceProviderRepForm
 from .utils import validate_address
 
@@ -23,11 +24,10 @@ def index(request):
         'view_name': 'index',
         'show_form': False,
         'show_table': False,
-        'table_class': None,  # Add this to prevent template errors
-        'clear_view_url': None,  # Add this to prevent template errors
-        'form_fields': None,  # Add this to prevent template errors
+        'table_class': None,
+        'clear_view_url': None,
+        'form_fields': None,
     }
-    print(context)
     return render(request, 'telephony/index.html', context)
 
 
@@ -99,6 +99,8 @@ class BaseListView(ListView):
             'new_url': f'telephony:{model_name_snake_case}_new',
             'edit_url': f'telephony:{model_name_snake_case}_edit',
             'delete_url': f'telephony:{model_name_snake_case}_delete',
+            'bulk_edit_url': f'telephony:{model_name_snake_case}_batch_edit',
+            'bulk_delete_url': f'telephony:{model_name_snake_case}_batch_delete',
             'clear_view_url': reverse_lazy(f'telephony:{model_name_snake_case}'),
             'table_class': f'{model_name_snake_case}-table',
             'table_headers': self.table_headers,
@@ -139,6 +141,8 @@ class BaseCreateView(CreateView):
             'new_url': f'telephony:{model_name_snake_case}_new',
             'edit_url': f'telephony:{model_name_snake_case}_edit',
             'delete_url': f'telephony:{model_name_snake_case}_delete',
+            'bulk_edit_url': f'telephony:{model_name_snake_case}_batch_edit',
+            'bulk_delete_url': f'telephony:{model_name_snake_case}_batch_delete',
             'clear_view_url': reverse_lazy(f'telephony:{model_name_snake_case}'),
             'table_class': f'{model_name_snake_case}-table',
             'table_headers': self.table_headers,
@@ -183,6 +187,8 @@ class BaseUpdateView(UpdateView):
             'new_url': f'telephony:{model_name_snake_case}_new',
             'edit_url': f'telephony:{model_name_snake_case}_edit',
             'delete_url': f'telephony:{model_name_snake_case}_delete',
+            'bulk_edit_url': f'telephony:{model_name_snake_case}_batch_edit',
+            'bulk_delete_url': f'telephony:{model_name_snake_case}_batch_delete',
             'clear_view_url': reverse_lazy(f'telephony:{model_name_snake_case}'),
             'table_class': f'{model_name_snake_case}-table',
             'table_headers': self.table_headers,
@@ -220,16 +226,58 @@ class BaseDetailView(DetailView):
 
 class BaseDeleteView(DeleteView):
     """
-    Base class for DeleteView that returns a JSON response.
+    Base class for DeleteView that handles common context data setup and redirection.
     """
     model = None
     success_url = None
 
     def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        return JsonResponse({'result': 'success'})
+        self.success_url = self.get_success_url()
+        return super().post(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        # Perform the delete operation
+        response = super().delete(request, *args, **kwargs)
+        return HttpResponseRedirect(self.get_success_url())
+    
+    def get_success_url(self):
+        model_name_snake_case = inflection.underscore(self.model._meta.object_name)
+        return reverse_lazy(f'telephony:{model_name_snake_case}')
 
 
+class BulkDeleteView(View):
+    model = None
+
+    def post(self, request, *args, **kwargs):
+        ids = request.POST.getlist('ids[]')
+        if ids:
+            self.model.objects.filter(id__in=ids).delete()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': 'No IDs provided for deletion.'})
+        
+
+class BulkUpdateView(View):
+    model = None
+    fields_to_update = []
+
+    def post(self, request, *args, **kwargs):
+        ids = request.POST.getlist('ids[]')
+        update_data = request.POST.dict()
+
+        # Remove non-update data (like csrfmiddlewaretoken, ids)
+        for key in ['csrfmiddlewaretoken', 'ids']:
+            update_data.pop(key, None)
+
+        if ids and update_data:
+            # Ensure only allowed fields are updated
+            update_data = {key: value for key, value in update_data.items() if key in self.fields_to_update}
+
+            # Update the records
+            self.model.objects.filter(id__in=ids).update(**update_data)
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': 'No IDs provided or no valid fields to update.'})
 
 
 class ServiceProviderListView(BaseListView):
@@ -238,6 +286,18 @@ class ServiceProviderListView(BaseListView):
     table_headers = ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes']
     table_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
     form_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'service_provider_edit_link': True,
+            'phone_number_edit_link': False,
+            'phone_number_range_edit_link': False,
+            'location_edit_link': True,
+            'location_function_edit_link': True,
+            'usage_type_edit_link': False,
+        })
+        return context
 
 class ServiceProviderCreateView(BaseCreateView):
     model = ServiceProvider
@@ -250,6 +310,18 @@ class ServiceProviderUpdateView(BaseUpdateView):
     table_headers = ['Provider', 'Support Number', 'Contract Number', 'Contract Details', 'Website', 'Notes']
     table_fields = ['provider_name', 'support_number', 'contract_number', 'contract_details', 'website_url', 'notes']
     success_url = reverse_lazy('telephony:service_provider')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'service_provider_edit_link': True,
+            'phone_number_edit_link': False,
+            'phone_number_range_edit_link': False,
+            'location_edit_link': True,
+            'location_function_edit_link': True,
+            'usage_type_edit_link': False,
+        })
+        return context
 
 class ServiceProviderDetailView(BaseDetailView):
     model = ServiceProvider
@@ -294,6 +366,18 @@ class LocationListView(BaseListView):
     table_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location']
     form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'service_provider_edit_link': True,
+            'phone_number_edit_link': True,
+            'phone_number_range_edit_link': True,
+            'location_edit_link': True,
+            'location_function_edit_link': True,
+            'usage_type_edit_link': True,
+        })
+        return context
+
 class LocationCreateView(BaseCreateView):
     model = Location
     form_class = LocationForm
@@ -307,6 +391,18 @@ class LocationUpdateView(BaseUpdateView):
     table_fields = ['display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location']
     form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes']
     success_url = reverse_lazy('telephony:location')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'service_provider_edit_link': True,
+            'phone_number_edit_link': True,
+            'phone_number_range_edit_link': True,
+            'location_edit_link': True,
+            'location_function_edit_link': True,
+            'usage_type_edit_link': True,
+        })
+        return context
 
 class LocationDetailView(BaseDetailView):
     model = Location
@@ -347,6 +443,29 @@ class LocationFunctionDeleteView(BaseDeleteView):
     success_url = reverse_lazy('telephony:location_function')
 
 
+
+@require_POST
+def generic_bulk_update(request, model_class):
+    data = json.loads(request.body)
+    ids = data.get('ids', [])
+    update_data = data.get('data', {})
+
+    # Remove any fields you don't want to update
+    update_data.pop('directory_number', None)
+
+    model_class.objects.filter(id__in=ids).update(**update_data)
+    return JsonResponse({'success': True})
+
+@require_POST
+def generic_bulk_delete(request, model_class):
+    data = json.loads(request.body)
+    ids = data.get('ids', [])
+
+    model_class.objects.filter(id__in=ids).delete()
+    return JsonResponse({'success': True})
+
+
+
 class PhoneNumberListView(BaseListView):
     model = PhoneNumber
     form_class = PhoneNumberForm
@@ -355,7 +474,7 @@ class PhoneNumberListView(BaseListView):
         'Country', 
         'Subscriber Number', 
         'Service Location', 
-        'Usage Type', 
+        # 'Usage Type', 
         # 'Status',
         'Assigned To',
         'Provider',
@@ -368,7 +487,7 @@ class PhoneNumberListView(BaseListView):
         'country', 
         'subscriber_number', 
         'service_location', 
-        'usage_type', 
+        # 'usage_type', 
         # 'status',
         'assigned_to',
         'service_provider',
@@ -391,6 +510,18 @@ class PhoneNumberListView(BaseListView):
         'phone_number_range',
         'circuit'
     ]
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'service_provider_edit_link': True,
+            'phone_number_edit_link': True,
+            'phone_number_range_edit_link': True,
+            'location_edit_link': True,
+            'location_function_edit_link': True,
+            'usage_type_edit_link': True,
+        })
+        return context
+
 
 class PhoneNumberCreateView(BaseCreateView):
     model = PhoneNumber
@@ -439,12 +570,27 @@ class PhoneNumberUpdateView(BaseUpdateView):
         'circuit'
     ]
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'service_provider_edit_link': True,
+            'phone_number_edit_link': True,
+            'phone_number_range_edit_link': True,
+            'location_edit_link': True,
+            'location_function_edit_link': True,
+            'usage_type_edit_link': True,
+        })
+        return context
+
 class PhoneNumberDetailView(BaseDetailView):
     model = PhoneNumber
 
 class PhoneNumberDeleteView(BaseDeleteView):
     model = PhoneNumber
 
+class PhoneNumberBulkUpdateView(BulkUpdateView):
+    model = PhoneNumber
+    fields_to_update = ['usage_type', 'service_location', 'status', 'assigned_to']
 
 
 ###############################################################################################################

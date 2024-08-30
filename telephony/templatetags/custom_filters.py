@@ -1,7 +1,7 @@
 # telephony/templatetags/custom_filters.py
 from django import template
 import django_filters
-from ..models import Location, ServiceProvider, CircuitDetail, PhoneNumber, Country, UsageType, PhoneNumberRange
+from telephony.models import Location, ServiceProvider, CircuitDetail, PhoneNumber, Country, UsageType, PhoneNumberRange
 
 register = template.Library()
 
@@ -20,13 +20,3 @@ def get_attr(obj, attr_name):
 def add_class(value, arg):
     return value.as_widget(attrs={'class': arg})
 
-class PhoneNumberFilter(django_filters.FilterSet):
-    directory_number = django_filters.CharFilter(lookup_expr='icontains', label='Directory Number')
-    assigned_to = django_filters.CharFilter(lookup_expr='icontains', label='Assigned To')
-    usage_type = django_filters.ModelChoiceFilter(queryset=UsageType.objects.all(), label='Usage Type')
-    service_location = django_filters.ModelChoiceFilter(queryset=Location.objects.all(), label='Service Location')
-    phone_number_range = django_filters.ModelChoiceFilter(queryset=PhoneNumberRange.objects.all(), label='Phone Number Range')
-    notes = django_filters.CharFilter(lookup_expr='icontains', label='Notes')
-    class Meta:
-        model = PhoneNumber
-        fields = ['directory_number', 'service_location', 'assigned_to', 'usage_type']

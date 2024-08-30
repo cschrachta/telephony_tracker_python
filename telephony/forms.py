@@ -4,7 +4,7 @@ import django_filters
 from django import forms
 from django.conf import settings
 from .templatetags import custom_filters
-from .models import Location, CircuitDetail, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, ServiceProviderRep
+from .models import Location, CircuitDetail, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, ServiceProviderRep, UsageType
 
 class CircuitDetailForm(forms.ModelForm):
     class Meta:
@@ -150,7 +150,7 @@ class LocationForm(forms.ModelForm):
             'road_suffix': forms.TextInput(attrs={'placeholder': 'St, Ave, etc.'}),
             'city': forms.TextInput(attrs={'placeholder': 'City Name'}),
             'county': forms.TextInput(attrs={'placeholder': 'County Name'}),
-            'state': forms.TextInput(attrs={'placeholder': 'California'}),
+            'state': forms.TextInput(attrs={'placeholder': 'Texas'}),
             'state_abbreviation': forms.TextInput(attrs={'placeholder': 'CA'}),
             'postcode': forms.TextInput(attrs={'placeholder': '12345'}),
             'country': forms.Select(attrs={'placeholder': 'Choose from list'}),
@@ -210,10 +210,6 @@ class PhoneNumberForm(forms.ModelForm):
             'deactivation_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-        def phone_number_list(request):
-            filter = PhoneNumberFilter(request.GET, queryset=PhoneNumber.objects.all())
-            return render(request, 'telephony/phone_number.html', {'filter': filter})
-        
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.fields['usage_type'].queryset = UsageType.objects.filter(usage_for='PhoneNumber')
@@ -238,20 +234,9 @@ class PhoneNumberRangeForm(forms.ModelForm):
             'end_number': forms.TextInput(attrs={'placeholder': '+12345552199'}),
         }
 
-        def phone_number_list(request):
-            filter = PhoneNumberRangeFilter(request.GET, queryset=PhoneNumberRange.objects.all())
-            return render(request, 'telephony/phone_number_range.html', {'filter': filter})
-        
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.fields['usage_type'].queryset = UsageType.objects.filter(usage_for='PhoneNumberRange')
-
-
-
-
-
-
-
 
 
 

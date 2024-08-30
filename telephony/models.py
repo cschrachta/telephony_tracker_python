@@ -87,7 +87,7 @@ class Location(models.Model):
     contact_email = models.EmailField(max_length=100, blank=True, null=True)
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
     location_function = models.ForeignKey(LocationFunction, on_delete=models.CASCADE, default=0)
-    site_dial_code = models.IntegerField(max_length=6, blank=True, null=True)
+    site_dial_code = models.IntegerField(blank=True, null=True)
     verified_location = models.BooleanField(default=False)
     formatted_address = models.CharField(max_length=255, blank=True)
     google_maps_place_id = models.CharField(max_length=255, blank=True)
