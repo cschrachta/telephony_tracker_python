@@ -150,12 +150,33 @@ class Location(models.Model):
         else:
             # If validation fails, raise an error or handle it appropriately
             raise ValidationError('Address could not be verified.')
-
+        self.clean_contact_phone()
         super().clean()
+
+    def clean_contact_phone(self):
+        if self.contact_phone:
+            # Remove non-numeric characters
+            cleaned_number = ''.join(filter(str.isdigit, self.contact_phone))
+
+            # Validate the phone number
+            e164_code = self.country.e164_code
+            full_number = f"+{e164_code}{cleaned_number}"
+
+            try:
+                parsed_number = phonenumbers.parse(full_number, None)
+                if not phonenumbers.is_valid_number(parsed_number):
+                    raise ValidationError('The phone number is not valid.')
+            except phonenumbers.NumberParseException:
+                raise ValidationError('The phone number could not be parsed.')
+
+            # Store the cleaned number in E.164 format
+            self.contact_phone = phonenumbers.format_number(parsed_number, phonenumbers.PhoneNumberFormat.E164)
+
 
     def save(self, *args, **kwargs):
         if not self.site_id:  # Generate site_id if not already set
             self.site_id = self.generate_site_id()
+        self.clean()
         super().save(*args, **kwargs)
 
     def generate_site_id(self):

@@ -87,50 +87,55 @@
 
   <div class="content container-fluid py-4">
     {% block table %}
-    <p>Service provider edit link: {{ service_provider_edit_link }}</p>
     {% if show_table %}
     <div class="col-12 table-container"></div>
-      <table class="{{ table_class }} table table-hover table" style="table-layout: auto;">
-        <thead>
-          <tr>
-            <th style="text-align:center; vertical-align: middle;"><input type="checkbox" id="select-all"></th>
-            {% for column in table_headers %}
-            <th style="text-align:center; vertical-align: middle;">{{ column }}</th>
-            {% endfor %}
-            <th style="text-align:center; vertical-align: middle;">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in items %}
-          {% if item.id %}
-          <tr data-id="{{ item.id }}">
-            <td style="text-align: center"><input type="checkbox" class="select-record select-item" value="{{ item.id }}"></td>
-            {% for field in table_fields %}
-            <td style="text-align: center; vertical-align: middle;">
-              {% if field == 'directory_number' and phone_number_edit_link %}
-                <a href="{% url 'telephony:phone_number_edit' item.id %}">{{ item.directory_number }}</a>
-              {% elif field == 'provider_name' and service_provider_edit_link %}
-                <a href="{% url 'telephony:service_provider_edit' item.id %}">{{ item.provider_name }}</a>
-              {% else %}
-                {{ item|get_attr:field }}
-              {% endif%}
-            </td>
-            {% endfor %}
-            <td style="text-align: center; vertical-align: middle;">
-              <a href="{% url edit_url item.id %}" class="btn btn-sm btn-primary">Edit</a>
-              <form method="post" action="{% url delete_url item.id %}" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this entry?');">Delete</button>
-              </form>
-            </td>
-          </tr>
-          {% endif %}
+    <table class="{{ table_class }} table table-hover table" style="table-layout: auto;">
+      <thead>
+        <tr>
+          <th style="text-align:center; vertical-align: middle;"><input type="checkbox" id="select-all"></th>
+          {% for column in table_headers %}
+          <th style="text-align:center; vertical-align: middle;">{{ column }}</th>
           {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% endif %}
-    {% endblock %}
+          <th style="text-align:center; vertical-align: middle;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        {% if item.id %}
+        <tr data-id="{{ item.id }}">
+          <td style="text-align: center"><input type="checkbox" class="select-record select-item" value="{{ item.id }}"></td>
+          {% for field in table_fields %}
+          <td style="text-align: center; vertical-align: middle;">
+            {% with field_url=None %}
+              {% for linkable_field, url_name in linkable_fields %}
+                {% if field == linkable_field %}
+                  {% with field_url=url_name %}
+                    <a href="{% url field_url item.id %}">{{ item|get_attr:field }}</a>
+                  {% endwith %}
+                {% endif %}
+              {% endfor %}
+              {% if not field_url %}
+                {{ item|get_attr:field }}
+              {% endif %}
+            {% endwith %}
+          </td>
+          {% endfor %}
+          <td style="text-align: center; vertical-align: middle;">
+            <a href="{% url edit_url item.id %}" class="btn btn-sm btn-primary">Edit</a>
+            <form method="post" action="{% url delete_url item.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger"
+                onclick="return confirm('Are you sure you want to delete this entry?');">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+  {% endblock %}
   </div>
 </body>
 

@@ -33,7 +33,7 @@ urlpatterns = [
     # Service provider-related URLs
     path('service_provider/', ServiceProviderListView.as_view(), name='service_provider'),
     path('service_provider/new/', ServiceProviderCreateView.as_view(), name='service_provider_new'),
-    path('service_provider/<int:pk>/edit', ServiceProviderUpdateView.as_view(), name='service_provider_edit'),
+    path('service_provider/<int:pk>/edit/', ServiceProviderUpdateView.as_view(), name='service_provider_edit'),
     path('service_provider/<int:pk>/details/', ServiceProviderDetailView.as_view(), name='service_provider_get'),
     path('service_provider/<int:pk>/delete/', ServiceProviderDeleteView.as_view(), name='service_provider_delete'),
     
