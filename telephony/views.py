@@ -3,7 +3,7 @@ import logging
 import inflection
 import json
 from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, UpdateView, ListView, DeleteView, DetailView, View
 from django.views.decorators.http import require_POST, require_http_methods
 from django.conf import settings
@@ -135,6 +135,7 @@ class BaseListView(ListView):
                 ('service_provider', 'telephony:service_provider_edit'),
                 ('provider_name', 'telephony:service_provider_edit'),
                 ('location', 'telephony:location_edit'),
+                ('location', 'telephony:location_edit'),
             ],
         })
         return context
@@ -182,6 +183,7 @@ class BaseCreateView(CreateView):
                 ('directory_number', 'telephony:phone_number_edit'),
                 ('service_provider', 'telephony:service_provider_edit'),
                 ('provider_name', 'telephony:service_provider_edit'),
+                ('location', 'telephony:location_edit'),
                 ('location', 'telephony:location_edit'),
             ],
         })
@@ -234,6 +236,7 @@ class BaseUpdateView(UpdateView):
                 ('directory_number', 'telephony:phone_number_edit'),
                 ('service_provider', 'telephony:service_provider_edit'),
                 ('provider_name', 'telephony:service_provider_edit'),
+                ('location', 'telephony:location_edit'),
                 ('location', 'telephony:location_edit'),
             ],
             
@@ -511,7 +514,7 @@ class PhoneNumberListView(BaseListView):
         'directory_number', 
         'country', 
         'subscriber_number', 
-        'service_location', 
+        'location', 
         # 'usage_type', 
         # 'status',
         'assigned_to',
@@ -524,7 +527,7 @@ class PhoneNumberListView(BaseListView):
         'directory_number',
         'country',
         'subscriber_number',
-        'service_location',
+        'location',
         'usage_type',
         'status',
         'assigned_to',
@@ -573,7 +576,7 @@ class PhoneNumberUpdateView(BaseUpdateView):
         'directory_number', 
         'country', 
         'subscriber_number', 
-        'service_location', 
+        'location', 
         # 'usage_type', 
         # 'status',
         'assigned_to',
@@ -586,7 +589,7 @@ class PhoneNumberUpdateView(BaseUpdateView):
         'directory_number',
         'country',
         'subscriber_number',
-        'service_location',
+        'location',
         'usage_type',
         'status',
         'assigned_to',
@@ -619,7 +622,7 @@ class PhoneNumberDeleteView(BaseDeleteView):
 
 class PhoneNumberBulkUpdateView(BulkUpdateView):
     model = PhoneNumber
-    fields_to_update = ['usage_type', 'service_location', 'status', 'assigned_to']
+    fields_to_update = ['usage_type', 'location', 'status', 'assigned_to']
 
 
 ###############################################################################################################
@@ -657,7 +660,7 @@ class PhoneNumberRangeListView(BaseListView):
         context = super().get_context_data(**kwargs)
         context.update({
             'display_edit_links': True,
-            'service_provider_edit_link': False,
+            'service_provider_edit_link': True,
             'phone_number_edit_link': True,
             'phone_number_range_edit_link': True,
             'location_edit_link': True,
@@ -704,7 +707,7 @@ class PhoneNumberRangeUpdateView(BaseUpdateView):
         context = super().get_context_data(**kwargs)
         context.update({
             'display_edit_links': True,
-            'service_provider_edit_link': False,
+            'service_provider_edit_link': True,
             'phone_number_edit_link': True,
             'phone_number_range_edit_link': True,
             'location_edit_link': True,

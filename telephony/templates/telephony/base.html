@@ -88,7 +88,7 @@
   <div class="content container-fluid py-4">
     {% block table %}
     {% if show_table %}
-    <div class="col-12 table-container"></div>
+    <div class="col-12 table-container">
     <table class="{{ table_class }} table table-hover table" style="table-layout: auto;">
       <thead>
         <tr>
@@ -103,23 +103,19 @@
         {% for item in items %}
         {% if item.id %}
         <tr data-id="{{ item.id }}">
-          <td style="text-align: center"><input type="checkbox" class="select-record select-item" value="{{ item.id }}"></td>
-          {% for field in table_fields %}
-          <td style="text-align: center; vertical-align: middle;">
-            {% with field_url=None %}
-              {% for linkable_field, url_name in linkable_fields %}
-                {% if field == linkable_field %}
-                  {% with field_url=url_name %}
-                    <a href="{% url field_url item.id %}">{{ item|get_attr:field }}</a>
-                  {% endwith %}
-                {% endif %}
-              {% endfor %}
-              {% if not field_url %}
-                {{ item|get_attr:field }}
-              {% endif %}
-            {% endwith %}
+          <td style="text-align: center"><input type="checkbox" class="select-record select-item" value="{{ item.id }}">
+            {% for field in table_fields %}
+              <td style="text-align: center; vertical-align: middle;">
+                {% with url=field|get_url:item %}
+                  {% if url %}
+                    <a href="{{ url }}">{{ item|get_attr:field }}</a>
+                  {% else %}
+                    {{ item|get_attr:field }}
+                  {% endif %}
+                {% endwith %}
+              </td>
+            {% endfor %}
           </td>
-          {% endfor %}
           <td style="text-align: center; vertical-align: middle;">
             <a href="{% url edit_url item.id %}" class="btn btn-sm btn-primary">Edit</a>
             <form method="post" action="{% url delete_url item.id %}" style="display:inline;">
@@ -133,6 +129,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
   </div>
   {% endif %}
   {% endblock %}

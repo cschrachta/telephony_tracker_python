@@ -331,7 +331,7 @@ class PhoneNumberRange(models.Model):
                 defaults={
                     'country': self.country,
                     'subscriber_number': parsed_number.national_number,
-                    'service_location': self.location,
+                    'location': self.location,
                     'usage_type': self.usage_type,
                     'service_provider': self.service_provider,
                     'phone_number_range': self,
@@ -345,7 +345,7 @@ class PhoneNumber(models.Model):
     directory_number = models.CharField(max_length=20, unique=True)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     subscriber_number = models.BigIntegerField()
-    service_location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
@@ -398,7 +398,7 @@ class HardwareDevice(models.Model):
     model = models.CharField(max_length=255, blank=True)
     serial_number = models.CharField(max_length=20, blank=True, unique=True)
     mac_address = models.CharField(max_length=255, blank=True, unique=True)
-    service_location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
     exists_in_phone_system = models.BooleanField(default=True)
     asset_tag = models.CharField(max_length=255, blank=True)
     ip_address = models.GenericIPAddressField(blank=True, null=True)

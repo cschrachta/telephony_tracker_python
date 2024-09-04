@@ -14,6 +14,10 @@ from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, Phone
 app_name = 'telephony'
 
 urlpatterns = [
+      # Country-related URLs
+    path('country_list/', country_list, name='country_list'),
+    path('countries/', country_list, name='country_list'),
+  
     # Location-related URLs
     path('location/', LocationListView.as_view(), name='location'),
     path('location/new/', LocationCreateView.as_view(), name='location_new'),
@@ -65,15 +69,5 @@ urlpatterns = [
     
 
 
-    # path('service_provider_list/', views.service_provider_list, name='service_provider_list'),
-    # path('phone_number/<int:phone_number_id>/', views.phone_numbers, name='phone_number_edit'),
-    # path('service_provider_list/<int:provider_id>/', views.service_provider_list, name='service_provider_edit'),
-    # path('add-service-provider/', views.add_service_provider, name='add_service_provider'),
-    # path('delete_phone_number/<int:phone_number_id>/', views.phone_number_delete, name='delete_phone_number'),
-    # path('get_phone_number/<int:phone_number_id>/', views.phone_numbers, name='get_phone_number'),
-    
-    # Country-related URLs
-    path('country_list/', country_list, name='country_list'),
-    path('countries/', country_list, name='country_list'),
 ]
 

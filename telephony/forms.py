@@ -4,7 +4,7 @@ import django_filters
 from django import forms
 from django.conf import settings
 from .templatetags import custom_filters
-from .models import Location, CircuitDetail, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, ServiceProviderRep, UsageType
+from .models import Location, CircuitDetail, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, ServiceProviderRep, UsageType, SwitchType
 
 class CircuitDetailForm(forms.ModelForm):
     class Meta:
@@ -186,7 +186,7 @@ class PhoneNumberForm(forms.ModelForm):
             'directory_number',
             'country',
             'subscriber_number',
-            'service_location', 
+            'location', 
             'is_active',
             'assigned_to',
             'usage_type',
