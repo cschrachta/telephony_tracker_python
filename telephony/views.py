@@ -409,9 +409,9 @@ class ServiceProviderRepDeleteView(BaseDeleteView):
 class LocationListView(BaseListView):
     model = Location
     form_class = LocationForm
-    table_headers = ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Verified']
-    table_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'verified_location']
-    form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes']
+    table_headers = ['Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Verified']
+    table_fields = ['name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'verified_location']
+    form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'notes']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -435,9 +435,9 @@ class LocationUpdateView(BaseUpdateView):
     model = Location
     form_class = LocationForm
     template_name = 'telephony/location.html'
-    table_headers = ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified']
-    table_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location']
-    form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes']
+    table_headers = ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Verified']
+    table_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'verified_location']
+    form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'notes']
     success_url = reverse_lazy('telephony:location')
 
     def get_context_data(self, **kwargs):
@@ -538,6 +538,7 @@ class PhoneNumberListView(BaseListView):
         'phone_number_range',
         'circuit'
     ]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
@@ -600,6 +601,11 @@ class PhoneNumberUpdateView(BaseUpdateView):
         'phone_number_range',
         'circuit'
     ]
+    
+    def phone_number_edit(request, pk):
+        phone_number = get_object_or_404(PhoneNumber, pk=pk)
+        data = {field.name: getattr(phone_number, field.name) for field in PhoneNumber._meta.fields}
+        return JsonResponse(data)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

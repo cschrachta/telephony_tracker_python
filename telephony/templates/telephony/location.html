@@ -69,6 +69,10 @@
             <label for="id_site_dial_code" class="form-label">Site Dial Code:<span class="info-icon" data-bs-toggle="tooltip" title="If a unique code/prefix is required to be dialed internally when calling this facility instead of using a public number."> ℹ️</span></label>
             {{ form.site_dial_code|add_class:"form-control" }}
           </div>
+          <div>
+            <label for="id_site_id" class="form-label">Site ID:<span class="info-icon" data-bs-toggle="tooltip" title="A system generated unique code that is used to reference this location in location specific remote equipment."> ℹ️</span></label>
+            {{ form.site_id|add_class:"form-control" }}
+          </div>
         </div>
         <div class="col-md-4">
           <div>

@@ -213,12 +213,12 @@
     document.querySelectorAll('.{{ table_class }} tr[data-id]').forEach(function (row) {
       row.addEventListener('click', function () {
         var id = row.getAttribute('data-id');
-        fetch('/telephony/{{ clear_view_url }}/' + id + '/')
+        fetch('{{ clear_view_url }}' + id + '/edit')
           .then(response => response.json())
           .then(data => {
             // Populate form fields dynamically
             {% for field in form_fields %}
-            document.getElementById('id_{{ field }}').value = data.{{ field }};
+              document.getElementById('id_{{ field }}').value = data.{{ field }};
             {% endfor %}
           });
       });

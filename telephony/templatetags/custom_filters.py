@@ -1,6 +1,7 @@
 # telephony/templatetags/custom_filters.py
 from django import template
 import django_filters
+from django.urls import reverse_lazy, reverse
 from telephony.models import Location, ServiceProvider, CircuitDetail, PhoneNumber, Country, UsageType, PhoneNumberRange
 
 register = template.Library()

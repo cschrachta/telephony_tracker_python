@@ -139,6 +139,7 @@ class LocationForm(forms.ModelForm):
             'contact_phone',
             'location_function',
             'site_dial_code',
+            'site_id',
             'notes',
         ]
 
@@ -161,6 +162,7 @@ class LocationForm(forms.ModelForm):
             'contact_phone': forms.TextInput(attrs={'placeholder': 'Main Contact Number'}),
             'location_function': forms.Select(attrs={'placeholder': 'Admin, Manufacturing, etc...'}),
             'site_dial_code': forms.TextInput(attrs={'placeholder': '123456'}),
+            'site_id': forms.TextInput(attrs={'placeholder': 'USTX0'}),
             'timezone': forms.TextInput(attrs={'placeholder': 'GMT'}),
             'notes': forms.Textarea(attrs={'placeholder': 'Additional notes here...'}),
         }
