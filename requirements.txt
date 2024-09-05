@@ -5,7 +5,7 @@ attrs==23.2.0
 beautifulsoup4==4.12.3
 billiard==4.2.0
 celery==5.4.0
-certifi==2024.2.2
+certifi==2024.8.30
 charset-normalizer==3.3.2
 click==8.1.7
 click-didyoumean==0.3.1
@@ -64,7 +64,7 @@ react==4.3.0
 referencing==0.35.1
 requests==2.32.2
 rpds-py==0.18.1
-setuptools==69.5.1
+setuptools==74.1.2
 shortcuts==0.11.0
 six==1.16.0
 soupsieve==2.5
@@ -73,7 +73,7 @@ stack-data==0.6.3
 toml==0.10.2
 traitlets==5.14.3
 tzdata==2024.1
-urllib3==2.2.1
+urllib3==2.2.2
 utils==1.0.2
 vine==5.1.0
 wcwidth==0.2.13
