@@ -15,9 +15,8 @@ contourpy==1.2.1
 contrib==0.3.0
 cycler==0.12.1
 decorator==5.1.1
-Django==4.2.13
+Django==5.1.1
 django-apps==0.1.0
-django-bootstrap-v5==1.0.11
 django-celery-results==2.5.1
 django-core==1.4.1
 django-crontab==0.7.1
