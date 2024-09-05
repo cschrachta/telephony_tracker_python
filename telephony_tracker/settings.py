@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     "django_crontab",
     "django_celery_results",
     "django_google_maps",
-    "bootstrap5",
     "django_filters",
     "telephony",
     "uc_data_import",
