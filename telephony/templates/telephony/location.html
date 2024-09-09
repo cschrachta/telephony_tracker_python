@@ -9,37 +9,61 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-3">
-      <label for="id_name" class="form-label">*Name:<span class="info-icon" data-bs-toggle="tooltip" title="Unique name for identifying the company location in the Telephony Tracker Portal."> ℹ️</span></label>
+      <label for="id_name" class="form-label">*Name:<span class="bi bi-info-circle" data-bs-toggle="tooltip" title="Unique name for identifying the company location in the Telephony Tracker Portal."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
       {{ form.name|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_display_name" class="form-label">Display Name:<span class="info-icon" data-bs-toggle="tooltip" title="Name of the facility as telephony system administrators are familiar with.  This is the name displayed on the table below."> ℹ️</span></label>
+      <label for="id_display_name" class="form-label">Display Name:<span class="bi bi-info-circle" data-bs-toggle="tooltip" title="Name of the facility as telephony system administrators are familiar with.  This is the name displayed on the table below."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
       {{ form.display_name|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_house_number" class="form-label">*House Number:<span class="info-icon" data-bs-toggle="tooltip" title="The numeric portion of the physical locations address."> ℹ️</span></label>
+      <label for="id_house_number" class="form-label">*House Number:<span class="info-icon" data-bs-toggle="tooltip" title="The numeric portion of the physical locations address."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
       {{ form.house_number|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_road" class="form-label">*Road:<span class="info-icon" data-bs-toggle="tooltip"  title="The name of the road/street this location is at according to the local postal service."> ℹ️</span></label>
+      <label for="id_road" class="form-label">*Road:<span class="info-icon" data-bs-toggle="tooltip"  title="The name of the road/street this location is at according to the local postal service."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
       {{ form.road|add_class:"form-control" }}
     </div>
   </div>
   <div class="row">
     <div class="col-md-3">
-      <label for="id_city" class="form-label">*City:<span class="info-icon" data-bs-toggle="tooltip" title="Name of the City this location is at according to the local postal service."> ℹ️</span></label>
+      <label for="id_city" class="form-label">*City:<span class="info-icon" data-bs-toggle="tooltip" title="Name of the City this location is at according to the local postal service."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
       {{ form.city|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_state" class="form-label">*State:<span class="info-icon" data-bs-toggle="tooltip" title="Name or Abbreviation of the State this physical site is located within."> ℹ️</span></label>
+      <label for="id_state" class="form-label">*State:<span class="info-icon" data-bs-toggle="tooltip" title="Name or Abbreviation of the State this physical site is located within."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
       {{ form.state|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_country" class="form-label">*Country:<span class="info-icon" data-bs-toggle="tooltip" title="Select the Country from the list where this facility is physically located."> ℹ️</span></label>
+      <label for="id_country" class="form-label">*Country:<span class="info-icon" data-bs-toggle="tooltip" title="Select the Country from the list where this facility is physically located."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
       {{ form.country|add_class:"form-control" }}
     </div>
     <div class="col-md-3">
-      <label for="id_postcode" class="form-label">*Postcode:<span class="info-icon" data-bs-toggle="tooltip" title="The Post Code/Zip Code for this physical location according to the local postal service."> ℹ️</span></label>
+      <label for="id_postcode" class="form-label">*Postcode:<span class="info-icon" data-bs-toggle="tooltip" title="The Post Code/Zip Code for this physical location according to the local postal service."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
       {{ form.postcode|add_class:"form-control" }}
     </div>
   </div>
@@ -48,29 +72,47 @@
       <div class="row">
         <div class="col-md-4">
           <div>
-            <label for="id_contact_person" class="form-label">Location Contact:<span class="info-icon" data-bs-toggle="tooltip" title="Point of contact when you need someone at the facility."> ℹ️</span></label>
+            <label for="id_contact_person" class="form-label">Location Contact:<span class="info-icon" data-bs-toggle="tooltip" title="Point of contact when you need someone at the facility."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg>️</span></label>
             {{ form.contact_person|add_class:"form-control" }}
           </div>
           <div>
-            <label for="id_contact_email" class="form-label">Contact Email:<span class="info-icon" data-bs-toggle="tooltip" title="Email address for the locations contact person."> ℹ️</span></label>
+            <label for="id_contact_email" class="form-label">Contact Email:<span class="info-icon" data-bs-toggle="tooltip" title="Email address for the locations contact person."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
             {{ form.contact_email|add_class:"form-control" }}
           </div>
           <div>
-            <label for="id_contact_phone" class="form-label">Contact Phone:<span class="info-icon" data-bs-toggle="tooltip" title="Phone number where the locations site contact can be reached, preferably a mobile device."> ℹ️</span></label>
+            <label for="id_contact_phone" class="form-label">Contact Phone:<span class="info-icon" data-bs-toggle="tooltip" title="Phone number where the locations site contact can be reached, preferably a mobile device."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
             {{ form.contact_phone|add_class:"form-control" }}
           </div>
         </div>
         <div class="col-md-4">
           <div>
-            <label for="id_location_function" class="form-label">Location Function:<span class="info-icon" data-bs-toggle="tooltip" title="The primary fuction or role this facilty provides."> ℹ️</span></label>
+            <label for="id_location_function" class="form-label">Location Function:<span class="info-icon" data-bs-toggle="tooltip" title="The primary fuction or role this facilty provides."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
             {{ form.location_function|add_class:"form-control" }}
           </div>
           <div>
-            <label for="id_site_dial_code" class="form-label">Site Dial Code:<span class="info-icon" data-bs-toggle="tooltip" title="If a unique code/prefix is required to be dialed internally when calling this facility instead of using a public number."> ℹ️</span></label>
+            <label for="id_site_dial_code" class="form-label">Site Dial Code:<span class="info-icon" data-bs-toggle="tooltip" title="If a unique code/prefix is required to be dialed internally when calling this facility instead of using a public number."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
             {{ form.site_dial_code|add_class:"form-control" }}
           </div>
           <div>
-            <label for="id_site_id" class="form-label">Site ID:<span class="info-icon" data-bs-toggle="tooltip" title="A system generated unique code that is used to reference this location in location specific remote equipment."> ℹ️</span></label>
+            <label for="id_site_id" class="form-label">Site ID:<span class="info-icon" data-bs-toggle="tooltip" title="A system generated unique code that is used to reference this location in location specific remote equipment."> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0"/>
+</svg></span></label>
             {{ form.site_id|add_class:"form-control" }}
           </div>
         </div>
