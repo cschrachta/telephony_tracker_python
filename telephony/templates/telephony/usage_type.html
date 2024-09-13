@@ -1,0 +1,21 @@
+{% extends 'telephony/base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<h2>Usage Types</h2>
+{% endblock %}
+
+{% block form_content %}
+<div class="container-fluid"></div>
+  <div class="row">
+    <div class="col-md-3">
+      <label for="id_usage_type" class="form-label">*Name:</label>
+      {{ form.usage_type|add_class:"form-control" }}
+    </div>
+    <div class="col-md-9">
+      <label for="id_usage_for" class="form-label">Description:</label>
+      {{ form.usage_for|add_class:"form-control" }}
+    </div>
+  </div>
+</div>
+{% endblock %}

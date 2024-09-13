@@ -6,6 +6,7 @@ from .views import (
   LocationFunctionListView, LocationFunctionCreateView, LocationFunctionUpdateView, LocationFunctionDeleteView,
   PhoneNumberListView, PhoneNumberCreateView, PhoneNumberUpdateView, PhoneNumberDetailView, PhoneNumberDeleteView, PhoneNumberBulkUpdateView,
   PhoneNumberRangeListView, PhoneNumberRangeCreateView, PhoneNumberRangeUpdateView, PhoneNumberRangeDetailView, PhoneNumberRangeDeleteView,
+  UsageTypeListView, UsageTypeCreateView, UsageTypeUpdateView, UsageTypeDeleteView,
   country_list,
   generic_bulk_update, generic_bulk_delete
 )
@@ -29,7 +30,7 @@ urlpatterns = [
     path('location/batch_delete/', generic_bulk_delete, {'model_class': Location}, name='location_batch_delete'),
 
     #Location-Function/Purpose URLs
-    path('location_function/', LocationFunctionListView.as_view(), name='location_function_list'),
+    path('location_function/', LocationFunctionListView.as_view(), name='location_function'),
     path('location_function/new/', LocationFunctionCreateView.as_view(), name='location_function_new'),
     path('location_function/<int:pk>/edit/', LocationFunctionUpdateView.as_view(), name='location_function_edit'),
     path('location_function/<int:pk>/delete/', LocationFunctionDeleteView.as_view(), name='location_function_delete'),
@@ -67,7 +68,11 @@ urlpatterns = [
     path('phone_number_range/<int:pk>/details/', PhoneNumberRangeDetailView.as_view(), name='phone_number_range_details'),
     path('phone_number_range/<int:pk>/delete/', PhoneNumberRangeDeleteView.as_view(), name='phone_number_range_delete'),
     
-
+   #Usage Type URLs
+    path('usage_type/', UsageTypeListView.as_view(), name='usage_type'),
+    path('usage_type/new/', UsageTypeCreateView.as_view(), name='usage_type_new'),
+    path('usage_type/<int:pk>/edit/', UsageTypeUpdateView.as_view(), name='usage_type_edit'),
+    path('usage_type/<int:pk>/delete/', UsageTypeDeleteView.as_view(), name='usage_type_delete'),
 
 ]
 

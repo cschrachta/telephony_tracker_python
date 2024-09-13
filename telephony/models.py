@@ -12,7 +12,41 @@ from django.dispatch import receiver
 
 gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
 
-# Create your models here.
+def get_default_country():
+    # This will return the "Undesignated" country, creating it if necessary
+    return Country.objects.get_or_create(name="Undesignated")[0]
+
+def get_default_usage_type():
+    # This will return the "Undesignated" country, creating it if necessary
+    return UsageType.objects.get_or_create(usage_type="Undesignated")[0]
+
+def get_default_location_function():
+    # This will return the "Undesignated" country, creating it if necessary
+    return LocationFunction.objects.get_or_create(function_name="Undesignated")[0]
+
+def get_default_location():
+    # This will return the "Undesignated" country, creating it if necessary
+    return Location.objects.get_or_create(name="Undesignated")[0]
+
+def get_default_connection_type():
+    # This will return the "Undesignated" country, creating it if necessary
+    return ConnectionType.objects.get_or_create(connection_type_name="Undesignated")[0]
+
+def get_default_switch_type():
+    # This will return the "Undesignated" country, creating it if necessary
+    return SwitchType.objects.get_or_create(switch_type_name="Undesignated")[0]
+
+def get_default_service_provider():
+    # This will return the "Undesignated" country, creating it if necessary
+    return ServiceProvider.objects.get_or_create(provider_name="Undesignated")[0]
+
+def get_default_circuit_type():
+    # This will return the "Undesignated" country, creating it if necessary
+    return CircuitDetail.objects.get_or_create(circuit_number="Undesignated")[0]
+
+
+
+
 
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True, null=False)
@@ -69,7 +103,7 @@ class LocationFunction(models.Model):
 
 
 class Location(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, blank=True, null=True)
     display_name = models.CharField(max_length=200, blank=True, null=True)
     house_number = models.CharField(max_length=20)
     road = models.CharField(max_length=50)
@@ -79,14 +113,14 @@ class Location(models.Model):
     state = models.CharField(max_length=50, blank=True, null=True)
     state_abbreviation = models.CharField(max_length=5, blank=True, null=True)
     postcode = models.CharField(max_length=20)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, on_delete=models.SET_DEFAULT, default=get_default_country)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
     timezone = models.CharField(max_length=50, blank=True, null=True)
     contact_person = models.CharField(max_length=100, blank=True, null=True)
     contact_email = models.EmailField(max_length=100, blank=True, null=True)
     contact_phone = models.CharField(max_length=20, blank=True, null=True)
-    location_function = models.ForeignKey(LocationFunction, on_delete=models.CASCADE, default=0)
+    location_function = models.ForeignKey(LocationFunction, on_delete=models.SET_DEFAULT, default=get_default_location_function)
     site_dial_code = models.IntegerField(blank=True, null=True)
     verified_location = models.BooleanField(default=False)
     formatted_address = models.CharField(max_length=255, blank=True)
@@ -148,8 +182,12 @@ class Location(models.Model):
             self.verified_location = True
 
         else:
-            # If validation fails, raise an error or handle it appropriately
-            raise ValidationError('Address could not be verified.')
+            # Handle the case where the address could not be validated.
+            if result['status'] == 'ZERO_RESULTS':
+                # If no results found, handle it gracefully.
+                self.verified_location = False
+            else:
+                raise ValidationError('Address could not be verified.')
         self.clean_contact_phone()
         super().clean()
 
@@ -181,7 +219,7 @@ class Location(models.Model):
 
     def generate_site_id(self):
         country_code = self.country.iso2_code
-        state_code = self.state_abbreviation[:2]  # or some other logic
+        state_code = self.state_abbreviation[:2] if self.state_abbreviation else "XX"
         function_code = self.location_function.function_code
         site_id = f"{country_code}{state_code}{function_code}"
         return site_id
@@ -192,6 +230,7 @@ class Location(models.Model):
         existing_indices = [int(id[-5:], 16) for id in existing_ids]
         next_index = max(existing_indices) + 1 if existing_indices else 0
         return f"{next_index:05X}"  # Return as 5-character hexadecimal
+    
 
 
 
@@ -256,12 +295,12 @@ class ConnectionType(models.Model):
 
 class CircuitDetail(models.Model):
     circuit_number = models.CharField(max_length=50, unique=True, null=False)
-    provider = models.ForeignKey(ServiceProvider, on_delete=models.CASCADE)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    provider = models.ForeignKey(ServiceProvider, on_delete=models.SET_DEFAULT, default=get_default_service_provider)
+    location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=get_default_location)
     btn = models.CharField(max_length=20, blank=True)
     voice_channel_count = models.IntegerField(blank=True, null=True)
-    connection_type = models.ForeignKey(ConnectionType, on_delete=models.CASCADE)
-    switch_type = models.ForeignKey(SwitchType, on_delete=models.CASCADE, blank=True, null=True)
+    connection_type = models.ForeignKey(ConnectionType, on_delete=models.SET_DEFAULT, default=get_default_connection_type)
+    switch_type = models.ForeignKey(SwitchType, on_delete=models.SET_DEFAULT, default=get_default_switch_type, blank=True, null=True)
     contract_details = models.TextField(blank=True)
     ip_address = models.CharField(max_length=45, blank=True)
     supported_codecs = models.CharField(max_length=255, blank=True)
@@ -275,11 +314,11 @@ class CircuitDetail(models.Model):
 class PhoneNumberRange(models.Model):
     start_number = models.CharField(max_length=20)
     end_number = models.CharField(max_length=20, blank=True, null=True)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    service_provider = models.ForeignKey(ServiceProvider, on_delete=models.CASCADE)
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    usage_type = models.ForeignKey(UsageType, on_delete=models.CASCADE)
-    circuit = models.ForeignKey(CircuitDetail, on_delete=models.CASCADE, blank=True, null=True)
+    country = models.ForeignKey(Country, on_delete=models.SET_DEFAULT, default=get_default_country)
+    service_provider = models.ForeignKey(ServiceProvider, on_delete=models.SET_DEFAULT, default=get_default_service_provider)
+    location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=get_default_location)
+    usage_type = models.ForeignKey(UsageType, on_delete=models.SET_DEFAULT, default=get_default_usage_type)
+    circuit = models.ForeignKey(CircuitDetail, on_delete=models.SET_DEFAULT, default=get_default_circuit_type, blank=True, null=True)
     notes = models.TextField(blank=True)
 
     def __str__(self):
@@ -343,14 +382,14 @@ class PhoneNumberRange(models.Model):
 class PhoneNumber(models.Model):
     id = models.AutoField(primary_key=True)  # Automatically added by Django if not specified
     directory_number = models.CharField(max_length=20, unique=True)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, on_delete=models.SET_DEFAULT, default=get_default_country)
     subscriber_number = models.BigIntegerField()
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.SET_DEFAULT, default=get_default_location)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     assigned_to = models.CharField(max_length=255, blank=True)
-    usage_type = models.ForeignKey(UsageType, on_delete=models.CASCADE)
+    usage_type = models.ForeignKey(UsageType, on_delete=models.SET_DEFAULT, default=get_default_usage_type)
     last_used_at = models.DateTimeField(blank=True, null=True)
     notes = models.TextField(blank=True)
     number_format = models.CharField(max_length=20, blank=True)
@@ -358,9 +397,9 @@ class PhoneNumber(models.Model):
     activation_date = models.DateField(blank=True, null=True)
     deactivation_date = models.DateField(blank=True, null=True)
     comments = models.TextField(blank=True)
-    service_provider = models.ForeignKey(ServiceProvider, on_delete=models.CASCADE, blank=True, null=True)
+    service_provider = models.ForeignKey(ServiceProvider, on_delete=models.SET_DEFAULT, default=get_default_service_provider, blank=True, null=True)
     phone_number_range = models.ForeignKey(PhoneNumberRange, on_delete=models.CASCADE, blank=True, null=True)
-    circuit = models.ForeignKey(CircuitDetail, on_delete=models.CASCADE, blank=True, null=True)
+    circuit = models.ForeignKey(CircuitDetail, on_delete=models.SET_DEFAULT, default=get_default_circuit_type, blank=True, null=True)
 
     class Meta:
         constraints = [

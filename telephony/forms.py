@@ -27,8 +27,10 @@ class LocationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(LocationForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
+            self.fields['site_id'].widget.attrs['readonly'] = True
             formatted_address = f'{self.instance.house_number} {self.instance.road}, {self.instance.city}, {self.instance.state_abbreviation} {self.instance.postcode}, {self.instance.country.iso2_code}'
             # self.fields['address'].initial = formatted_address
+            self.fields.pop('name', None)
 
     def clean(self):
         cleaned_data = super().clean()
@@ -120,7 +122,7 @@ class LocationForm(forms.ModelForm):
     class Meta:
         model = Location
         fields = [
-            'name',
+            'site_id',
             'display_name',
             'house_number',
             'road',
@@ -139,12 +141,11 @@ class LocationForm(forms.ModelForm):
             'contact_phone',
             'location_function',
             'site_dial_code',
-            'site_id',
             'notes',
         ]
 
         widgets = {
-            'name': forms.TextInput(attrs={'placeholder': 'Site Referred to as'}),
+            'site_id': forms.TextInput(attrs={'placeholder': 'Site ID', 'readonly': 'readonly'}),
             'display_name': forms.TextInput(attrs={'placeholder': 'Site Reference Name'}),
             'house_number': forms.TextInput(attrs={'placeholder': '123'}),
             'road': forms.TextInput(attrs={'placeholder': 'Main, 1st, etc...'}),
@@ -278,3 +279,16 @@ class ServiceProviderRepForm(forms.ModelForm):
             'account_rep_email': forms.TextInput(attrs={'placeholder': 'name@example.com'}),
             'notes': forms.Textarea(attrs={'placeholder': 'Notes'}),
         }
+
+
+
+
+
+
+
+
+class UsageTypeForm(forms.ModelForm):
+    class Meta:
+        model = UsageType
+        fields = ['usage_type', 'usage_for']
+

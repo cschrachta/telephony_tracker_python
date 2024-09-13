@@ -11,9 +11,9 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, PhoneNumberRange, Country, LocationFunction, ServiceProviderRep
+from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, PhoneNumberRange, Country, LocationFunction, ServiceProviderRep, UsageType
 from telephony.templatetags import custom_filters
-from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, PhoneNumberRangeForm, CountryForm, ServiceProviderForm, LocationFunctionForm, ServiceProviderRepForm
+from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, PhoneNumberRangeForm, CountryForm, ServiceProviderForm, LocationFunctionForm, ServiceProviderRepForm, UsageTypeForm
 from .utils import validate_address
 
 logger = logging.getLogger(__name__)
@@ -409,9 +409,9 @@ class ServiceProviderRepDeleteView(BaseDeleteView):
 class LocationListView(BaseListView):
     model = Location
     form_class = LocationForm
-    table_headers = ['Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Verified']
-    table_fields = ['name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'verified_location']
-    form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'notes']
+    table_headers = ['Site ID', 'House Number', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified']
+    table_fields = ['site_id', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location']
+    form_fields = ['site_id', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -467,7 +467,7 @@ class LocationFunctionListView(BaseListView):
     template_name = 'telephony/location_function.html'
     table_headers = ['Name', 'Function Code', 'Description']
     table_fields = ['function_name', 'function_code', 'description']
-    form_fields = ['function_name', 'description'],
+    form_fields = ['function_name', 'description']
 
 class LocationFunctionCreateView(BaseCreateView):
     model = LocationFunction
@@ -727,3 +727,41 @@ class PhoneNumberRangeDetailView(BaseDetailView):
 
 class PhoneNumberRangeDeleteView(BaseDeleteView):
     model = PhoneNumberRange
+
+
+
+
+
+
+
+
+class UsageTypeListView(BaseListView):
+    model = UsageType
+    form_class = UsageTypeForm
+    template_name = 'telephony/usage_type.html'
+    table_headers = ['usage_type', 'usage_for']
+    table_fields = ['usage_type', 'usage_for']
+    form_fields = ['usage_type', 'usage_for']
+
+class UsageTypeCreateView(BaseCreateView):
+    model = UsageType
+    form_class = UsageTypeForm
+    template_name = 'telephony/usage_type.html'
+    success_url = reverse_lazy('telephony:usage_type')
+
+class UsageTypeUpdateView(BaseUpdateView):
+    model = UsageType
+    form_class = UsageTypeForm
+    template_name = 'telephony/usage_type.html'
+    table_headers = ['usage_type', 'usage_for']
+    table_fields = ['usage_type', 'usage_for']
+    form_fields = ['usage_type', 'usage_for']
+    success_url = reverse_lazy('telephony:usage_type')
+
+class UsageTypeDetailView(BaseDetailView):
+    model = UsageType
+
+class UsageTypeDeleteView(BaseDeleteView):
+    model = UsageType
+    success_url = reverse_lazy('telephony:usage_type')
+
