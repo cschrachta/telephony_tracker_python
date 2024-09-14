@@ -6,7 +6,8 @@ from .views import (
   LocationFunctionListView, LocationFunctionCreateView, LocationFunctionUpdateView, LocationFunctionDeleteView,
   PhoneNumberListView, PhoneNumberCreateView, PhoneNumberUpdateView, PhoneNumberDetailView, PhoneNumberDeleteView, PhoneNumberBulkUpdateView,
   PhoneNumberRangeListView, PhoneNumberRangeCreateView, PhoneNumberRangeUpdateView, PhoneNumberRangeDetailView, PhoneNumberRangeDeleteView,
-  UsageTypeListView, UsageTypeCreateView, UsageTypeUpdateView, UsageTypeDeleteView,
+  UsageTypeListView, UsageTypeCreateView, UsageTypeUpdateView, UsageTypeDetailView, UsageTypeDeleteView,
+  CircuitListView, CircuitCreateView, CircuitUpdateView, CircuitDetailView, CircuitDeleteView,
   country_list,
   generic_bulk_update, generic_bulk_delete
 )
@@ -48,9 +49,6 @@ urlpatterns = [
     path('service_provider_rep/<int:pk>/edit', ServiceProviderRepUpdateView.as_view(), name='service_provider_rep_edit'),
     path('service_provider_rep/<int:pk>/delete/', ServiceProviderRepDeleteView.as_view(), name='service_provider_rep_delete'),
    
-    # Circuit-related URL
-    # path('circuits/', views.circuits, name='circuits'),
-
     # Phone number-related URLs
     path('phone_number/', PhoneNumberListView.as_view(), name='phone_number'),
     path('phone_number/new/', PhoneNumberCreateView.as_view(), name='phone_number_new'),
@@ -72,7 +70,15 @@ urlpatterns = [
     path('usage_type/', UsageTypeListView.as_view(), name='usage_type'),
     path('usage_type/new/', UsageTypeCreateView.as_view(), name='usage_type_new'),
     path('usage_type/<int:pk>/edit/', UsageTypeUpdateView.as_view(), name='usage_type_edit'),
+    path('usage_type/<int:pk>/details/', UsageTypeDetailView.as_view(), name='usage_type_details'),
     path('usage_type/<int:pk>/delete/', UsageTypeDeleteView.as_view(), name='usage_type_delete'),
+
+    #Circuits URLs
+    path('circuit_detail/', CircuitListView.as_view(), name='circuit_detail'),
+    path('circuit_detail/new/', CircuitCreateView.as_view(), name='circuit_detail_new'),
+    path('circuit_detail/<int:pk>/edit/', CircuitUpdateView.as_view(), name='circuit_detail_edit'),
+    path('circuit_detail/<int:pk>/details/', CircuitDetailView.as_view(), name='circuit_detail_details'),
+    path('circuit_detail/<int:pk>/delete/', CircuitDeleteView.as_view(), name='circuit_detail_delete'),
 
 ]
 

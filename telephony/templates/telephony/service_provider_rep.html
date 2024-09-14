@@ -13,7 +13,9 @@ Service Providers
 <div class="container-fluid">
   <div class="row">
     <div class="col-md-3">
-      <label for="id_provider" class="form-label">*Provider:</label>
+      <label for="id_provider" class="form-label">*Provider:
+        {% info_icon "Select the service provider from the list this person represents." %}
+      </label>
       {{ form.provider|add_class:"form-control" }}
     </div>
     <div class="col-md-3">

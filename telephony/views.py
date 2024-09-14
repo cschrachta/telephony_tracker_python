@@ -31,22 +31,6 @@ def index(request):
     return render(request, 'telephony/index.html', context)
 
 
-# Circuit Views
-def circuits(request):
-    circuits = CircuitDetail.objects.all()
-    return render(request, 'telephony/circuits.html', {'circuits': circuits})
-
-def add_circuit_detail(request):
-    if request.method == 'POST':
-        form = CircuitDetailForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('success')
-    else:
-        form = CircuitDetailForm()
-    return render(request, 'add_circuit_detail.html', {'form': form})
-
-
 #Country Views
 def country_list(request):
     countries = Country.objects.all()
@@ -729,12 +713,6 @@ class PhoneNumberRangeDeleteView(BaseDeleteView):
     model = PhoneNumberRange
 
 
-
-
-
-
-
-
 class UsageTypeListView(BaseListView):
     model = UsageType
     form_class = UsageTypeForm
@@ -765,3 +743,33 @@ class UsageTypeDeleteView(BaseDeleteView):
     model = UsageType
     success_url = reverse_lazy('telephony:usage_type')
 
+
+class CircuitListView(BaseListView):
+    model = CircuitDetail
+    form_class = CircuitDetailForm
+    template_name = 'telephony/usage_type.html'
+    table_headers = ['usage_type', 'usage_for']
+    table_fields = ['usage_type', 'usage_for']
+    form_fields = ['usage_type', 'usage_for']
+
+class CircuitCreateView(BaseCreateView):
+    model = CircuitDetail
+    form_class = CircuitDetailForm
+    template_name = 'telephony/usage_type.html'
+    success_url = reverse_lazy('telephony:circuits')
+
+class CircuitUpdateView(BaseUpdateView):
+    model = CircuitDetail
+    form_class = CircuitDetailForm
+    template_name = 'telephony/usage_type.html'
+    table_headers = ['usage_type', 'usage_for']
+    table_fields = ['usage_type', 'usage_for']
+    form_fields = ['usage_type', 'usage_for']
+    success_url = reverse_lazy('telephony:circuits')
+
+class CircuitDetailView(BaseDetailView):
+    model = CircuitDetail
+
+class CircuitDeleteView(BaseDeleteView):
+    model = CircuitDetail
+    success_url = reverse_lazy('telephony:circuits')
