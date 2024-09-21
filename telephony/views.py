@@ -11,9 +11,9 @@ from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, PhoneNumberRange, Country, LocationFunction, ServiceProviderRep, UsageType
+from .models import Location, ServiceProvider, CircuitDetail, PhoneNumber, PhoneNumberRange, Country, LocationFunction, ServiceProviderRep, UsageType, SwitchType, ConnectionType
 from telephony.templatetags import custom_filters
-from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, PhoneNumberRangeForm, CountryForm, ServiceProviderForm, LocationFunctionForm, ServiceProviderRepForm, UsageTypeForm
+from .forms import CircuitDetailForm, LocationForm, SearchForm, PhoneNumberForm, PhoneNumberRangeForm, CountryForm, ServiceProviderForm, LocationFunctionForm, ServiceProviderRepForm, UsageTypeForm, SwitchTypeForm, ConnectionTypeForm
 from .utils import validate_address
 
 logger = logging.getLogger(__name__)
@@ -773,3 +773,63 @@ class CircuitDetailView(BaseDetailView):
 class CircuitDeleteView(BaseDeleteView):
     model = CircuitDetail
     success_url = reverse_lazy('telephony:circuits')
+
+class SwitchTypeListView(BaseListView):
+    model = SwitchType
+    form_class = SwitchTypeForm
+    template_name = 'telephony/switch_type.html'
+    table_headers = ['switch_type_name', 'description']
+    table_fields = ['switch_type_name', 'description']
+    form_fields = ['switch_type_name', 'description']
+
+class SwitchTypeCreateView(BaseCreateView):
+    model = SwitchType
+    form_class = SwitchTypeForm
+    template_name = 'telephony/switch_type.html'
+    success_url = reverse_lazy('telephony:switch_type')
+
+class SwitchTypeUpdateView(BaseUpdateView):
+    model = SwitchType
+    form_class = SwitchTypeForm
+    template_name = 'telephony/switch_type.html'
+    table_headers = ['switch_type_name', 'description']
+    table_fields = ['switch_type_name', 'description']
+    form_fields = ['switch_type_name', 'description']
+    success_url = reverse_lazy('telephony:switch_type')
+
+class SwitchTypeDetailView(BaseDetailView):
+    model = SwitchType
+
+class SwitchTypeDeleteView(BaseDeleteView):
+    model = SwitchType
+    success_url = reverse_lazy('telephony:switch_type')
+
+class ConnectionTypeListView(BaseListView):
+    model = ConnectionType
+    form_class = ConnectionTypeForm
+    template_name = 'telephony/connection_type.html'
+    table_headers = ['connection_type_name', 'description']
+    table_fields = ['connection_type_name', 'description']
+    form_fields = ['connection_type_name', 'description']
+
+class ConnectionTypeCreateView(BaseCreateView):
+    model = ConnectionType
+    form_class = ConnectionTypeForm
+    template_name = 'telephony/connection_type.html'
+    success_url = reverse_lazy('telephony:connection_type')
+
+class ConnectionTypeUpdateView(BaseUpdateView):
+    model = ConnectionType
+    form_class = ConnectionTypeForm
+    template_name = 'telephony/connection_type.html'
+    table_headers = ['connection_type_name', 'description']
+    table_fields = ['connection_type_name', 'description']
+    form_fields = ['connection_type_name', 'description']
+    success_url = reverse_lazy('telephony:connection_type')
+
+class ConnectionTypeDetailView(BaseDetailView):
+    model = ConnectionType
+
+class ConnectionTypeDeleteView(BaseDeleteView):
+    model = ConnectionType
+    success_url = reverse_lazy('telephony:connection_type')

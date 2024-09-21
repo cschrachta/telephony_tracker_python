@@ -3,6 +3,7 @@ from django.db import models
 from django import forms
 from django.utils import timezone
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.validators import RegexValidator
 from django.conf import settings
 from django.contrib.auth.models import User
 from .utils import validate_address
@@ -436,7 +437,16 @@ class HardwareDevice(models.Model):
     manufacturer = models.CharField(max_length=255, null=False)
     model = models.CharField(max_length=255, blank=True)
     serial_number = models.CharField(max_length=20, blank=True, unique=True)
-    mac_address = models.CharField(max_length=255, blank=True, unique=True)
+    mac_address = models.CharField(
+        max_length=17,
+        validators=[
+            RegexValidator(
+                regex=r'^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$',
+                message='Enter a valid MAC address.',
+            ),
+        ],
+        unique=True,
+    )
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     exists_in_phone_system = models.BooleanField(default=True)
     asset_tag = models.CharField(max_length=255, blank=True)
@@ -455,6 +465,7 @@ class HardwareDevice(models.Model):
 
 class HardwarePhone(HardwareDevice):
     phone_number = models.CharField(max_length=20, blank=True)
+    
 
     def __str__(self):
         return self.name

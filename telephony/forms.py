@@ -4,7 +4,7 @@ import django_filters
 from django import forms
 from django.conf import settings
 from .templatetags import custom_filters
-from .models import Location, CircuitDetail, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, ServiceProviderRep, UsageType, SwitchType
+from .models import Location, CircuitDetail, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, ServiceProviderRep, UsageType, SwitchType, ConnectionType
 
 class CircuitDetailForm(forms.ModelForm):
     class Meta:
@@ -280,15 +280,17 @@ class ServiceProviderRepForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'placeholder': 'Notes'}),
         }
 
-
-
-
-
-
-
-
 class UsageTypeForm(forms.ModelForm):
     class Meta:
         model = UsageType
         fields = ['usage_type', 'usage_for']
 
+class SwitchTypeForm(forms.ModelForm):
+    class Meta:
+        model = SwitchType
+        fields = ['switch_type_name', 'description']
+
+class ConnectionTypeForm(forms.ModelForm):
+    class Meta:
+        model = ConnectionType
+        fields = ['connection_type_name', 'description']

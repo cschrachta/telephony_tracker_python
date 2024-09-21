@@ -8,6 +8,8 @@ from .views import (
   PhoneNumberRangeListView, PhoneNumberRangeCreateView, PhoneNumberRangeUpdateView, PhoneNumberRangeDetailView, PhoneNumberRangeDeleteView,
   UsageTypeListView, UsageTypeCreateView, UsageTypeUpdateView, UsageTypeDetailView, UsageTypeDeleteView,
   CircuitListView, CircuitCreateView, CircuitUpdateView, CircuitDetailView, CircuitDeleteView,
+  SwitchTypeListView, SwitchTypeCreateView, SwitchTypeUpdateView, SwitchTypeDetailView, SwitchTypeDeleteView,
+  ConnectionTypeListView, ConnectionTypeCreateView, ConnectionTypeUpdateView, ConnectionTypeDetailView, ConnectionTypeDeleteView,
   country_list,
   generic_bulk_update, generic_bulk_delete
 )
@@ -79,6 +81,20 @@ urlpatterns = [
     path('circuit_detail/<int:pk>/edit/', CircuitUpdateView.as_view(), name='circuit_detail_edit'),
     path('circuit_detail/<int:pk>/details/', CircuitDetailView.as_view(), name='circuit_detail_details'),
     path('circuit_detail/<int:pk>/delete/', CircuitDeleteView.as_view(), name='circuit_detail_delete'),
+
+   #Switch Type URLs
+    path('switch_type/', SwitchTypeListView.as_view(), name='switch_type'),
+    path('switch_type/new/', SwitchTypeCreateView.as_view(), name='switch_type_new'),
+    path('switch_type/<int:pk>/edit/', SwitchTypeUpdateView.as_view(), name='switch_type_edit'),
+    path('switch_type/<int:pk>/details/', SwitchTypeDetailView.as_view(), name='switch_type_details'),
+    path('switch_type/<int:pk>/delete/', SwitchTypeDeleteView.as_view(), name='switch_type_delete'),
+
+   #Connection Type URLs
+    path('connection_type/', ConnectionTypeListView.as_view(), name='connection_type'),
+    path('connection_type/new/', ConnectionTypeCreateView.as_view(), name='connection_type_new'),
+    path('connection_type/<int:pk>/edit/', ConnectionTypeUpdateView.as_view(), name='connection_type_edit'),
+    path('connection_type/<int:pk>/details/', ConnectionTypeDetailView.as_view(), name='connection_type_details'),
+    path('connection_type/<int:pk>/delete/', ConnectionTypeDeleteView.as_view(), name='connection_type_delete'),
 
 ]
 
