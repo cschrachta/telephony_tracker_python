@@ -393,9 +393,9 @@ class ServiceProviderRepDeleteView(BaseDeleteView):
 class LocationListView(BaseListView):
     model = Location
     form_class = LocationForm
-    table_headers = ['Site ID', 'House Number', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Verified']
-    table_fields = ['site_id', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'verified_location']
-    form_fields = ['site_id', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'notes']
+    table_headers = ['Site ID', 'House Number', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Trunk Access Code', 'Verified']
+    table_fields = ['site_id', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'trunk_access_code', 'verified_location']
+    form_fields = ['site_id', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'trunk_access_code', 'notes']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -409,6 +409,9 @@ class LocationListView(BaseListView):
             'usage_type_edit_link': True,
         })
         return context
+    
+    def get_queryset(self):
+        return Location.objects.all().order_by('site_id')
 
 class LocationCreateView(BaseCreateView):
     model = Location
@@ -419,9 +422,9 @@ class LocationUpdateView(BaseUpdateView):
     model = Location
     form_class = LocationForm
     template_name = 'telephony/location.html'
-    table_headers = ['Name', 'Display Name', 'Address', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Verified']
-    table_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'verified_location']
-    form_fields = ['name', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'notes']
+    table_headers = ['Name', 'House Number', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Trunk Access Code', 'Verified']
+    table_fields = ['name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'trunk_access_code', 'verified_location']
+    form_fields = ['name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'trunk_access_code', 'notes']
     success_url = reverse_lazy('telephony:location')
 
     def get_context_data(self, **kwargs):
@@ -436,6 +439,9 @@ class LocationUpdateView(BaseUpdateView):
             'usage_type_edit_link': True,
         })
         return context
+    
+    def get_queryset(self):
+        return Location.objects.all().order_by('site_id')
 
 class LocationDetailView(BaseDetailView):
     model = Location

@@ -46,11 +46,13 @@ table {
   width: 100%;
 }
 
-/* table th, table td {
+th {
   padding: 10px;
-  text-align: left;
-  border: 1px solid #ddd;
-} */
+  text-align: center;
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 100px;
+}
 
 .location-th {
   letter-spacing: 2px;

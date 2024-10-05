@@ -15,7 +15,7 @@
       <input type="text" id="id_site_id" name="site_id" class="form-control" value="{{ form.instance.site_id }}" readonly>
     </div>
     <div class="col-md-3">
-      <label for="id_display_name" class="form-label">Display Name:
+      <label for="id_name" class="form-label">Name:
         {% info_icon "Name of the facility as system administrators are familiar with." %}
       </label>
       {{ form.display_name|add_class:"form-control" }}
@@ -94,6 +94,12 @@
               {% info_icon "If a unique code/prefix is required to be dialed internally when calling this facility instead of using a public number." %}
             </label>
             {{ form.site_dial_code|add_class:"form-control" }}
+          </div>
+          <div>
+            <label for="id_trunk_access_code" class="form-label">Trunk Access Code:
+              {% info_icon "If users are required to start all calls to the PSTN with a specific digit at this location, this is the digit used." %}
+            </label>
+            {{ form.trunk_access_code|add_class:"form-control" }}
           </div>
         </div>
         <div class="col-md-4">
