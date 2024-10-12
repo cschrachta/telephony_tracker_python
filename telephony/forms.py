@@ -3,23 +3,96 @@ import googlemaps
 import django_filters
 from django import forms
 from django.conf import settings
+from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
+import ipaddress
 from .templatetags import custom_filters
 from .models import Location, CircuitDetail, PhoneNumberRange, PhoneNumber, Country, ServiceProvider, LocationFunction, ServiceProviderRep, UsageType, SwitchType, ConnectionType
 
+
+# Validators for IPv4 and IPv6
+ipv4_validator = RegexValidator(
+    regex=r'^(\d{1,3}\.){3}\d{1,3}$',
+    message="Enter a valid IPv4 address in the format xxx.xxx.xxx.xxx"
+)
+
+ipv6_validator = RegexValidator(
+    regex=r'^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3,3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3,3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$',
+    message="Enter a valid IPv6 address"
+)
+
 class CircuitDetailForm(forms.ModelForm):
+    ipv4_address = forms.CharField(
+        max_length=15,
+        validators=[ipv4_validator],
+        widget=forms.TextInput(attrs={'placeholder': 'Enter IPv4 address'}),
+        required=False  # Optional, depending on your requirements
+    )
+    ipv6_address = forms.CharField(
+        max_length=39,
+        validators=[ipv6_validator],
+        widget=forms.TextInput(attrs={'placeholder': 'Enter IPv6 address'}),
+        required=False
+    )
+
     class Meta:
         model = CircuitDetail
         fields = [
             'circuit_number', 'provider', 'location', 'btn', 'voice_channel_count',
-            'connection_type', 'contract_details', 'ip_address', 'supported_codecs'
+            'connection_type', 'ipv4_address', 'ipv6_address', 'supported_codecs', 'switch_type', 'bandwidth',
+            'contract_details', 'notes',
         ]
+
         widgets = {
-            'connection_type': forms.Select(attrs={'id': 'connectionType'}),
+            'circuit_number': forms.TextInput(attrs={'placeholder': 'Circuit ID', 'readonly': 'readonly'}),
+            'provider': forms.Select(attrs={'placeholder': 'Circuit Provider'}),
+            'location': forms.Select(attrs={'placeholder': 'Location Installed'}),
+            'btn': forms.TextInput(attrs={'placeholder': 'Circuits Bill To Number'}),
+            'voice_channel_count': forms.NumberInput(attrs={'placeholder': '23'}),
+            'connection_type': forms.Select(attrs={'placeholder': 'Select from list'}),
+            'ipv4_address': forms.TextInput(
+                attrs={
+                    'placeholder': 'Enter IPv4 address',
+                    'pattern': r'(\d{1,3}\.){3}\d{1,3}',
+                    'title': 'Enter a valid IP address',
+                }
+            ),
+            'ipv6_address': forms.TextInput(
+                attrs={
+                    'placeholder': 'Enter IPv6 address',
+                    'pattern': r'([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}',
+                    'title': 'Enter a valid IP address',
+                }
+            ),
+            'supported_codecs': forms.TextInput(attrs={'placeholder': 'G711ulaw, G729r8,...'}),
+            'switch_type': forms.TextInput(attrs={'placeholder': 'SIP, NI-2, 5ESS, 4ESS,...'}),
+            'bandwidth': forms.TextInput(attrs={'placeholder': '100Mbit, 10Mbit, 2.544Mbit, etc...'}),
+            'contract_details': forms.Textarea(attrs={'placeholder': 'Contract Details'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'notes about this circuit'}),
         }
+
+    def clean_ipv4_address(self):
+        ipv4_address = self.cleaned_data.get('ipv4_address')
+        if ipv4_address:
+            try:
+                ipaddress.IPv4Address(ipv4_address)
+            except ValueError:
+                raise ValidationError("Enter a valid IPv4 address.")
+        return ipv4_address
+
+    def clean_ipv6_address(self):
+        ipv6_address = self.cleaned_data.get('ipv6_address')
+        if ipv6_address:
+            try:
+                ipaddress.IPv6Address(ipv6_address)
+            except ValueError:
+                raise ValidationError("Enter a valid IPv6 address.")
+        return ipv6_address
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['ip_address'].widget.attrs.update({'class': 'hidden'})
+        self.fields['ipv4_address'].widget.attrs.update({'class': 'hidden'})
+        self.fields['ipv6_address'].widget.attrs.update({'class': 'hidden'})
         self.fields['supported_codecs'].widget.attrs.update({'class': 'hidden'})
 
 
@@ -287,6 +360,15 @@ class UsageTypeForm(forms.ModelForm):
     class Meta:
         model = UsageType
         fields = ['usage_type', 'usage_for']
+    
+    widgets = {
+            'usage_type': forms.TextInput(attrs={'placeholder': ''}),
+            'usage_for': forms.Select(attrs={'placeholder': 'AT&T, Verizon, BT, NTT, etc...'}),
+            
+            'account_rep_phone': forms.TextInput(attrs={'placeholder': 'Mobile: +18005551212'}),
+            'account_rep_email': forms.TextInput(attrs={'placeholder': 'name@example.com'}),
+            'notes': forms.Textarea(attrs={'placeholder': 'Notes'}),
+        }
 
 class SwitchTypeForm(forms.ModelForm):
     class Meta:

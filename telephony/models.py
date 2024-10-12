@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from .utils import validate_address
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+import ipaddress
 
 
 gmaps = googlemaps.Client(key=settings.GOOGLE_API_KEY)
@@ -304,7 +305,8 @@ class CircuitDetail(models.Model):
     connection_type = models.ForeignKey(ConnectionType, on_delete=models.SET_DEFAULT, default=get_default_connection_type)
     switch_type = models.ForeignKey(SwitchType, on_delete=models.SET_DEFAULT, default=get_default_switch_type, blank=True, null=True)
     contract_details = models.TextField(blank=True)
-    ip_address = models.CharField(max_length=45, blank=True)
+    ipv4_address = models.GenericIPAddressField(protocol='IPv4', blank=True, null=True)
+    ipv6_address = models.GenericIPAddressField(protocol='IPv6', blank=True, null=True)
     supported_codecs = models.CharField(max_length=255, blank=True)
     bandwidth = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, help_text="Bandwidth in Mbps or Gbps")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -452,7 +454,8 @@ class HardwareDevice(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     exists_in_phone_system = models.BooleanField(default=True)
     asset_tag = models.CharField(max_length=255, blank=True)
-    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    ipv4_address = models.GenericIPAddressField(protocol='IPv4', blank=True, null=True)
+    ipv6_address = models.GenericIPAddressField(protocol='IPv6', blank=True, null=True)
     fqdn = models.CharField(max_length=255, null=False)
     firmware_version = models.CharField(max_length=100, blank=True)
     purchase_date = models.DateField(blank=True, null=True)

@@ -101,6 +101,12 @@
             </label>
             {{ form.trunk_access_code|add_class:"form-control" }}
           </div>
+          <div>
+            <label for="id_trunk_access_code" class="form-label">Phone Number Suffix Digits:
+              {% info_icon "The number of right justified digits from the users assigned phone number that are used in a users system extension." %}
+            </label>
+            {{ form.trunk_access_code|add_class:"form-control" }}
+          </div>
         </div>
         <div class="col-md-4">
           <div>
@@ -109,7 +115,7 @@
             <input type="text" id="id_timezone" name="timezone" class="form-control" value="{{ form.instance.timezone }}" readonly>
           </div>
           <div>
-            <label for="id_latitude" class="form-label">Site ID:
+            <label for="id_latitude" class="form-label">Latitude:
             </label>
             <input type="text" id="id_latitude" name="latitude" class="form-control" value="{{ form.instance.latitude }}" readonly>
           </div>
@@ -117,6 +123,15 @@
             <label for="id_longitude" class="form-label">Longitude:
             </label>
             <input type="text" id="id_longitude" name="longitude" class="form-control" value="{{ form.instance.longitude }}" readonly>
+          </div>
+          <div>
+            <label></label>
+            <p></p>
+            {% if form.instance.latitude and form.instance.longitude %}
+              <a href="https://www.google.com/maps?q={{ form.instance.latitude }},{{ form.instance.longitude }}" target="_blank" class="btn btn-primary">View on Google Maps</a>
+            {% elif form.instance.formatted_address %}
+              <a href="https://www.google.com/maps/search/?api=1&query={{ form.instance.formatted_address }}" target="_blank" class="btn btn-primary">View on Google Maps</a>
+            {% endif %}
           </div>
         </div>
       </div>

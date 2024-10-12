@@ -393,9 +393,9 @@ class ServiceProviderRepDeleteView(BaseDeleteView):
 class LocationListView(BaseListView):
     model = Location
     form_class = LocationForm
-    table_headers = ['Site ID', 'House Number', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Trunk Access Code', 'Verified']
-    table_fields = ['site_id', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'trunk_access_code', 'verified_location']
-    form_fields = ['site_id', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'trunk_access_code', 'notes']
+    table_headers = ['Name', 'Site ID', 'House Number', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Trunk Access Code', 'Verified']
+    table_fields = ['name', 'site_id', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'trunk_access_code', 'verified_location']
+    form_fields = ['name', 'site_id', 'display_name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'trunk_access_code', 'notes']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -422,9 +422,9 @@ class LocationUpdateView(BaseUpdateView):
     model = Location
     form_class = LocationForm
     template_name = 'telephony/location.html'
-    table_headers = ['Name', 'House Number', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Trunk Access Code', 'Verified']
-    table_fields = ['name', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'trunk_access_code', 'verified_location']
-    form_fields = ['name', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'trunk_access_code', 'notes']
+    table_headers = ['Name', 'Site ID', 'House Number', 'Street/Road', 'City', 'State', 'Country', 'Postcode', 'Site ID', 'Trunk Access Code', 'Verified']
+    table_fields = ['name', 'site_id', 'house_number', 'road', 'city', 'state', 'country', 'postcode', 'site_id', 'trunk_access_code', 'verified_location']
+    form_fields = ['name', 'site_id', 'house_number', 'road', 'city', 'state', 'postcode', 'country', 'site_id', 'trunk_access_code', 'notes']
     success_url = reverse_lazy('telephony:location')
 
     def get_context_data(self, **kwargs):
@@ -723,7 +723,7 @@ class UsageTypeListView(BaseListView):
     model = UsageType
     form_class = UsageTypeForm
     template_name = 'telephony/usage_type.html'
-    table_headers = ['usage_type', 'usage_for']
+    table_headers = ['Use', 'Used By']
     table_fields = ['usage_type', 'usage_for']
     form_fields = ['usage_type', 'usage_for']
 
@@ -737,7 +737,7 @@ class UsageTypeUpdateView(BaseUpdateView):
     model = UsageType
     form_class = UsageTypeForm
     template_name = 'telephony/usage_type.html'
-    table_headers = ['usage_type', 'usage_for']
+    table_headers = ['Use', 'Used By']
     table_fields = ['usage_type', 'usage_for']
     form_fields = ['usage_type', 'usage_for']
     success_url = reverse_lazy('telephony:usage_type')
@@ -754,9 +754,22 @@ class CircuitListView(BaseListView):
     model = CircuitDetail
     form_class = CircuitDetailForm
     template_name = 'telephony/usage_type.html'
-    table_headers = ['usage_type', 'usage_for']
-    table_fields = ['usage_type', 'usage_for']
-    form_fields = ['usage_type', 'usage_for']
+    table_headers = [
+            'circuit_number', 'provider', 'location', 'btn', 'voice_channel_count',
+            'connection_type', 'ipv4_address', 'ipv6_address', 'supported_codecs', 'switch_type', 'bandwidth',
+            'contract_details', 'notes',
+        ]
+    table_fields = [
+            'circuit_number', 'provider', 'location', 'btn', 'voice_channel_count',
+            'connection_type', 'ipv4_address', 'ipv6_address', 'supported_codecs', 'switch_type', 'bandwidth',
+            'contract_details', 'notes',
+        ]
+    form_fields = [
+            'circuit_number', 'provider', 'location', 'btn', 'voice_channel_count',
+            'connection_type', 'ipv4_address', 'ipv6_address', 'supported_codecs', 'switch_type', 'bandwidth',
+            'contract_details', 'notes',
+        ]
+
 
 class CircuitCreateView(BaseCreateView):
     model = CircuitDetail
@@ -768,9 +781,21 @@ class CircuitUpdateView(BaseUpdateView):
     model = CircuitDetail
     form_class = CircuitDetailForm
     template_name = 'telephony/usage_type.html'
-    table_headers = ['usage_type', 'usage_for']
-    table_fields = ['usage_type', 'usage_for']
-    form_fields = ['usage_type', 'usage_for']
+    table_headers = [
+            'circuit_number', 'provider', 'location', 'btn', 'voice_channel_count',
+            'connection_type', 'ipv4_address', 'ipv6_address', 'supported_codecs', 'switch_type', 'bandwidth',
+            'contract_details', 'notes',
+        ]
+    table_fields = [
+            'circuit_number', 'provider', 'location', 'btn', 'voice_channel_count',
+            'connection_type', 'ipv4_address', 'ipv6_address', 'supported_codecs', 'switch_type', 'bandwidth',
+            'contract_details', 'notes',
+        ]
+    form_fields = [
+            'circuit_number', 'provider', 'location', 'btn', 'voice_channel_count',
+            'connection_type', 'ipv4_address', 'ipv6_address', 'supported_codecs', 'switch_type', 'bandwidth',
+            'contract_details', 'notes',
+        ]
     success_url = reverse_lazy('telephony:circuits')
 
 class CircuitDetailView(BaseDetailView):
@@ -784,7 +809,7 @@ class SwitchTypeListView(BaseListView):
     model = SwitchType
     form_class = SwitchTypeForm
     template_name = 'telephony/switch_type.html'
-    table_headers = ['switch_type_name', 'description']
+    table_headers = ['Switch Type', 'Description']
     table_fields = ['switch_type_name', 'description']
     form_fields = ['switch_type_name', 'description']
 
@@ -798,7 +823,7 @@ class SwitchTypeUpdateView(BaseUpdateView):
     model = SwitchType
     form_class = SwitchTypeForm
     template_name = 'telephony/switch_type.html'
-    table_headers = ['switch_type_name', 'description']
+    table_headers = ['Switch Type', 'Description']
     table_fields = ['switch_type_name', 'description']
     form_fields = ['switch_type_name', 'description']
     success_url = reverse_lazy('telephony:switch_type')
@@ -814,7 +839,7 @@ class ConnectionTypeListView(BaseListView):
     model = ConnectionType
     form_class = ConnectionTypeForm
     template_name = 'telephony/connection_type.html'
-    table_headers = ['connection_type_name', 'description']
+    table_headers = ['Connection Type', 'Description']
     table_fields = ['connection_type_name', 'description']
     form_fields = ['connection_type_name', 'description']
 
@@ -828,7 +853,7 @@ class ConnectionTypeUpdateView(BaseUpdateView):
     model = ConnectionType
     form_class = ConnectionTypeForm
     template_name = 'telephony/connection_type.html'
-    table_headers = ['connection_type_name', 'description']
+    table_headers = ['Connection Type', 'Description']
     table_fields = ['connection_type_name', 'description']
     form_fields = ['connection_type_name', 'description']
     success_url = reverse_lazy('telephony:connection_type')

@@ -5,4 +5,83 @@
   <h1>Add Circuits</h1>
 {% endblock %}
 
-
+{% block form_content %}
+<div>
+  <div class="row">
+    <div class="col-md-4">
+      <div>
+        <label for="id_circuit_number" class="form-label">Circuit Number:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.circuit_number|add_class:"form-control" }}
+      </div>
+      <div>
+        <label for="id_provider" class="form-label">Provider:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.provider|add_class:"form-control" }}
+      </div>
+      <div>
+        <label for="id_location" class="form-label">Location Contact:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.location|add_class:"form-control" }}
+      </div>
+      <div>
+        <label for="id_btn" class="form-label">BTN:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.btn|add_class:"form-control" }}
+      </div>
+      <div>
+        <label for="id_supported_codecs" class="form-label">Supported Codecs:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.supported_codecs|add_class:"form-control" }}
+      </div>
+      <div>
+        <label for="id_bandwidth" class="form-label">Bandwidth:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.bandwidth|add_class:"form-control" }}
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div>
+        <label for="id_voice_channel_count" class="form-label">Voice Channel Count:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.voice_channel_count|add_class:"form-control" }}
+      </div>
+      <div>
+        <label for="id_connection_type" class="form-label">Connection Type:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.connection_type|add_class:"form-control" }}
+      </div>
+      <div>
+        <label for="id_ipv4_address" class="form-label">IPv4 Address:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.ipv4_address|add_class:"form-control" }}
+      </div>
+      <div>
+        <label for="id_ipv6_address" class="form-label">IPv6 Address:
+          {% info_icon "Point of contact when you need someone at the facility." %}
+        </label>
+        {{ form.ipv6_address|add_class:"form-control" }}
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div>
+        <label for="id_contract_details" class="form-label">Contract Details:</label>
+        {{ form.contract_details|add_class:"form-control" }}
+      </div>
+      <div>
+        <label for="id_notes" class="form-label">Notes:</label>
+        {{ form.notes|add_class:"form-control" }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

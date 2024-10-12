@@ -54,3 +54,11 @@ def info_icon(tooltip_text):
     </span>
     ''')
 
+@register.simple_tag
+def google_maps_link(latitude, longitude, address):
+    if latitude and longitude:
+        return f"https://www.google.com/maps?q={latitude},{longitude}"
+    elif address:
+        return f"https://www.google.com/maps/search/?api=1&query={address}"
+    return "#"
+
